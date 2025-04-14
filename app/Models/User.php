@@ -4,31 +4,25 @@ namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
 class User extends Authenticatable implements JWTSubject
 {
-    use HasFactory, Notifiable;
+    use Notifiable;
 
     protected $fillable = [
-        'first_name', 'last_name', 'email', 'phone', 'restaurant_name', 'password', 'role'
+        'name',
+        'email',
+        'password',
+        'role',
     ];
-
 
     protected $hidden = [
-        'password', 'remember_token',
+        'password',
+        'remember_token',
     ];
-    public function reservations()
-    {
-        return $this->hasMany(Reservation::class);
-    }
 
-    public function commandes()
-    {
-        return $this->hasMany(Commande::class);
-    }
-
+    // Méthodes requises par JWTSubject
     public function getJWTIdentifier()
     {
         return $this->getKey();
@@ -36,6 +30,9 @@ class User extends Authenticatable implements JWTSubject
 
     public function getJWTCustomClaims()
     {
-        return [];
+        return [
+            'role' => $this->role,
+            // Ajoutez d'autres informations si nécessaire
+        ];
     }
 }
