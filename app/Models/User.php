@@ -15,9 +15,19 @@ class User extends Authenticatable implements JWTSubject
         'first_name', 'last_name', 'email', 'phone', 'restaurant_name', 'password', 'role'
     ];
 
+
     protected $hidden = [
         'password', 'remember_token',
     ];
+    public function reservations()
+    {
+        return $this->hasMany(Reservation::class);
+    }
+
+    public function commandes()
+    {
+        return $this->hasMany(Commande::class);
+    }
 
     public function getJWTIdentifier()
     {

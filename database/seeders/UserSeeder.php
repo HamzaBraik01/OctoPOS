@@ -51,7 +51,7 @@ class UserSeeder extends Seeder
             'restaurant_name' => 'Restaurant Cuisinier',
             'email_verified_at' => now(),
             'password' => bcrypt('password'), // Password: "password"
-            'role' => 'Cuisiniers',
+            'role' => 'cuisinier',
         ]);
 
         User::create([
@@ -62,7 +62,7 @@ class UserSeeder extends Seeder
             'restaurant_name' => 'Restaurant Client',
             'email_verified_at' => now(),
             'password' => bcrypt('password'), // Password: "password"
-            'role' => 'Clients',
+            'role' => 'cuisinier',
         ]);
     }
 }

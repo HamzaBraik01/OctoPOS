@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('restaurant_name'); // Nom du restaurant sélectionné
             $table->timestamp('email_verified_at')->nullable(); // Date de vérification de l'email
             $table->string('password'); // Mot de passe
-            $table->string('role')->default('client'); // Rôle de l'utilisateur (par défaut "client")
+            $table->enum('role', ['client', 'serveur', 'cuisinier', 'gérant', 'propriétaire'])->default('client');
             $table->rememberToken(); // Token "Se souvenir de moi"
             $table->timestamps(); // Timestamps (created_at, updated_at)
         });
