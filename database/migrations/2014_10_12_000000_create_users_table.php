@@ -12,13 +12,17 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
-            $table->rememberToken();
-            $table->timestamps();
+            $table->id(); // Identifiant unique
+            $table->string('first_name'); // Prénom
+            $table->string('last_name'); // Nom
+            $table->string('email')->unique(); // Adresse email unique
+            $table->string('phone'); // Numéro de téléphone
+            $table->string('restaurant_name'); // Nom du restaurant sélectionné
+            $table->timestamp('email_verified_at')->nullable(); // Date de vérification de l'email
+            $table->string('password'); // Mot de passe
+            $table->string('role')->default('client'); // Rôle de l'utilisateur (par défaut "client")
+            $table->rememberToken(); // Token "Se souvenir de moi"
+            $table->timestamps(); // Timestamps (created_at, updated_at)
         });
     }
 

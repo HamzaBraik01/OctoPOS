@@ -1,0 +1,184 @@
+:root {
+    --primary-color: #0288D1;
+    --primary-dark: #026da8;
+    --secondary-color: #4CAF50;
+    --secondary-dark: #2E7D32;
+    --dark-bg: #1f2937;
+}
+
+body {
+    font-family: 'Poppins', 'Roboto', sans-serif;
+    scroll-behavior: smooth;
+    min-height: 100vh;
+    line-height: 1.5;
+    overflow-x: hidden;
+}
+
+.gradient-background {
+    background: linear-gradient(135deg, var(--primary-color) 0%, #26c6da 50%, var(--secondary-color) 100%);
+}
+
+.logo-container {
+    position: relative;
+    display: inline-block;
+}
+.logo-text {
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: transparent;
+    position: relative;
+}
+.logo-icon {
+    color: var(--primary-color);
+    transition: transform 0.3s ease, color 0.3s ease;
+}
+.logo-container:hover .logo-icon {
+    transform: rotate(20deg);
+    color: var(--secondary-color);
+}
+
+.fade-in-up {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 0.5s ease-out forwards;
+}
+
+.fade-in-up:nth-child(2) { animation-delay: 0.1s; }
+.fade-in-up:nth-child(3) { animation-delay: 0.2s; }
+.fade-in-up:nth-child(4) { animation-delay: 0.3s; }
+.fade-in-up:nth-child(5) { animation-delay: 0.4s; }
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.login-card {
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+@media (min-width: 768px) {
+    .login-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+    }
+}
+
+.input-focus-effect:focus {
+    box-shadow: 0 0 0 3px rgba(2, 136, 209, 0.2);
+}
+
+.particles {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow: hidden;
+    z-index: 1;
+}
+.particle {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    pointer-events: none;
+    z-index: -1;
+}
+
+.custom-checkbox {
+    position: relative;
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    margin-right: 8px;
+    background: transparent;
+    border: 2px solid #0288D1;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.custom-checkbox input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.custom-checkbox .checkmark {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    width: 10px;
+    height: 10px;
+    background: #0288D1;
+    border-radius: 2px;
+    transition: all 0.2s ease;
+}
+
+.custom-checkbox input:checked ~ .checkmark {
+    transform: translate(-50%, -50%) scale(1);
+}
+
+@keyframes shake {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-10px); }
+    50% { transform: translateX(10px); }
+    75% { transform: translateX(-10px); }
+    100% { transform: translateX(0); }
+}
+.shake {
+    animation: shake 0.5s ease-in-out;
+}
+
+@media (max-width: 768px) {
+    .particles {
+        opacity: 0.5;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    body {
+        background-color: #121212;
+    }
+}
+
+@media (max-width: 640px) {
+    input, button, a {
+        min-height: 44px;
+    }
+
+    .social-icon {
+        min-width: 44px;
+        min-height: 44px;
+    }
+}
+
+/* Style du bouton Retour - Toujours à gauche */
+.back-link {
+    display: flex;
+    align-items: center;
+    padding: 8px 16px;
+    border-radius: 9999px;
+    background-color: rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+    color: rgba(255, 255, 255, 0.8);
+    font-weight: 500;
+    position: fixed;
+    left: 1rem;
+    top: 1rem;
+    z-index: 50;
+    text-decoration: none;
+}
+
+.back-link:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: white;
+}
