@@ -3,63 +3,78 @@
 namespace App\Http\Controllers;
 
 use App\Models\Table;
+use App\Models\Reservation;
 use Illuminate\Http\Request;
 
 class TableController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
-    }
+        $tables = Table::all(); 
 
-    /**
-     * Show the form for creating a new resource.
-     */
+        $grouped = $tables->groupBy('type');
+        
+        $top3ParSection = $grouped->map(function ($tables) {
+            return $tables->take(3)->values(); // Garder seulement les 3 premières
+        });
+    
+        return view('index', [
+            'sections' => [
+                'tables' => $top3ParSection,
+            ]
+        ]);
+    }
+    
+
     public function create()
     {
-        //
+        // Généralement inutilisé avec les API
+        return response()->json(['message' => 'Not implemented'], 501);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'numero' => 'required|integer',
+            'capacite' => 'required|integer',
+            'disponible' => 'required|boolean',
+            'restaurant_id' => 'required|exists:restaurants,id',
+            'type' => 'required|string'
+        ]);
+
+        $table = Table::create($request->all());
+
+        return response()->json($table, 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(Table $table)
     {
-        //
+        return response()->json($table);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Table $table)
     {
-        //
+        return response()->json(['message' => 'Not implemented'], 501);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, Table $table)
     {
-        //
+        $request->validate([
+            'numero' => 'sometimes|integer',
+            'capacite' => 'sometimes|integer',
+            'disponible' => 'sometimes|boolean',
+            'restaurant_id' => 'sometimes|exists:restaurants,id',
+            'type' => 'sometimes|string'
+        ]);
+
+        $table->update($request->all());
+
+        return response()->json($table);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Table $table)
     {
-        //
+        $table->delete();
+        return response()->json(['message' => 'Table supprimée avec succès.']);
     }
 }

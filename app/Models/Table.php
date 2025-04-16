@@ -7,7 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class Table extends Model
 {
-    protected $fillable = ['numero', 'capacite', 'disponible', 'restaurant_id'];
+    use HasFactory;
+
+    protected $fillable = ['numero', 'capacite', 'restaurant_id', 'type'];
 
     public function restaurant()
     {
@@ -18,5 +20,9 @@ class Table extends Model
     {
         return $this->hasMany(Reservation::class);
     }
-    use HasFactory;
+
+    public function isDisponible()
+    {
+        return !$this->reservations()->exists();
+    }
 }

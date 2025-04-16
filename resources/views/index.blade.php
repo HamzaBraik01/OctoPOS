@@ -234,8 +234,244 @@
         </div>
     </section>
 
-    <!-- Table Selection Section -->
+
+
+
+
+
+
+
+
     <section id="tables" class="py-20 bg-gradient-to-br from-blue-50 to-green-50 relative overflow-hidden">
+        <!-- Decorative elements -->
+        <div class="absolute top-20 left-10 w-72 h-72 rounded-full bg-gradient-to-r from-[#0288D1]/10 to-[#4CAF50]/10 opacity-50 blur-3xl"></div>
+        <div class="absolute bottom-20 right-10 w-80 h-80 rounded-full bg-gradient-to-r from-[#0288D1]/10 to-[#4CAF50]/10 opacity-50 blur-3xl"></div>
+    
+        <div class="container mx-auto px-4 relative z-10">
+            <h2 class="text-4xl font-bold text-center mb-4 fade-in bg-gradient-to-r from-[#0288D1] to-[#4CAF50] bg-clip-text text-transparent">Choisissez votre Table</h2>
+            <div class="w-24 h-1 bg-gradient-to-r from-[#0288D1] to-[#4CAF50] mx-auto mb-8"></div>
+            <p class="text-center text-gray-600 mb-12 max-w-2xl mx-auto fade-in">
+                Réservez l'emplacement idéal pour votre expérience culinaire grâce à notre système interactif de sélection de table.
+            </p>
+    
+            <div class="bg-white/80 backdrop-blur-sm rounded-xl shadow-xl p-8 max-w-5xl mx-auto fade-in">
+                <!-- Top controls -->
+                <div class="flex flex-wrap justify-between items-center mb-8">
+                    <div class="flex flex-wrap items-center gap-4 mb-4 sm:mb-0">
+                        <div class="relative">
+                            <label for="date-select" class="sr-only">Sélectionner une date</label>
+                            <select id="date-select" class="appearance-none pl-4 pr-10 py-2 bg-gray-50 text-gray-700 rounded-full border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#0288D1] transition">
+                                <option>Aujourd'hui</option>
+                                <option>Demain</option>
+                                <option>11 Avril 2025</option>
+                                <option>12 Avril 2025</option>
+                                <option selected>9 Avril 2025</option>
+                            </select>
+                            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                <i class="fas fa-chevron-down text-[#0288D1] text-xs"></i>
+                            </div>
+                        </div>
+    
+                        <div class="relative">
+                            <label for="time-select" class="sr-only">Sélectionner une heure</label>
+                            <select id="time-select" class="appearance-none pl-4 pr-10 py-2 bg-gray-50 text-gray-700 rounded-full border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#0288D1] transition">
+                                <option selected>19:00</option>
+                                <option>19:30</option>
+                                <option>20:00</option>
+                                <option>20:30</option>
+                                <option>21:00</option>
+                            </select>
+                            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                <i class="fas fa-chevron-down text-[#0288D1] text-xs"></i>
+                            </div>
+                        </div>
+    
+                        <div class="relative">
+                            <label for="persons-select" class="sr-only">Nombre de personnes</label>
+                            <select id="persons-select" class="appearance-none pl-4 pr-10 py-2 bg-gray-50 text-gray-700 rounded-full border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#0288D1] transition">
+                                <option selected>2 personnes</option>
+                                <option>4 personnes</option>
+                                <option>6 personnes</option>
+                                <option>8+ personnes</option>
+                            </select>
+                            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                <i class="fas fa-chevron-down text-[#0288D1] text-xs"></i>
+                            </div>
+                        </div>
+                    </div>
+    
+                    <div class="flex gap-4">
+                        <div class="flex items-center" aria-label="Table disponible">
+                            <div class="w-4 h-4 rounded-full bg-gradient-to-br from-[#4CAF50] to-[#2E7D32] mr-2 shadow-sm"></div>
+                            <span class="text-sm font-medium">Disponible</span>
+                        </div>
+                        <div class="flex items-center" aria-label="Table occupée">
+                            <div class="w-4 h-4 rounded-full bg-gradient-to-br from-[#F44336] to-[#C62828] mr-2 shadow-sm"></div>
+                            <span class="text-sm font-medium">Occupée</span>
+                        </div>
+                    </div>
+                </div>
+    
+                <!-- Tabs -->
+                <div class="flex border-b border-gray-200 mb-8" role="tablist">
+                    <button class="py-3 px-6 border-b-2 border-[#0288D1] text-[#0288D1] font-medium" role="tab" aria-selected="true">Vue plan</button>
+                    <button class="py-3 px-6 text-gray-500 hover:text-[#0288D1] transition" role="tab" aria-selected="false">Vue liste</button>
+                    <button class="py-3 px-6 text-gray-500 hover:text-[#0288D1] transition" role="tab" aria-selected="false">Recommandations</button>
+                </div>
+    
+                <!-- Restaurant Map Layout -->
+                <div class="w-full bg-gray-50 rounded-xl p-6 relative mb-10" style="min-height: 520px;">
+                    <!-- Restaurant Sections -->
+                    <div class="flex flex-col gap-8">
+                        <!-- Main Dining Area -->
+                        <div class="bg-white/80 p-6 rounded-xl shadow-md">
+                            <h4 class="text-lg font-bold mb-4 text-gray-800 flex items-center">
+                                <span class="w-8 h-8 bg-gradient-to-r from-[#0288D1] to-[#026da8] rounded-lg text-white flex items-center justify-center mr-2">
+                                    <i class="fas fa-utensils text-xs" aria-hidden="true"></i>
+                                </span>
+                                Salle Principale
+                            </h4>
+    
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                <!-- Example table for Salle Principale - repeat this pattern as needed -->
+                                @foreach ($sections['tables'] as $table)
+                                    <button class="table-item table-available  rounded-xl overflow-hidden transition-all duration-300 transform hover:scale-105 hover:shadow-lg cursor-pointer text-left" data-table="{{ $table->numero }}">
+                                        <div class="h-full p-4 flex flex-col justify-between">
+                                            <div class="flex justify-between items-start">
+                                                <span class="bg-white/20 backdrop-blur-sm text-white text-xs py-1 px-2 rounded-full">{{ $table->capacity }} pers.</span>
+                                                <div class="w-6 h-6 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                                                    <i class="fas fa-chair text-white text-xs" aria-hidden="true"></i>
+                                                </div>
+                                            </div>
+                                            <div class="flex items-end justify-between">
+                                                <div>
+                                                    <div class="text-white/80 text-xs">Salle Principale</div>
+                                                    <div class="text-white font-bold text-lg">{{ $table->numero }}</div>
+                                                </div>
+                                                <div class="bg-white/20 backdrop-blur-sm h-8 w-8 rounded-full flex items-center justify-center">
+                                                    <i class="fas {{ $table->isDisponible() ? 'fa-check' : 'fa-lock' }} text-white" aria-hidden="true"></i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </button>
+                                @endforeach
+                            </div>
+                        </div>
+                        
+                        <!-- VIP Section -->
+                        <div class="bg-white/80 p-6 rounded-xl shadow-md">
+                            <h4 class="text-lg font-bold mb-4 text-gray-800 flex items-center">
+                                <span class="w-8 h-8 bg-gradient-to-r from-[#FFC107] to-[#FF9800] rounded-lg text-white flex items-center justify-center mr-2">
+                                    <i class="fas fa-crown text-xs" aria-hidden="true"></i>
+                                </span>
+                                Espace VIP
+                            </h4>
+                    
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                @foreach ($sections['tables'] as $table)
+                                    <button class="table-item table-available rounded-xl overflow-hidden transition-all duration-300 transform hover:scale-105 hover:shadow-lg cursor-pointer text-left" data-table="{{ $table->id }}" style="background: linear-gradient(135deg, #FFC107 0%, #FF9800 100%);">
+                                        <div class="h-full p-4 flex flex-col justify-between">
+                                            <div class="flex justify-between items-start">
+                                                <span class="bg-white/20 backdrop-blur-sm text-white text-xs py-1 px-2 rounded-full">{{ $table->capacity }} pers.</span>
+                                                <div class="w-6 h-6 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                                                    <i class="fas fa-star text-white text-xs" aria-hidden="true"></i>
+                                                </div>
+                                            </div>
+                                            <div class="flex items-end justify-between">
+                                                <div>
+                                                    <div class="text-white/80 text-xs">VIP</div>
+                                                    <div class="text-white font-bold text-lg">{{ $table->numero }}</div>
+                                                </div>
+                                                <div class="bg-white/20 backdrop-blur-sm h-8 w-8 rounded-full flex items-center justify-center">
+                                                    <i class="fas {{ $table->isDisponible() ? 'fa-check' : 'fa-lock' }} text-white" aria-hidden="true"></i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </button>
+                                @endforeach
+                            </div>
+                        </div>
+                    
+                        <!-- Terrace Section -->
+                        <div class="bg-white/80 p-6 rounded-xl shadow-md">
+                            <h4 class="text-lg font-bold mb-4 text-gray-800 flex items-center">
+                                <span class="w-8 h-8 bg-gradient-to-r from-[#0288D1] to-[#03A9F4] rounded-lg text-white flex items-center justify-center mr-2">
+                                    <i class="fas fa-umbrella-beach text-xs" aria-hidden="true"></i>
+                                </span>
+                                Terrasse
+                            </h4>
+                    
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                @foreach ($sections['tables'] as $table)
+                                    <button class="table-item table-available  rounded-xl overflow-hidden transition-all duration-300 transform hover:scale-105 hover:shadow-lg cursor-pointer text-left" data-table="{{ $table->id }}">
+                                        <div class="h-full p-4 flex flex-col justify-between">
+                                            <div class="flex justify-between items-start">
+                                                <span class="bg-white/20 backdrop-blur-sm text-white text-xs py-1 px-2 rounded-full">{{ $table->capacity }} pers.</span>
+                                                <div class="w-6 h-6 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                                                    <i class="fas fa-leaf text-white text-xs" aria-hidden="true"></i>
+                                                </div>
+                                            </div>
+                                            <div class="flex items-end justify-between">
+                                                <div>
+                                                    <div class="text-white/80 text-xs">Terrasse</div>
+                                                    <div class="text-white font-bold text-lg">{{ $table->numero }}</div>
+                                                </div>
+                                                <div class="bg-white/20 backdrop-blur-sm h-8 w-8 rounded-full flex items-center justify-center">
+                                                    <i class="fas fa-lock text-white" aria-hidden="true"></i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </button>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
+                </div>
+    
+                <!-- Bottom Actions -->
+                <div class="flex flex-wrap justify-center gap-4">
+                    <button class="px-6 py-3 bg-white text-gray-700 rounded-full shadow-md hover:shadow-lg transition flex items-center border border-gray-200">
+                        <i class="fas fa-list mr-2 text-[#0288D1]" aria-hidden="true"></i> Voir toutes les tables
+                    </button>
+                    <button class="px-6 py-3 bg-gradient-to-r from-[#0288D1] to-[#026da8] text-white rounded-full shadow-md hover:shadow-lg transition hover:from-[#026da8] hover:to-[#0288D1] flex items-center">
+                        <i class="fas fa-calendar-check mr-2" aria-hidden="true"></i> Réserver maintenant
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <!-- Table Selection Section -->
+    {{-- <section id="tables" class="py-20 bg-gradient-to-br from-blue-50 to-green-50 relative overflow-hidden">
         <!-- Decorative elements -->
         <div class="absolute top-20 left-10 w-72 h-72 rounded-full bg-gradient-to-r from-[#0288D1]/10 to-[#4CAF50]/10 opacity-50 blur-3xl"></div>
         <div class="absolute bottom-20 right-10 w-80 h-80 rounded-full bg-gradient-to-r from-[#0288D1]/10 to-[#4CAF50]/10 opacity-50 blur-3xl"></div>
@@ -312,288 +548,48 @@
                     <button class="py-3 px-6 text-gray-500 hover:text-[#0288D1] transition" role="tab" aria-selected="false">Recommandations</button>
                 </div>
 
-                <!-- Restaurant Map Layout - Fixed display issue -->
                 <div class="w-full bg-gray-50 rounded-xl p-6 relative mb-10" style="min-height: 520px;">
                     <!-- Restaurant Sections -->
                     <div class="flex flex-col gap-8">
-                        <!-- Main Dining Area -->
-                        <div class="bg-white/80 p-6 rounded-xl shadow-md">
-                            <h4 class="text-lg font-bold mb-4 text-gray-800 flex items-center">
-                                <span class="w-8 h-8 bg-gradient-to-r from-[#0288D1] to-[#026da8] rounded-lg text-white flex items-center justify-center mr-2">
-                                    <i class="fas fa-utensils text-xs" aria-hidden="true"></i>
-                                </span>
-                                Salle Principale
-                            </h4>
-
-                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                <!-- Tables - Main Area -->
-                                <button class="table-item table-available rounded-xl overflow-hidden transition-all duration-300 transform hover:scale-105 hover:shadow-lg cursor-pointer text-left" data-table="1">
-                                    <div class="h-full p-4 flex flex-col justify-between">
-                                        <div class="flex justify-between items-start">
-                                            <span class="bg-white/20 backdrop-blur-sm text-white text-xs py-1 px-2 rounded-full">4 pers.</span>
-                                            <div class="w-6 h-6 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                                                <i class="fas fa-chair text-white text-xs" aria-hidden="true"></i>
+                        @foreach($sections['tables'] as $type => $tables)
+                            <div class="bg-white/80 p-6 rounded-xl shadow-md">
+                                <h4 class="text-lg font-bold mb-4 text-gray-800 flex items-center">
+                                    <!-- Titre de la section selon le type -->
+                                    <span class="w-8 h-8 bg-gradient-to-r {{ $type === 'salle' ? 'from-[#0288D1] to-[#026da8]' : ($type === 'vip' ? 'from-[#FFC107] to-[#FF9800]' : 'from-[#0288D1] to-[#03A9F4]') }} rounded-lg text-white flex items-center justify-center mr-2">
+                                        <i class="fas {{ $type === 'salle' ? 'fa-utensils' : ($type === 'vip' ? 'fa-crown' : 'fa-umbrella-beach') }} text-xs" aria-hidden="true"></i>
+                                    </span>
+                                    {{ ucfirst($type) }}
+                                </h4>
+                
+                                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                    @foreach($tables as $table)
+                                        <button class="table-item {{ $table->isDisponible() ? 'table-available' : 'table-occupied' }} rounded-xl overflow-hidden transition-all duration-300 transform hover:scale-105 hover:shadow-lg cursor-pointer text-left" data-table="{{ $table->id }}">
+                                            <div class="h-full p-4 flex flex-col justify-between">
+                                                <div class="flex justify-between items-start">
+                                                    <span class="bg-white/20 backdrop-blur-sm text-white text-xs py-1 px-2 rounded-full">{{ $table->capacity }} pers.</span>
+                                                    <div class="w-6 h-6 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                                                        <i class="fas fa-chair text-white text-xs" aria-hidden="true"></i>
+                                                    </div>
+                                                </div>
+                                                <div class="flex items-end justify-between">
+                                                    <div>
+                                                        <div class="text-white/80 text-xs">Table</div>
+                                                        <div class="text-white font-bold text-lg">{{ str_pad($table->id, 2, '0', STR_PAD_LEFT) }}</div>
+                                                    </div>
+                                                    <div class="bg-white/20 backdrop-blur-sm h-8 w-8 rounded-full flex items-center justify-center">
+                                                        <i class="fas {{ $table->isDisponible() ? 'fa-check' : 'fa-lock' }} text-white" aria-hidden="true"></i>
+                                                    </div>
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div class="flex items-end justify-between">
-                                            <div>
-                                                <div class="text-white/80 text-xs">Table</div>
-                                                <div class="text-white font-bold text-lg">01</div>
-                                            </div>
-                                            <div class="bg-white/20 backdrop-blur-sm h-8 w-8 rounded-full flex items-center justify-center">
-                                                <i class="fas fa-check text-white" aria-hidden="true"></i>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </button>
-
-                                <button class="table-item table-available rounded-xl overflow-hidden transition-all duration-300 transform hover:scale-105 hover:shadow-lg cursor-pointer text-left" data-table="2">
-                                    <div class="h-full p-4 flex flex-col justify-between">
-                                        <div class="flex justify-between items-start">
-                                            <span class="bg-white/20 backdrop-blur-sm text-white text-xs py-1 px-2 rounded-full">4 pers.</span>
-                                            <div class="w-6 h-6 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                                                <i class="fas fa-chair text-white text-xs" aria-hidden="true"></i>
-                                            </div>
-                                        </div>
-                                        <div class="flex items-end justify-between">
-                                            <div>
-                                                <div class="text-white/80 text-xs">Table</div>
-                                                <div class="text-white font-bold text-lg">02</div>
-                                            </div>
-                                            <div class="bg-white/20 backdrop-blur-sm h-8 w-8 rounded-full flex items-center justify-center">
-                                                <i class="fas fa-check text-white" aria-hidden="true"></i>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </button>
-
-                                <div class="table-item table-occupied rounded-xl overflow-hidden transition-all duration-300 text-left" data-table="3" aria-label="Table 3 - Occupée" role="button" aria-disabled="true">
-                                    <div class="h-full p-4 flex flex-col justify-between">
-                                        <div class="flex justify-between items-start">
-                                            <span class="bg-white/20 backdrop-blur-sm text-white text-xs py-1 px-2 rounded-full">2 pers.</span>
-                                            <div class="w-6 h-6 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                                                <i class="fas fa-chair text-white text-xs" aria-hidden="true"></i>
-                                            </div>
-                                        </div>
-                                        <div class="flex items-end justify-between">
-                                            <div>
-                                                <div class="text-white/80 text-xs">Table</div>
-                                                <div class="text-white font-bold text-lg">03</div>
-                                            </div>
-                                            <div class="bg-white/20 backdrop-blur-sm h-8 w-8 rounded-full flex items-center justify-center">
-                                                <i class="fas fa-lock text-white" aria-hidden="true"></i>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <button class="table-item table-available rounded-xl overflow-hidden transition-all duration-300 transform hover:scale-105 hover:shadow-lg cursor-pointer text-left" data-table="4">
-                                    <div class="h-full p-4 flex flex-col justify-between">
-                                        <div class="flex justify-between items-start">
-                                            <span class="bg-white/20 backdrop-blur-sm text-white text-xs py-1 px-2 rounded-full">6 pers.</span>
-                                            <div class="w-6 h-6 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                                                <i class="fas fa-chair text-white text-xs" aria-hidden="true"></i>
-                                            </div>
-                                        </div>
-                                        <div class="flex items-end justify-between">
-                                            <div>
-                                                <div class="text-white/80 text-xs">Table</div>
-                                                <div class="text-white font-bold text-lg">04</div>
-                                            </div>
-                                            <div class="bg-white/20 backdrop-blur-sm h-8 w-8 rounded-full flex items-center justify-center">
-                                                <i class="fas fa-check text-white" aria-hidden="true"></i>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </button>
-
-                                <div class="table-item table-occupied rounded-xl overflow-hidden transition-all duration-300 text-left" data-table="5" aria-label="Table 5 - Occupée" role="button" aria-disabled="true">
-                                    <div class="h-full p-4 flex flex-col justify-between">
-                                        <div class="flex justify-between items-start">
-                                            <span class="bg-white/20 backdrop-blur-sm text-white text-xs py-1 px-2 rounded-full">6 pers.</span>
-                                            <div class="w-6 h-6 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                                                <i class="fas fa-chair text-white text-xs" aria-hidden="true"></i>
-                                            </div>
-                                        </div>
-                                        <div class="flex items-end justify-between">
-                                            <div>
-                                                <div class="text-white/80 text-xs">Table</div>
-                                                <div class="text-white font-bold text-lg">05</div>
-                                            </div>
-                                            <div class="bg-white/20 backdrop-blur-sm h-8 w-8 rounded-full flex items-center justify-center">
-                                                <i class="fas fa-lock text-white" aria-hidden="true"></i>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <button class="table-item table-available rounded-xl overflow-hidden transition-all duration-300 transform hover:scale-105 hover:shadow-lg cursor-pointer text-left" data-table="6">
-                                    <div class="h-full p-4 flex flex-col justify-between">
-                                        <div class="flex justify-between items-start">
-                                            <span class="bg-white/20 backdrop-blur-sm text-white text-xs py-1 px-2 rounded-full">4 pers.</span>
-                                            <div class="w-6 h-6 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                                                <i class="fas fa-chair text-white text-xs" aria-hidden="true"></i>
-                                            </div>
-                                        </div>
-                                        <div class="flex items-end justify-between">
-                                            <div>
-                                                <div class="text-white/80 text-xs">Table</div>
-                                                <div class="text-white font-bold text-lg">06</div>
-                                            </div>
-                                            <div class="bg-white/20 backdrop-blur-sm h-8 w-8 rounded-full flex items-center justify-center">
-                                                <i class="fas fa-check text-white" aria-hidden="true"></i>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- VIP Section -->
-                        <div class="bg-white/80 p-6 rounded-xl shadow-md">
-                            <h4 class="text-lg font-bold mb-4 text-gray-800 flex items-center">
-                                <span class="w-8 h-8 bg-gradient-to-r from-[#FFC107] to-[#FF9800] rounded-lg text-white flex items-center justify-center mr-2">
-                                    <i class="fas fa-crown text-xs" aria-hidden="true"></i>
-                                </span>
-                                Espace VIP
-                            </h4>
-
-                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                <button class="table-item table-available rounded-xl overflow-hidden transition-all duration-300 transform hover:scale-105 hover:shadow-lg cursor-pointer text-left" data-table="V1" style="background: linear-gradient(135deg, #FFC107 0%, #FF9800 100%);">
-                                    <div class="h-full p-4 flex flex-col justify-between">
-                                        <div class="flex justify-between items-start">
-                                            <span class="bg-white/20 backdrop-blur-sm text-white text-xs py-1 px-2 rounded-full">8 pers.</span>
-                                            <div class="w-6 h-6 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                                                <i class="fas fa-star text-white text-xs" aria-hidden="true"></i>
-                                            </div>
-                                        </div>
-                                        <div class="flex items-end justify-between">
-                                            <div>
-                                                <div class="text-white/80 text-xs">VIP</div>
-                                                <div class="text-white font-bold text-lg">01</div>
-                                            </div>
-                                            <div class="bg-white/20 backdrop-blur-sm h-8 w-8 rounded-full flex items-center justify-center">
-                                                <i class="fas fa-check text-white" aria-hidden="true"></i>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </button>
-
-                                <div class="table-item table-occupied rounded-xl overflow-hidden transition-all duration-300 text-left" data-table="V2" aria-label="Table VIP 2 - Occupée" role="button" aria-disabled="true">
-                                    <div class="h-full p-4 flex flex-col justify-between">
-                                        <div class="flex justify-between items-start">
-                                            <span class="bg-white/20 backdrop-blur-sm text-white text-xs py-1 px-2 rounded-full">6 pers.</span>
-                                            <div class="w-6 h-6 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                                                <i class="fas fa-star text-white text-xs" aria-hidden="true"></i>
-                                            </div>
-                                        </div>
-                                        <div class="flex items-end justify-between">
-                                            <div>
-                                                <div class="text-white/80 text-xs">VIP</div>
-                                                <div class="text-white font-bold text-lg">02</div>
-                                            </div>
-                                            <div class="bg-white/20 backdrop-blur-sm h-8 w-8 rounded-full flex items-center justify-center">
-                                                <i class="fas fa-lock text-white" aria-hidden="true"></i>
-                                            </div>
-                                        </div>
-                                    </div>
+                                        </button>
+                                    @endforeach
                                 </div>
                             </div>
-                        </div>
-
-                        <!-- Terrace Section -->
-                        <div class="bg-white/80 p-6 rounded-xl shadow-md">
-                            <h4 class="text-lg font-bold mb-4 text-gray-800 flex items-center">
-                                <span class="w-8 h-8 bg-gradient-to-r from-[#0288D1] to-[#03A9F4] rounded-lg text-white flex items-center justify-center mr-2">
-                                    <i class="fas fa-umbrella-beach text-xs" aria-hidden="true"></i>
-                                </span>
-                                Terrasse
-                            </h4>
-
-                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                <button class="table-item table-available rounded-xl overflow-hidden transition-all duration-300 transform hover:scale-105 hover:shadow-lg cursor-pointer text-left" data-table="T1">
-                                    <div class="h-full p-4 flex flex-col justify-between">
-                                        <div class="flex justify-between items-start">
-                                            <span class="bg-white/20 backdrop-blur-sm text-white text-xs py-1 px-2 rounded-full">4 pers.</span>
-                                            <div class="w-6 h-6 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                                                <i class="fas fa-leaf text-white text-xs" aria-hidden="true"></i>
-                                            </div>
-                                        </div>
-                                        <div class="flex items-end justify-between">
-                                            <div>
-                                                <div class="text-white/80 text-xs">Terrasse</div>
-                                                <div class="text-white font-bold text-lg">01</div>
-                                            </div>
-                                            <div class="bg-white/20 backdrop-blur-sm h-8 w-8 rounded-full flex items-center justify-center">
-                                                <i class="fas fa-check text-white" aria-hidden="true"></i>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </button>
-
-                                <button class="table-item table-available rounded-xl overflow-hidden transition-all duration-300 transform hover:scale-105 hover:shadow-lg cursor-pointer text-left" data-table="T2">
-                                    <div class="h-full p-4 flex flex-col justify-between">
-                                        <div class="flex justify-between items-start">
-                                            <span class="bg-white/20 backdrop-blur-sm text-white text-xs py-1 px-2 rounded-full">2 pers.</span>
-                                            <div class="w-6 h-6 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                                                <i class="fas fa-leaf text-white text-xs" aria-hidden="true"></i>
-                                            </div>
-                                        </div>
-                                        <div class="flex items-end justify-between">
-                                            <div>
-                                                <div class="text-white/80 text-xs">Terrasse</div>
-                                                <div class="text-white font-bold text-lg">02</div>
-                                            </div>
-                                            <div class="bg-white/20 backdrop-blur-sm h-8 w-8 rounded-full flex items-center justify-center">
-                                                <i class="fas fa-check text-white" aria-hidden="true"></i>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </button>
-
-                                <button class="table-item table-available rounded-xl overflow-hidden transition-all duration-300 transform hover:scale-105 hover:shadow-lg cursor-pointer text-left" data-table="T3">
-                                    <div class="h-full p-4 flex flex-col justify-between">
-                                        <div class="flex justify-between items-start">
-                                            <span class="bg-white/20 backdrop-blur-sm text-white text-xs py-1 px-2 rounded-full">6 pers.</span>
-                                            <div class="w-6 h-6 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                                                <i class="fas fa-leaf text-white text-xs" aria-hidden="true"></i>
-                                            </div>
-                                        </div>
-                                        <div class="flex items-end justify-between">
-                                            <div>
-                                                <div class="text-white/80 text-xs">Terrasse</div>
-                                                <div class="text-white font-bold text-lg">03</div>
-                                            </div>
-                                            <div class="bg-white/20 backdrop-blur-sm h-8 w-8 rounded-full flex items-center justify-center">
-                                                <i class="fas fa-check text-white" aria-hidden="true"></i>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </button>
-
-                                <div class="table-item table-occupied rounded-xl overflow-hidden transition-all duration-300 text-left" data-table="T4" aria-label="Table Terrasse 4 - Occupée" role="button" aria-disabled="true">
-                                    <div class="h-full p-4 flex flex-col justify-between">
-                                        <div class="flex justify-between items-start">
-                                            <span class="bg-white/20 backdrop-blur-sm text-white text-xs py-1 px-2 rounded-full">4 pers.</span>
-                                            <div class="w-6 h-6 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                                                <i class="fas fa-leaf text-white text-xs" aria-hidden="true"></i>
-                                            </div>
-                                        </div>
-                                        <div class="flex items-end justify-between">
-                                            <div>
-                                                <div class="text-white/80 text-xs">Terrasse</div>
-                                                <div class="text-white font-bold text-lg">04</div>
-                                            </div>
-                                            <div class="bg-white/20 backdrop-blur-sm h-8 w-8 rounded-full flex items-center justify-center">
-                                                <i class="fas fa-lock text-white" aria-hidden="true"></i>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        @endforeach
                     </div>
                 </div>
+                
+                
 
                 <!-- Bottom Actions -->
                 <div class="flex flex-wrap justify-center gap-4">
@@ -605,7 +601,7 @@
                     </button>
                 </div>
             </div>
-        </section>
+        </section> --}}
 
     <!-- Our Chefs Section -->
     <section id="chefs" class="py-20 bg-gray-50 relative">

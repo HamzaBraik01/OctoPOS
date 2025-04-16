@@ -2,9 +2,10 @@
 
 namespace Database\Seeders;
 
+use App\Models\Commande;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-
+use Illuminate\Support\Facades\DB;
 class CommandeSeeder extends Seeder
 {
     /**
@@ -12,6 +13,8 @@ class CommandeSeeder extends Seeder
      */
     public function run(): void
     {
-        //
+        Commande::create([
+            ['date' => now(), 'statut' => 'en attente', 'users_id' => 1, 'created_at' => now(), 'updated_at' => now()]
+        ]);
     }
 }

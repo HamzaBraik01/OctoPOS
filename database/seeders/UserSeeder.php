@@ -9,7 +9,6 @@ class UserSeeder extends Seeder
 {
     public function run()
     {
-        // Add specific users for testing
         User::create([
             'first_name' => 'Propriétaire',
             'last_name' => 'Test',
@@ -17,10 +16,10 @@ class UserSeeder extends Seeder
             'phone' => '+1234567890',
             'restaurant_name' => 'Restaurant Propriétaire',
             'email_verified_at' => now(),
-            'password' => bcrypt('password'), // Password: "password"
-            'role' => 'Propriétaires',
+            'password' => bcrypt('password'),
+            'role' => 'propriétaire', // corrigé
         ]);
-
+        
         User::create([
             'first_name' => 'Gérant',
             'last_name' => 'Test',
@@ -28,10 +27,10 @@ class UserSeeder extends Seeder
             'phone' => '+0987654321',
             'restaurant_name' => 'Restaurant Gérant',
             'email_verified_at' => now(),
-            'password' => bcrypt('password'), // Password: "password"
-            'role' => 'Gérants',
+            'password' => bcrypt('password'),
+            'role' => 'gérant', // corrigé
         ]);
-
+        
         User::create([
             'first_name' => 'Serveur',
             'last_name' => 'Test',
@@ -39,10 +38,10 @@ class UserSeeder extends Seeder
             'phone' => '+1122334455',
             'restaurant_name' => 'Restaurant Serveur',
             'email_verified_at' => now(),
-            'password' => bcrypt('password'), // Password: "password"
-            'role' => 'Serveurs',
+            'password' => bcrypt('password'),
+            'role' => 'serveur', // corrigé
         ]);
-
+        
         User::create([
             'first_name' => 'Cuisinier',
             'last_name' => 'Test',
@@ -50,10 +49,10 @@ class UserSeeder extends Seeder
             'phone' => '+2233445566',
             'restaurant_name' => 'Restaurant Cuisinier',
             'email_verified_at' => now(),
-            'password' => bcrypt('password'), // Password: "password"
+            'password' => bcrypt('password'),
             'role' => 'cuisinier',
         ]);
-
+        
         User::create([
             'first_name' => 'Client',
             'last_name' => 'Test',
@@ -61,8 +60,23 @@ class UserSeeder extends Seeder
             'phone' => '+3344556677',
             'restaurant_name' => 'Restaurant Client',
             'email_verified_at' => now(),
-            'password' => bcrypt('password'), // Password: "password"
-            'role' => 'cuisinier',
+            'password' => bcrypt('password'),
+            'role' => 'client', // corrigé
         ]);
+        
+        User::create([
+            'first_name' => 'Ali',
+            'last_name' => 'Hamaina',
+            'email' => 'ali@example.com',
+            'phone' => '0600000000',
+            'restaurant_name' => 'Le Gourmet',
+            'email_verified_at' => now(),
+            'password' => bcrypt('password'),
+            'role' => 'client',
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
+        
+       
     }
 }
