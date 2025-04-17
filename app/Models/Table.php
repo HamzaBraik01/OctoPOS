@@ -9,7 +9,7 @@ class Table extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['numero', 'capacite', 'restaurant_id', 'type'];
+    protected $fillable = ['numero', 'capacite', 'restaurant_id', 'typeTable'];
 
     public function restaurant()
     {
@@ -20,6 +20,7 @@ class Table extends Model
     {
         return $this->hasMany(Reservation::class);
     }
+    
 
     public function isDisponible()
     {

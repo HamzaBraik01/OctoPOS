@@ -383,3 +383,61 @@ function debounce(func, wait) {
         timeout = setTimeout(() => func.apply(context, args), wait);
     };
 }
+// Add this script at the end of your HTML or in a separate JS file
+document.addEventListener('DOMContentLoaded', function() {
+    const personsSelect = document.getElementById('persons-select');
+    const tableItems = document.querySelectorAll('.table-item');
+    
+    personsSelect.addEventListener('change', function() {
+        const selectedPersons = parseInt(this.value) || 0;
+        
+        // Loop through all tables and show/hide based on capacity
+        tableItems.forEach(table => {
+            const capacityText = table.querySelector('.bg-white\\/20').textContent;
+            const tableCapacity = parseInt(capacityText) || 0;
+            
+            // Show tables with capacity >= selected persons
+            if (tableCapacity >= selectedPersons) {
+                table.classList.remove('hidden');
+            } else {
+                table.classList.add('hidden');
+            }
+        });
+            
+        // Update the URL with the selected filter
+        const currentUrl = new URL(window.location);
+        currentUrl.searchParams.set('persons', this.value);
+        window.history.pushState({}, '', currentUrl);
+    });
+    
+    // Initialize filter from URL parameters if they exist
+    const urlParams = new URLSearchParams(window.location.search);
+    const personsParam = urlParams.get('persons');
+    if (personsParam) {
+        personsSelect.value = personsParam;
+        // Trigger the change event to apply the filter
+        personsSelect.dispatchEvent(new Event('change'));
+    }
+});
+document.addEventListener('DOMContentLoaded', function() {
+    const mainTablesAvailable = document.querySelector('.table-item[data-table] button[style*="background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%)"]');
+    const mainTablesUnavailable = document.querySelector('.table-item[data-table] div[style*="background: linear-gradient(135deg, #F44336 0%, #C62828 100%)"]');
+    if (!mainTablesAvailable && !mainTablesUnavailable) {
+        const msg1 = document.querySelector('.msg1');
+        if (msg1) msg1.classList.remove('hidden');
+    }
+
+    const vipTablesAvailable = document.querySelector('.table-item[data-table] button[style*="background: linear-gradient(135deg, #FFC107 0%, #FF9800 100%)"]');
+    const vipTablesUnavailable = document.querySelector('.table-item[data-table] div[style*="background: linear-gradient(135deg, #FFC107 0%, #FF9800 100%)"]');
+    if (!vipTablesAvailable && !vipTablesUnavailable) {
+        const msg2 = document.querySelector('.msg2');
+        if (msg2) msg2.classList.remove('hidden');
+    }
+
+    const terraceTablesAvailable = document.querySelector('.table-item[data-table] button:has(.text-white/80.text-xs:contains("Terrasse"))');
+    const terraceTablesUnavailable = document.querySelector('.table-item[data-table] div:has(.text-white/80.text-xs:contains("Terrasse"))');
+    if (!terraceTablesAvailable && !terraceTablesUnavailable) {
+        const msg3 = document.querySelector('.msg3');
+        if (msg3) msg3.classList.remove('hidden');
+    }
+});
