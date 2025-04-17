@@ -56,7 +56,7 @@
     <div class="dashboard">
         <div class="header">
             <h1>Bienvenue dans votre tableau de bord Client</h1>
-            <form action="/logout" method="POST">
+            <form action="{{ route('logout') }}" method="POST">
                 @csrf
                 <button type="submit" class="logout-btn">Déconnexion</button>
             </form>
