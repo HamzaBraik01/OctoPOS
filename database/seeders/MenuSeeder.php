@@ -13,7 +13,7 @@ class MenuSeeder extends Seeder
      */
     public function run(): void
     {
-        Menu::create([
+        Menu::insert([
             ['nom' => 'Menu Classique', 'created_at' => now(), 'updated_at' => now()],
             ['nom' => 'Menu Végétarien', 'created_at' => now(), 'updated_at' => now()],
         ]);

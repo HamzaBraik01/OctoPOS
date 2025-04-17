@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\TableController;
+use App\Http\Controllers\HomeController;
+
 
 use App\Http\Middleware\JWTAuthentication;
 
@@ -12,7 +14,7 @@ use App\Http\Middleware\JWTAuthentication;
 |--------------------------------------------------------------------------
 */
 
-Route::get('/', [TableController::class, 'index'])->name('home');
+Route::get('/', [HomeController::class, 'index'])->name('home');
 
 
 // Routes publiques
