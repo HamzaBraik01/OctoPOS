@@ -2,8 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Table extends Model
 {
@@ -22,8 +23,28 @@ class Table extends Model
     }
     
 
-    public function isDisponible()
+    public function isDisponible($date = null)
     {
-        return !$this->reservations()->exists();
+        if (!$date) {
+            $date = Carbon::today();
+        }
+        
+        $reservations = $this->reservations()
+            ->whereDate('date_reservation', $date->format('Y-m-d'))
+            ->get();
+        
+        if ($reservations->isEmpty()) {
+            return true;
+        }
+        
+        $totalReservedMinutes = 0;
+        foreach ($reservations as $reservation) {
+            $totalReservedMinutes += $reservation->duree;
+        }
+        
+        $operatingMinutes = 720;
+        
+        return $totalReservedMinutes < $operatingMinutes;
     }
+    
 }
