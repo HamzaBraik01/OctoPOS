@@ -31,26 +31,24 @@ class AuthController extends Controller
 
         $user = auth('api')->user();
 
-        // Stocker le token JWT dans un cookie sécurisé
         Cookie::queue('jwt_token', $token, 60 * 24, null, null, false, true); // 1 jour
 
-        // Stocker également en session pour l'accès facile
         session(['jwt_token' => $token]);
-
-        // Redirection basée sur le rôle
+        // dd($user->role); 
+        // // Redirection basée sur le rôle
         switch ($user->role) {
-            case 'Propriétaires':
+            case 'propriétaire':
                 return redirect('/proprietaires/dashboard');
-            case 'Gérants':
+            case 'gérant':
                 return redirect('/gerants/dashboard');
-            case 'Serveurs':
+            case 'serveur':
                 return redirect('/serveurs/dashboard');
-            case 'Cuisiniers':
+            case 'cuisinier':
                 return redirect('/cuisiniers/dashboard');
-            case 'Clients':
+            case 'client':
                 return redirect('/clients/dashboard');
             default:
-                return redirect('/home');
+                return redirect('/');
         }
     }
 

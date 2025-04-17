@@ -10,25 +10,29 @@ class HomeController extends Controller
 {
     public function index(Request $request)
     {
-        // Get restaurant name filter from request
         $restaurantFilter = $request->input('restaurant');
+        $personsFilter = $request->input('persons');
         
-        // Query base
         $tablesQuery = Table::query();
         
-        // Apply restaurant filter if provided
         if ($restaurantFilter) {
             $tablesQuery->where('restaurant_id', $restaurantFilter);
         }
         
-        // Get filtered tables
+        $allTablesForDropdown = $tablesQuery->get();
+        
+        if ($personsFilter) {
+            if ($personsFilter === '9+') {
+                $tablesQuery->where('capacite', '>=', 9);
+            } else {
+                $tablesQuery->where('capacite', '>=', (int)$personsFilter);
+            }
+        }
+        
         $allTables = $tablesQuery->get();
         
-        // Get only restaurants that have tables, for the filter dropdown
-        $restaurantIds = Table::distinct('restaurant_id')->pluck('restaurant_id');
+        $restaurantIds = $allTablesForDropdown->pluck('restaurant_id')->unique();
         $restaurantNames = Restaurant::whereIn('id', $restaurantIds)->pluck('nom', 'id');
-        
-       
         
         $tablesByType = [
             'SallePrincipale' => [
@@ -45,7 +49,6 @@ class HomeController extends Controller
             ]
         ];
         
-        // Organize tables by type and availability
         foreach ($allTables as $table) {
             $type = $table->typeTable;
             if (strtolower($type) === 'salleprincipale' || strtolower($type) === 'standard') {
@@ -65,6 +68,6 @@ class HomeController extends Controller
             }
         }
         
-        return view('index', compact('tablesByType', 'restaurantNames', 'restaurantFilter'));
+        return view('index', compact('tablesByType', 'restaurantNames', 'restaurantFilter', 'personsFilter'));
     }
 }
