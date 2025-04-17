@@ -23,7 +23,7 @@ Route::get('/login', function () {
 })->name('login');
 
 Route::post('/login', [AuthController::class, 'login']);
-Route::post('/logout', [AuthController::class, 'logout']);
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::middleware([JWTAuthentication::class])->group(function () {
     Route::get('/proprietaires/dashboard', function () {

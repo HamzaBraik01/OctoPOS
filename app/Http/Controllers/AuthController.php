@@ -34,8 +34,7 @@ class AuthController extends Controller
         Cookie::queue('jwt_token', $token, 60 * 24, null, null, false, true); // 1 jour
 
         session(['jwt_token' => $token]);
-        // dd($user->role); 
-        // // Redirection basée sur le rôle
+    
         switch ($user->role) {
             case 'propriétaire':
                 return redirect('/proprietaires/dashboard');
@@ -52,13 +51,32 @@ class AuthController extends Controller
         }
     }
 
-    // Méthode pour la déconnexion
-    public function logout()
+    public function logout(Request $request)
     {
-        auth('api')->logout();
+        // Logout from all guards
+        Auth::logout();
+        
+        // Invalidate the session
+        $request->session()->invalidate();
+        
+        // Regenerate CSRF token
+        $request->session()->regenerateToken();
+        
+        // Clear any JWT tokens if using JWT
+        if (auth('api')->check()) {
+            auth('api')->logout();
+        }
+        
+        // Clear cookies and session data
         session()->forget('jwt_token');
         Cookie::queue(Cookie::forget('jwt_token'));
-        return redirect('/');
+        
+        // Clear any other auth-related session data
+        session()->forget('user_id');
+        session()->forget('user_role');
+        
+        // Redirect with a flash message
+        return redirect('/')->with('message', 'Vous avez été déconnecté avec succès.');
     }
 
     // Méthode pour obtenir l'utilisateur actuel

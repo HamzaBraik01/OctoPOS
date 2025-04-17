@@ -2,6 +2,9 @@
 
 @section('content')
     <!-- Hero Section -->
+    @php
+    $today = date('Y-m-d');
+@endphp
     <header class="pt-24 pb-12 gradient-background text-white relative overflow-hidden">
         <!-- Abstract shapes for background -->
         <div class="absolute -top-20 -right-10 w-64 h-64 rounded-full bg-white/10"></div>
@@ -250,6 +253,18 @@
                     <div class="flex flex-wrap items-center gap-4 mb-4 sm:mb-0">
                         <form id="restaurant-filter-form" action="{{ route(name: 'home') }}#tables" method="GET" class="flex flex-wrap gap-4 items-center">
                             <!-- Restaurant select -->
+                            {{-- <div class="relative">
+                                <label for="date-select" class="sr-only">Sélectionner une date</label>
+                                <input 
+                                    type="date" 
+                                    id="date-select" 
+                                    name="date" 
+                                   
+                                    min="{{ $today }}" 
+                                    onchange="this.form.submit()" 
+                                    class="appearance-none pl-4 pr-10 py-2 bg-gray-50 text-gray-700 rounded-full border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#0288D1] transition"
+                                >
+                            </div> --}}
                             <div class="relative">
                                 <label for="restaurant-select" class="sr-only">Filtrer par restaurant</label>
                                 <select id="restaurant-select" name="restaurant" onchange="this.form.submit()" class="appearance-none pl-4 pr-10 py-2 bg-gray-50 text-gray-700 rounded-full border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#0288D1] transition">
@@ -263,6 +278,16 @@
                                 <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                                     <i class="fas fa-chevron-down text-[#0288D1] text-xs"></i>
                                 </div>
+                                <label for="date-select" class="sr-only">Sélectionner une date</label>
+                                <input 
+                                type="date" 
+                                id="date-select" 
+                                name="date" 
+                                value="{{ $dateFilter ?? $today }}"
+                                min="{{ $today }}" 
+                                onchange="this.form.submit()" 
+                                class="appearance-none pl-4 pr-10 py-2 bg-gray-50 text-gray-700 rounded-full border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#0288D1] transition"
+                            >
                             </div>
                             
                             <div class="relative">
@@ -284,29 +309,16 @@
                                 </div>
                             </div>
                             
-                            <div class="relative">
-                                <label for="date-select" class="sr-only">Sélectionner une date</label>
-                                <select id="date-select" class="appearance-none pl-4 pr-10 py-2 bg-gray-50 text-gray-700 rounded-full border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#0288D1] transition">
-                                    <option>Aujourd'hui</option>
-                                    <option>Demain</option>
-                                    <option>11 Avril 2025</option>
-                                    <option>12 Avril 2025</option>
-                                    <option selected>9 Avril 2025</option>
-                                </select>
-                                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                                    <i class="fas fa-chevron-down text-[#0288D1] text-xs"></i>
-                                </div>
-                            </div>
+                          
+                        
+                      
+                        
                             
-                            @if($restaurantFilter || $personsFilter)
-                                <a href="{{ route('home') }}#tables" class="text-[#0288D1] hover:underline transition">
-                                    <i class="fas fa-times-circle mr-1"></i> Réinitialiser
-                                </a>
-                            @endif
+                        
                         </form>
                     </div>
     
-                    <div class="flex gap-4">
+                    <div class="flex gap-4 ">
                         <div class="flex items-center" aria-label="Table disponible">
                             <div class="w-4 h-4 rounded-full bg-gradient-to-br from-[#4CAF50] to-[#2E7D32] mr-2 shadow-sm"></div>
                             <span class="text-sm font-medium">Disponible</span>
@@ -541,10 +553,10 @@
     
                 <!-- Bottom Actions -->
                 <div class="flex flex-wrap justify-center gap-4">
-                    <a href="" class="px-6 py-3 bg-white text-gray-700 rounded-full shadow-md hover:shadow-lg transition flex items-center border border-gray-200">
+                    <a href="{{ route('home') }}#tables" class="px-6 py-3 bg-white text-gray-700 rounded-full shadow-md hover:shadow-lg transition flex items-center border border-gray-200">
                         <i class="fas fa-list mr-2 text-[#0288D1]" aria-hidden="true"></i> Voir toutes les tables
                     </a>
-                    <a href="" class="px-6 py-3 bg-gradient-to-r from-[#0288D1] to-[#026da8] text-white rounded-full shadow-md hover:shadow-lg transition hover:from-[#026da8] hover:to-[#0288D1] flex items-center">
+                    <a href="{{ route('clients.dashboard') }}" class="px-6 py-3 bg-gradient-to-r from-[#0288D1] to-[#026da8] text-white rounded-full shadow-md hover:shadow-lg transition hover:from-[#026da8] hover:to-[#0288D1] flex items-center">
                         <i class="fas fa-calendar-check mr-2" aria-hidden="true"></i> Réserver maintenant
                     </a>
                 </div>
