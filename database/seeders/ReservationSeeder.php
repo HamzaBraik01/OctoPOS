@@ -27,7 +27,7 @@ class ReservationSeeder extends Seeder
             ],
             [
                 'date' => now()->addDays(3), 
-                'users_id' => 2, 
+                'users_id' => 3, 
                 'table_id' => 3, 
                 'created_at' => now(), 
                 'updated_at' => now()

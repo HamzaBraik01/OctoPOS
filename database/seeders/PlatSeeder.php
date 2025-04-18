@@ -11,7 +11,7 @@ class PlatSeeder extends Seeder
   
     public function run(): void
     {
-        Plat::create([
+        Plat::insert([
             [
                 'nom' => 'Poulet rôti',
                 'description' => 'Poulet rôti aux herbes',
@@ -29,5 +29,6 @@ class PlatSeeder extends Seeder
                 'updated_at' => now()
             ],
         ]);
+        
     }
 }

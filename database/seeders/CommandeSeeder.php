@@ -13,7 +13,7 @@ class CommandeSeeder extends Seeder
      */
     public function run(): void
     {
-        Commande::create([
+        Commande::insert([
             ['date' => now(), 'statut' => 'en attente', 'users_id' => 1, 'created_at' => now(), 'updated_at' => now()]
         ]);
     }

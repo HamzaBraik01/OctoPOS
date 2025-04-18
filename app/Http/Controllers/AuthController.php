@@ -53,33 +53,29 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
-        // Logout from all guards
+        $token = auth('api')->getToken();
+        
         Auth::logout();
         
-        // Invalidate the session
-        $request->session()->invalidate();
-        
-        // Regenerate CSRF token
-        $request->session()->regenerateToken();
-        
-        // Clear any JWT tokens if using JWT
-        if (auth('api')->check()) {
-            auth('api')->logout();
+        if ($token) {
+            try {
+                auth('api')->invalidate($token);
+            } catch (\Exception $e) {
+            }
         }
         
-        // Clear cookies and session data
-        session()->forget('jwt_token');
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        
+        session()->forget(['jwt_token', 'user_id', 'user_role']);
         Cookie::queue(Cookie::forget('jwt_token'));
         
-        // Clear any other auth-related session data
-        session()->forget('user_id');
-        session()->forget('user_role');
-        
-        // Redirect with a flash message
-        return redirect('/')->with('message', 'Vous avez été déconnecté avec succès.');
+        return redirect('/')->with('message', 'Vous avez été déconnecté avec succès.')
+            ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+            ->header('Pragma', 'no-cache')
+            ->header('Expires', '0');
     }
 
-    // Méthode pour obtenir l'utilisateur actuel
     public function me()
     {
         return response()->json(auth('api')->user());
