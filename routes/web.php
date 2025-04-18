@@ -2,11 +2,17 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\TableController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\TableController;
 
 
+use App\Http\Controllers\ClientController;
+use App\Http\Controllers\GerantController;
 use App\Http\Middleware\JWTAuthentication;
+use App\Http\Controllers\ServeurController;
+use App\Http\Controllers\CuisinierController;
+use App\Http\Controllers\ReservationController;
+use App\Http\Controllers\ProprietaireController;
 
 /*
 |--------------------------------------------------------------------------
@@ -25,24 +31,28 @@ Route::get('/login', function () {
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
+
 Route::middleware([JWTAuthentication::class])->group(function () {
-    Route::get('/proprietaires/dashboard', function () {
-        return view('proprietaires.dashboard');
-    })->middleware('role:propriétaire')->name('proprietaires.dashboard');
+    Route::get('/proprietaires/dashboard', [ProprietaireController::class, 'index'])
+        ->middleware('role:propriétaire')
+        ->name('proprietaires.dashboard');
+        Route::get('/available-time-slots', 'ReservationController@getAvailableTimeSlots')->middleware('role:propriétaire')
+        ->name('reservations.available-times');
+    Route::get('/gerants/dashboard', [GerantController::class, 'index'])
+        ->middleware('role:gérant')
+        ->name('gerants.dashboard');
 
-    Route::get('/gerants/dashboard', function () {
-        return view('gerants.dashboard');
-    })->middleware('role:gérant')->name('gerants.dashboard');
+    Route::get('/serveurs/dashboard', [ServeurController::class, 'index'])
+        ->middleware('role:serveur')
+        ->name('serveurs.dashboard');
 
-    Route::get('/serveurs/dashboard', function () {
-        return view('serveurs.dashboard');
-    })->middleware('role:serveur')->name('serveurs.dashboard');
+    Route::get('/cuisiniers/dashboard', [CuisinierController::class, 'index'])
+        ->middleware('role:cuisinier')
+        ->name('cuisiniers.dashboard');
 
-    Route::get('/cuisiniers/dashboard', function () {
-        return view('cuisiniers.dashboard');
-    })->middleware('role:cuisinier')->name('cuisiniers.dashboard');
-
-    Route::get('/clients/dashboard', function () {
-        return view('clients.dashboard');
-    })->middleware('role:client')->name('clients.dashboard');
+    Route::get('/clients/dashboard', [ClientController::class, 'index'])
+        ->middleware('role:client')
+        ->name('clients.dashboard');
+Route::post('/reservations', [ReservationController::class, 'store'])->name('reservations.store');
+Route::get('/clients/reservations-receipt/{id}', [ReservationController::class, 'receipt'])->name('clients.reservations-receipt');
 });

@@ -236,6 +236,8 @@
             </div>
         </div>
     </section>
+
+    
     <section id="tables" class="py-20 bg-gradient-to-br from-blue-50 to-green-50 relative overflow-hidden">
         <div class="absolute top-20 left-10 w-72 h-72 rounded-full bg-gradient-to-r from-[#0288D1]/10 to-[#4CAF50]/10 opacity-50 blur-3xl"></div>
         <div class="absolute bottom-20 right-10 w-80 h-80 rounded-full bg-gradient-to-r from-[#0288D1]/10 to-[#4CAF50]/10 opacity-50 blur-3xl"></div>
