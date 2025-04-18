@@ -430,3 +430,1117 @@ document.addEventListener('DOMContentLoaded', () => {
     init();
 
 });
+document.addEventListener('DOMContentLoaded', function() {
+    // Table selection functionality
+    const tableButtons = document.querySelectorAll('.table-select-btn:not([disabled])');
+    const selectedTableInput = document.getElementById('selected-table');
+    const selectedTableIdInput = document.getElementById('selected-table-id');
+    const guestCountSelect = document.getElementById('guest-count');
+    
+    // Filter form submission handling
+    const restaurantSelect = document.getElementById('dashboard-restaurant-select');
+    const dateSelect = document.getElementById('dashboard-date-select');
+    const personsSelect = document.getElementById('dashboard-persons-select');
+    
+    // Add event listeners to all filter controls
+    [restaurantSelect, dateSelect, personsSelect].forEach(element => {
+        if (element) {
+            element.addEventListener('change', function() {
+                // Create form and submit
+                const form = document.createElement('form');
+                form.method = 'GET';
+                form.action = window.location.pathname + '#tables-section';
+                
+                // Append restaurant filter if set
+                if (restaurantSelect.value) {
+                    const restaurantInput = document.createElement('input');
+                    restaurantInput.type = 'hidden';
+                    restaurantInput.name = 'restaurant';
+                    restaurantInput.value = restaurantSelect.value;
+                    form.appendChild(restaurantInput);
+                }
+                
+                // Append date filter
+                const dateInput = document.createElement('input');
+                dateInput.type = 'hidden';
+                dateInput.name = 'date';
+                dateInput.value = dateSelect.value;
+                form.appendChild(dateInput);
+                
+                // Append persons filter if set
+                if (personsSelect.value) {
+                    const personsInput = document.createElement('input');
+                    personsInput.type = 'hidden';
+                    personsInput.name = 'persons';
+                    personsInput.value = personsSelect.value;
+                    form.appendChild(personsInput);
+                }
+                
+                document.body.appendChild(form);
+                form.submit();
+            });
+        }
+    });
+    
+    // Table selection handling
+    tableButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            // Remove selected class from all buttons
+            tableButtons.forEach(btn => {
+                btn.classList.remove('ring-2', 'ring-[#0288D1]', 'ring-offset-2');
+                btn.querySelector('.relative > span:last-child').classList.remove('bg-[#0288D1]');
+                btn.querySelector('.relative > span:last-child').classList.add('bg-gradient-to-r', 'from-[#4CAF50]', 'to-[#2E7D32]');
+            });
+            
+            // Add selected class to clicked button
+            this.classList.add('ring-2', 'ring-[#0288D1]', 'ring-offset-2');
+            this.querySelector('.relative > span:last-child').classList.remove('bg-gradient-to-r', 'from-[#4CAF50]', 'to-[#2E7D32]');
+            this.querySelector('.relative > span:last-child').classList.add('bg-[#0288D1]');
+            
+            // Get table data
+            const tableId = this.dataset.tableId;
+            const tableName = this.dataset.tableName;
+            const tableCapacity = parseInt(this.dataset.tableCapacity);
+            const tableType = this.dataset.tableType;
+            
+            // Update form fields
+            selectedTableInput.value = tableName + (tableType ? ` (${tableType})` : '');
+            selectedTableIdInput.value = tableId;
+            
+            // Populate guest count dropdown based on table capacity
+            guestCountSelect.innerHTML = '';
+            for (let i = 1; i <= tableCapacity; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = i + (i === 1 ? ' personne' : ' personnes');
+                guestCountSelect.appendChild(option);
+            }
+            
+            // Set default value to max capacity
+            guestCountSelect.value = tableCapacity;
+        });
+    });
+    
+    // Sync the date between filter and form
+    const reservationDateInput = document.getElementById('reservation-date');
+    if (dateSelect && reservationDateInput) {
+        dateSelect.addEventListener('change', function() {
+            reservationDateInput.value = this.value;
+        });
+    }
+    
+    // Form validation
+    const reservationForm = document.getElementById('reservation-form');
+    if (reservationForm) {
+        reservationForm.addEventListener('submit', function(e) {
+            if (!selectedTableIdInput.value) {
+                e.preventDefault();
+                alert('Veuillez sélectionner une table avant de confirmer la réservation.');
+            }
+        });
+    }
+});
+document.addEventListener('DOMContentLoaded', function() {
+    // Get all table filter buttons
+    const filterButtons = document.querySelectorAll('.table-filter-btn');
+    
+    // Get all table buttons
+    const tableButtons = document.querySelectorAll('.table-select-btn');
+    
+    // Add click event to each filter button
+    filterButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            // Remove active class from all buttons
+            filterButtons.forEach(btn => {
+                btn.classList.remove('border-b-2', 'border-[#0288D1]', 'text-[#0288D1]');
+                btn.classList.add('text-gray-500');
+            });
+            
+            // Add active class to clicked button
+            this.classList.remove('text-gray-500');
+            this.classList.add('border-b-2', 'border-[#0288D1]', 'text-[#0288D1]');
+            
+            // Get the filter value
+            const filterValue = this.getAttribute('data-table-filter');
+            
+            // Filter tables
+            tableButtons.forEach(table => {
+                // Check if the table has a data-table-type attribute
+                if (table.hasAttribute('data-table-type')) {
+                    const tableType = table.getAttribute('data-table-type');
+                    
+                    if (filterValue === 'all' || tableType === filterValue) {
+                        table.style.display = '';
+                    } else {
+                        table.style.display = 'none';
+                    }
+                }
+            });
+            
+            // Scroll to tables section
+            document.getElementById('tables').scrollIntoView({ behavior: 'smooth' });
+        });
+    });
+    
+    // Make URL filtering work by checking for hash
+    if (window.location.hash === '#tables') {
+        document.getElementById('tables').scrollIntoView({ behavior: 'smooth' });
+    }
+    
+    // Add event listeners to filter form elements
+    document.getElementById('dashboard-restaurant-select').addEventListener('change', function() {
+        // Add #tables to the URL when submitting
+        document.getElementById('filter-form').action = document.getElementById('filter-form').action + '#tables';
+        document.getElementById('filter-form').submit();
+    });
+    
+    document.getElementById('dashboard-date-select').addEventListener('change', function() {
+        // Add #tables to the URL when submitting
+        document.getElementById('filter-form').action = document.getElementById('filter-form').action + '#tables';
+        document.getElementById('filter-form').submit();
+    });
+    
+    document.getElementById('dashboard-persons-select').addEventListener('change', function() {
+        // Add #tables to the URL when submitting
+        document.getElementById('filter-form').action = document.getElementById('filter-form').action + '#tables';
+        document.getElementById('filter-form').submit();
+    });
+    
+    const tableSelectButtons = document.querySelectorAll('.table-select-btn:not([disabled])');
+    const selectedTableInput = document.getElementById('selected-table');
+    const selectedTableIdInput = document.getElementById('selected-table-id');
+    const guestCountSelect = document.getElementById('guest-count');
+    
+    tableSelectButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            tableSelectButtons.forEach(btn => {
+                btn.classList.remove('ring-2', 'ring-[#0288D1]');
+            });
+            
+            this.classList.add('ring-2', 'ring-[#0288D1]');
+            
+            const tableId = this.getAttribute('data-table-id');
+            const tableName = this.getAttribute('data-table-name');
+            const tableCapacity = parseInt(this.getAttribute('data-table-capacity'));
+            
+            selectedTableIdInput.value = tableId;
+            selectedTableInput.value = tableName;
+            
+            guestCountSelect.innerHTML = '';
+            for (let i = 1; i <= tableCapacity; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = i + (i === 1 ? ' personne' : ' personnes');
+                guestCountSelect.appendChild(option);
+            }
+        });
+    });
+    
+    const reservationForm = document.getElementById('reservation-form');
+    reservationForm.addEventListener('submit', function(event) {
+        if (!selectedTableIdInput.value) {
+            event.preventDefault();
+            alert('Veuillez sélectionner une table avant de confirmer la réservation.');
+        }
+    });
+});
+// Ajouter après le code JavaScript existant
+document.addEventListener('DOMContentLoaded', function() {
+    // Références aux éléments du formulaire
+    const dateInput = document.getElementById('reservation-date');
+    const timeSelect = document.getElementById('reservation-time');
+    const durationSelect = document.getElementById('reservation-duration');
+    
+    // Fonction pour mettre à jour les options de durée
+    function updateDurationOptions() {
+        // Effacer les options actuelles
+        durationSelect.innerHTML = '';
+        
+        // Vérifier si une date et une heure sont sélectionnées
+        if (!dateInput.value || !timeSelect.value) {
+            const option = document.createElement('option');
+            option.value = '';
+            option.textContent = 'Sélectionnez date et heure d\'abord';
+            durationSelect.appendChild(option);
+            return;
+        }
+        
+        // Convertir la date en objet Date
+        const selectedDate = new Date(dateInput.value);
+        const dayOfWeek = selectedDate.getDay(); // 0 = dimanche, 6 = samedi
+        const isWeekend = (dayOfWeek === 0 || dayOfWeek === 6);
+        
+        // Déterminer s'il s'agit du déjeuner ou du dîner
+        const selectedTime = timeSelect.value;
+        const hour = parseInt(selectedTime.split(':')[0]);
+        const isLunch = (hour < 15); // Avant 15h = déjeuner
+        
+        // Déterminer les durées disponibles en fonction des règles
+        let durations = [];
+        
+        if (isLunch && !isWeekend) {
+            // Déjeuner en semaine: 1 heure
+            durations.push({ value: 60, label: '1 heure' });
+        } else if (!isLunch && !isWeekend) {
+            // Dîner en semaine: 2 heures
+            durations.push({ value: 120, label: '2 heures' });
+        } else if (!isLunch && isWeekend) {
+            // Dîner le weekend: 3 heures
+            durations.push({ value: 180, label: '3 heures' });
+        } else {
+            // Déjeuner le weekend: proposons 1h30
+            durations.push({ value: 90, label: '1 heure 30' });
+        }
+        
+        // Ajouter des options supplémentaires selon le contexte
+        if (isWeekend && !isLunch) {
+            // Option pour réduire à 2h le weekend
+            durations.push({ value: 120, label: '2 heures' });
+        }
+        
+        if (!isLunch) {
+            // Option pour une durée courte en soirée
+            durations.push({ value: 90, label: '1 heure 30' });
+        }
+        
+        // Ajouter les options au sélecteur
+        durations.forEach(duration => {
+            const option = document.createElement('option');
+            option.value = duration.value;
+            option.textContent = duration.label;
+            durationSelect.appendChild(option);
+        });
+        
+        // Sélectionner la première option
+        if (durations.length > 0) {
+            durationSelect.value = durations[0].value;
+        }
+    }
+    
+    // Écouter les changements de date ou d'heure
+    dateInput.addEventListener('change', updateDurationOptions);
+    timeSelect.addEventListener('change', updateDurationOptions);
+    
+    // Initialiser les options de durée
+    updateDurationOptions();
+});
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Éléments du formulaire
+    const tableButtons = document.querySelectorAll('.table-select-btn:not([disabled])');
+    const dateInput = document.getElementById('reservation-date');
+    const timeSelect = document.getElementById('reservation-time');
+    const durationSelect = document.getElementById('reservation-duration');
+    const guestCountSelect = document.getElementById('guest-count');
+    const selectedTableInput = document.getElementById('selected-table');
+    const selectedTableIdInput = document.getElementById('selected-table-id');
+    const reservationForm = document.getElementById('reservation-form');
+    const reservationSummary = document.getElementById('reservation-summary');
+    
+    // Éléments du récapitulatif
+    const summaryTable = document.getElementById('summary-table');
+    const summaryDate = document.getElementById('summary-date');
+    const summaryTime = document.getElementById('summary-time');
+    const summaryDuration = document.getElementById('summary-duration');
+    const summaryGuests = document.getElementById('summary-guests');
+    
+    // Constantes
+    const OPENING_HOUR = 10;
+    const CLOSING_HOUR = 22;
+    
+    // Fonction pour formater la date en français
+    function formatDateFr(dateString) {
+        const date = new Date(dateString);
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        return date.toLocaleDateString('fr-FR', options);
+    }
+    
+    // Fonction pour générer tous les créneaux horaires possibles
+    function generateAllTimeSlots() {
+        const slots = [];
+        for (let hour = OPENING_HOUR; hour < CLOSING_HOUR; hour++) {
+            slots.push(`${hour.toString().padStart(2, '0')}:00`);
+            slots.push(`${hour.toString().padStart(2, '0')}:30`);
+        }
+        return slots;
+    }
+    
+    // Fonction pour charger les créneaux horaires disponibles
+    function loadAvailableTimeSlots() {
+        // Réinitialiser le select avec un message d'attente
+        timeSelect.innerHTML = '<option value="">Chargement des horaires...</option>';
+        durationSelect.innerHTML = '<option value="">Sélectionnez une heure d\'abord</option>';
+        
+        const tableId = selectedTableIdInput.value;
+        const date = dateInput.value;
+        
+        // Si pas de table ou de date sélectionnée, afficher un message d'invite
+        if (!tableId || !date) {
+            timeSelect.innerHTML = '<option value="">Sélectionnez une table et une date d\'abord</option>';
+            return;
+        }
+        
+        // Dans un vrai projet, on ferait une requête AJAX à ce stade
+        // Pour cet exemple, on va simuler une réponse avec des données fictives
+        
+        // Simuler un délai de chargement pour un effet plus réaliste
+        setTimeout(() => {
+            const allSlots = generateAllTimeSlots();
+            
+            // Simuler des créneaux déjà réservés (pour l'exemple)
+            // Dans un vrai projet, ces données viendraient de la base de données
+            const bookedSlots = [
+                '12:00', '12:30', '13:00',  // Déjeuner
+                '19:00', '19:30', '20:00'   // Dîner
+            ];
+            
+            // Filtrer pour ne garder que les créneaux disponibles
+            const availableSlots = allSlots.filter(slot => !bookedSlots.includes(slot));
+            
+            // Mettre à jour le select des heures
+            timeSelect.innerHTML = '';
+            
+            if (availableSlots.length === 0) {
+                const option = document.createElement('option');
+                option.value = '';
+                option.textContent = 'Aucun créneau disponible ce jour';
+                timeSelect.appendChild(option);
+            } else {
+                const defaultOption = document.createElement('option');
+                defaultOption.value = '';
+                defaultOption.textContent = 'Sélectionnez une heure';
+                timeSelect.appendChild(defaultOption);
+                
+                availableSlots.forEach(slot => {
+                    const option = document.createElement('option');
+                    option.value = slot;
+                    option.textContent = slot;
+                    timeSelect.appendChild(option);
+                });
+            }
+            
+            // Mettre à jour le récapitulatif
+            updateReservationSummary();
+        }, 500);
+    }
+    
+    // Fonction pour mettre à jour les options de durée
+    function updateDurationOptions() {
+        // Effacer les options actuelles
+        durationSelect.innerHTML = '';
+        
+        // Vérifier si une heure est sélectionnée
+        if (!timeSelect.value) {
+            const option = document.createElement('option');
+            option.value = '';
+            option.textContent = 'Sélectionnez une heure d\'abord';
+            durationSelect.appendChild(option);
+            return;
+        }
+        
+        // Convertir la date en objet Date
+        const selectedDate = new Date(dateInput.value);
+        const dayOfWeek = selectedDate.getDay(); // 0 = dimanche, 6 = samedi
+        const isWeekend = (dayOfWeek === 0 || dayOfWeek === 6);
+        
+        // Déterminer s'il s'agit du déjeuner ou du dîner
+        const selectedTime = timeSelect.value;
+        const hour = parseInt(selectedTime.split(':')[0]);
+        const isLunch = (hour < 15); // Avant 15h = déjeuner
+        
+        // Simuler la vérification des créneaux disponibles
+        // Dans un vrai projet, on vérifierait les réservations suivantes dans la BD
+        const nextSlotsAvailable = Math.floor(Math.random() * 5) + 1; // Entre 1 et 5 créneaux
+        const maxMinutes = nextSlotsAvailable * 30;
+        
+        // Déterminer les durées disponibles en fonction des règles et disponibilités
+        let durations = [];
+        
+        if (isLunch && !isWeekend) {
+            // Déjeuner en semaine: 1 heure
+            if (maxMinutes >= 60) durations.push({ value: 60, label: '1 heure' });
+        } else if (!isLunch && !isWeekend) {
+            // Dîner en semaine: 2 heures
+            if (maxMinutes >= 120) durations.push({ value: 120, label: '2 heures' });
+            if (maxMinutes >= 90) durations.push({ value: 90, label: '1 heure 30' });
+        } else if (!isLunch && isWeekend) {
+            // Dîner le weekend: 3 heures
+            if (maxMinutes >= 180) durations.push({ value: 180, label: '3 heures' });
+            if (maxMinutes >= 120) durations.push({ value: 120, label: '2 heures' });
+        } else {
+            // Déjeuner le weekend: proposons 1h30
+            if (maxMinutes >= 90) durations.push({ value: 90, label: '1 heure 30' });
+        }
+        
+        // Toujours proposer 30 minutes si rien d'autre n'est disponible
+        if (durations.length === 0) {
+            durations.push({ value: 30, label: '30 minutes' });
+        }
+        
+        // Ajouter les options au sélecteur
+        durations.forEach(duration => {
+            const option = document.createElement('option');
+            option.value = duration.value;
+            option.textContent = duration.label;
+            durationSelect.appendChild(option);
+        });
+        
+        // Sélectionner la première option
+        if (durations.length > 0) {
+            durationSelect.value = durations[0].value;
+        }
+        
+        // Mettre à jour le récapitulatif
+        updateReservationSummary();
+    }
+    
+    // Fonction pour mettre à jour le récapitulatif de réservation
+    function updateReservationSummary() {
+        const tableSelected = selectedTableInput.value !== 'Aucune table sélectionnée';
+        const dateSelected = dateInput.value;
+        const timeSelected = timeSelect.value;
+        const durationSelected = durationSelect.value;
+        const guestsSelected = guestCountSelect.value;
+        
+        // Mettre à jour les valeurs dans le récapitulatif
+        summaryTable.textContent = tableSelected ? selectedTableInput.value : '-';
+        summaryDate.textContent = dateSelected ? formatDateFr(dateSelected) : '-';
+        summaryTime.textContent = timeSelected || '-';
+        
+        // Formatter la durée
+        if (durationSelected) {
+            const durationMinutes = parseInt(durationSelected);
+            if (durationMinutes >= 60) {
+                const hours = Math.floor(durationMinutes / 60);
+                const minutes = durationMinutes % 60;
+                summaryDuration.textContent = hours + ' heure' + (hours > 1 ? 's' : '') + (minutes ? ' ' + minutes + ' min' : '');
+            } else {
+                summaryDuration.textContent = durationMinutes + ' minutes';
+            }
+        } else {
+            summaryDuration.textContent = '-';
+        }
+        
+        summaryGuests.textContent = guestsSelected ? (guestsSelected + ' personne' + (guestsSelected > 1 ? 's' : '')) : '-';
+        
+        // Afficher le récapitulatif si tous les champs obligatoires sont remplis
+        if (tableSelected && dateSelected && timeSelected && durationSelected && guestsSelected) {
+            reservationSummary.classList.remove('hidden');
+        } else {
+            reservationSummary.classList.add('hidden');
+        }
+    }
+    
+    // Événements pour les boutons de table
+    tableButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            // Retirer la sélection précédente
+            tableButtons.forEach(btn => {
+                btn.classList.remove('ring-2', 'ring-[#0288D1]');
+            });
+            
+            // Sélectionner cette table
+            this.classList.add('ring-2', 'ring-[#0288D1]');
+            
+            // Mettre à jour les champs du formulaire
+            const tableId = this.getAttribute('data-table-id');
+            const tableName = this.getAttribute('data-table-name');
+            const tableCapacity = parseInt(this.getAttribute('data-table-capacity'));
+            
+            selectedTableIdInput.value = tableId;
+            selectedTableInput.value = tableName;
+            
+            // Mettre à jour les options de nombre d'invités
+            guestCountSelect.innerHTML = '';
+            for (let i = 1; i <= tableCapacity; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = i + (i === 1 ? ' personne' : ' personnes');
+                guestCountSelect.appendChild(option);
+            }
+            
+            // Charger les créneaux horaires disponibles
+            loadAvailableTimeSlots();
+        });
+    });
+    
+    // Événements pour les champs du formulaire
+    dateInput.addEventListener('change', loadAvailableTimeSlots);
+    timeSelect.addEventListener('change', updateDurationOptions);
+    
+    // Événements pour mettre à jour le récapitulatif
+    guestCountSelect.addEventListener('change', updateReservationSummary);
+    durationSelect.addEventListener('change', updateReservationSummary);
+    
+    // Validation du formulaire
+    reservationForm.addEventListener('submit', function(event) {
+        if (!selectedTableIdInput.value) {
+            event.preventDefault();
+            alert('Veuillez sélectionner une table avant de confirmer la réservation.');
+            return;
+        }
+        
+        if (!timeSelect.value) {
+            event.preventDefault();
+            alert('Veuillez sélectionner une heure de réservation.');
+            return;
+        }
+        
+        if (!durationSelect.value) {
+            event.preventDefault();
+            alert('Veuillez sélectionner une durée pour votre réservation.');
+            return;
+        }
+        
+        if (!guestCountSelect.value) {
+            event.preventDefault();
+            alert('Veuillez indiquer le nombre d\'invités.');
+            return;
+        }
+        
+        // Confirmation avant envoi (peut être retiré si non désirée)
+        if (!confirm('Confirmez-vous cette réservation ?')) {
+            event.preventDefault();
+        }
+    });
+    
+    if (!dateInput.value) {
+        dateInput.value = '2025-04-18'; // Date actuelle formatée
+    }
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Éléments du formulaire
+    const tableButtons = document.querySelectorAll('.table-select-btn:not([disabled])');
+    const dateInput = document.getElementById('reservation-date');
+    const timeSelect = document.getElementById('reservation-time');
+    const durationSelect = document.getElementById('reservation-duration');
+    const guestCountSelect = document.getElementById('guest-count');
+    const selectedTableInput = document.getElementById('selected-table');
+    const selectedTableIdInput = document.getElementById('selected-table-id');
+    const reservationForm = document.getElementById('reservation-form');
+    const reservationSummary = document.getElementById('reservation-summary');
+    const closingTimeWarning = document.getElementById('closing-time-warning');
+    
+    // Éléments du récapitulatif
+    const summaryTable = document.getElementById('summary-table');
+    const summaryDate = document.getElementById('summary-date');
+    const summaryTime = document.getElementById('summary-time');
+    const summaryDuration = document.getElementById('summary-duration');
+    const summaryEndTime = document.getElementById('summary-end-time');
+    const summaryGuests = document.getElementById('summary-guests');
+    
+    // Constantes
+    const OPENING_HOUR = 10;
+    const CLOSING_HOUR = 22;
+    
+    // Fonction pour formater la date en français
+    function formatDateFr(dateString) {
+        const date = new Date(dateString);
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        return date.toLocaleDateString('fr-FR', options);
+    }
+    
+    // Fonction pour générer tous les créneaux horaires possibles
+    function generateAllTimeSlots() {
+        const slots = [];
+        for (let hour = OPENING_HOUR; hour < CLOSING_HOUR; hour++) {
+            slots.push(`${hour.toString().padStart(2, '0')}:00`);
+            slots.push(`${hour.toString().padStart(2, '0')}:30`);
+        }
+        return slots;
+    }
+    
+    // Fonction pour calculer l'heure de fin d'une réservation
+    function calculateEndTime(startTime, durationMinutes) {
+        const [hours, minutes] = startTime.split(':').map(Number);
+        
+        // Calculer les minutes totales
+        let totalMinutes = hours * 60 + minutes + durationMinutes;
+        
+        // Convertir en heures et minutes
+        const endHour = Math.floor(totalMinutes / 60);
+        const endMinute = totalMinutes % 60;
+        
+        // Formater l'heure de fin
+        return `${endHour.toString().padStart(2, '0')}:${endMinute.toString().padStart(2, '0')}`;
+    }
+    
+    // Fonction pour vérifier si une heure dépasse l'heure de fermeture
+    function exceedsClosingTime(time) {
+        const [hours, minutes] = time.split(':').map(Number);
+        return (hours > CLOSING_HOUR) || (hours === CLOSING_HOUR && minutes > 0);
+    }
+    
+    // Fonction pour calculer les minutes restantes avant la fermeture
+    function minutesUntilClosing(startTime) {
+        const [hours, minutes] = startTime.split(':').map(Number);
+        const startMinutes = hours * 60 + minutes;
+        const closingMinutes = CLOSING_HOUR * 60;
+        
+        return closingMinutes - startMinutes;
+    }
+    
+    // Fonction pour charger les créneaux horaires disponibles
+    function loadAvailableTimeSlots() {
+        // Réinitialiser le select avec un message d'attente
+        timeSelect.innerHTML = '<option value="">Chargement des horaires...</option>';
+        durationSelect.innerHTML = '<option value="">Sélectionnez une heure d\'abord</option>';
+        
+        const tableId = selectedTableIdInput.value;
+        const date = dateInput.value;
+        
+        // Si pas de table ou de date sélectionnée, afficher un message d'invite
+        if (!tableId || !date) {
+            timeSelect.innerHTML = '<option value="">Sélectionnez une table et une date d\'abord</option>';
+            return;
+        }
+        
+        // Simuler un délai de chargement pour un effet plus réaliste
+        setTimeout(() => {
+            const allSlots = generateAllTimeSlots();
+            
+            // Simuler des créneaux déjà réservés (pour l'exemple)
+            // Dans un vrai projet, ces données viendraient de la base de données
+            const bookedSlots = [
+                '12:00', '12:30', '13:00',  // Déjeuner
+                '19:00', '19:30', '20:00'   // Dîner
+            ];
+            
+            // Filtrer pour ne garder que les créneaux disponibles
+            const availableSlots = allSlots.filter(slot => !bookedSlots.includes(slot));
+            
+            // Mettre à jour le select des heures
+            timeSelect.innerHTML = '';
+            
+            if (availableSlots.length === 0) {
+                const option = document.createElement('option');
+                option.value = '';
+                option.textContent = 'Aucun créneau disponible ce jour';
+                timeSelect.appendChild(option);
+            } else {
+                const defaultOption = document.createElement('option');
+                defaultOption.value = '';
+                defaultOption.textContent = 'Sélectionnez une heure';
+                timeSelect.appendChild(defaultOption);
+                
+                availableSlots.forEach(slot => {
+                    const option = document.createElement('option');
+                    option.value = slot;
+                    option.textContent = slot;
+                    timeSelect.appendChild(option);
+                });
+            }
+            
+            // Mettre à jour le récapitulatif
+            updateReservationSummary();
+        }, 300);
+    }
+    
+    // Fonction pour mettre à jour les options de durée
+    function updateDurationOptions() {
+        // Effacer les options actuelles
+        durationSelect.innerHTML = '';
+        closingTimeWarning.classList.add('hidden');
+        
+        // Vérifier si une heure est sélectionnée
+        if (!timeSelect.value) {
+            const option = document.createElement('option');
+            option.value = '';
+            option.textContent = 'Sélectionnez une heure d\'abord';
+            durationSelect.appendChild(option);
+            return;
+        }
+        
+        // Calculer le temps restant jusqu'à la fermeture
+        const selectedTime = timeSelect.value;
+        const remainingMinutes = minutesUntilClosing(selectedTime);
+        
+        // Vérifier si le temps est proche de la fermeture
+        const limitedByClosingTime = remainingMinutes < 180; // Moins de 3 heures
+        
+        // Convertir la date en objet Date
+        const selectedDate = new Date(dateInput.value);
+        const dayOfWeek = selectedDate.getDay(); // 0 = dimanche, 6 = samedi
+        const isWeekend = (dayOfWeek === 0 || dayOfWeek === 6);
+        
+        // Déterminer s'il s'agit du déjeuner ou du dîner
+        const hour = parseInt(selectedTime.split(':')[0]);
+        const isLunch = (hour < 15); // Avant 15h = déjeuner
+        
+        // Déterminer les durées disponibles en fonction des règles et disponibilités
+        let durations = [];
+        
+        if (limitedByClosingTime) {
+            // Afficher l'avertissement
+            closingTimeWarning.classList.remove('hidden');
+            
+            // Proposer des durées adaptées au temps restant
+            if (remainingMinutes >= 30) durations.push({ value: 30, label: '30 minutes' });
+            if (remainingMinutes >= 60) durations.push({ value: 60, label: '1 heure' });
+            if (remainingMinutes >= 90) durations.push({ value: 90, label: '1 heure 30' });
+            if (remainingMinutes >= 120) durations.push({ value: 120, label: '2 heures' });
+            // N'offrez pas plus que le temps restant
+        } else {
+            // Durées standards selon les règles
+            if (isLunch && !isWeekend) {
+                // Déjeuner en semaine: 1 heure
+                durations.push({ value: 60, label: '1 heure' });
+            } else if (!isLunch && !isWeekend) {
+                // Dîner en semaine: 2 heures
+                durations.push({ value: 120, label: '2 heures' });
+                durations.push({ value: 90, label: '1 heure 30' });
+            } else if (!isLunch && isWeekend) {
+                // Dîner le weekend: 3 heures
+                durations.push({ value: 180, label: '3 heures' });
+                durations.push({ value: 120, label: '2 heures' });
+            } else {
+                // Déjeuner le weekend: proposons 1h30
+                durations.push({ value: 90, label: '1 heure 30' });
+            }
+        }
+        
+        // Toujours proposer 30 minutes si rien d'autre n'est disponible
+        if (durations.length === 0) {
+            durations.push({ value: 30, label: '30 minutes' });
+        }
+        
+        // Ajouter les options au sélecteur
+        durations.forEach(duration => {
+            const option = document.createElement('option');
+            option.value = duration.value;
+            option.textContent = duration.label;
+            durationSelect.appendChild(option);
+        });
+        
+        // Sélectionner la première option
+        if (durations.length > 0) {
+            durationSelect.value = durations[0].value;
+        }
+        
+        // Mettre à jour le récapitulatif
+        updateReservationSummary();
+    }
+    
+    // Fonction pour mettre à jour le récapitulatif de réservation
+    function updateReservationSummary() {
+        const tableSelected = selectedTableInput.value !== 'Aucune table sélectionnée';
+        const dateSelected = dateInput.value;
+        const timeSelected = timeSelect.value;
+        const durationSelected = durationSelect.value;
+        const guestsSelected = guestCountSelect.value;
+        
+        // Mettre à jour les valeurs dans le récapitulatif
+        summaryTable.textContent = tableSelected ? selectedTableInput.value : '-';
+        summaryDate.textContent = dateSelected ? formatDateFr(dateSelected) : '-';
+        summaryTime.textContent = timeSelected || '-';
+        
+        // Formatter la durée
+        if (durationSelected) {
+            const durationMinutes = parseInt(durationSelected);
+            if (durationMinutes >= 60) {
+                const hours = Math.floor(durationMinutes / 60);
+                const minutes = durationMinutes % 60;
+                summaryDuration.textContent = hours + ' heure' + (hours > 1 ? 's' : '') + (minutes ? ' ' + minutes + ' min' : '');
+            } else {
+                summaryDuration.textContent = durationMinutes + ' minutes';
+            }
+            
+            // Calculer et afficher l'heure de fin
+            if (timeSelected) {
+                const endTime = calculateEndTime(timeSelected, durationMinutes);
+                summaryEndTime.textContent = endTime;
+                
+                // Vérifier si l'heure de fin dépasse l'heure de fermeture
+                if (exceedsClosingTime(endTime)) {
+                    summaryEndTime.innerHTML = `<span class="text-amber-600">${endTime}</span> <i class="fas fa-exclamation-circle text-amber-600" title="Dépasse l'heure de fermeture"></i>`;
+                }
+            } else {
+                summaryEndTime.textContent = '-';
+            }
+        } else {
+            summaryDuration.textContent = '-';
+            summaryEndTime.textContent = '-';
+        }
+        
+        summaryGuests.textContent = guestsSelected ? (guestsSelected + ' personne' + (guestsSelected > 1 ? 's' : '')) : '-';
+        
+        // Afficher le récapitulatif si tous les champs obligatoires sont remplis
+        if (tableSelected && dateSelected && timeSelected && durationSelected && guestsSelected) {
+            reservationSummary.classList.remove('hidden');
+        } else {
+            reservationSummary.classList.add('hidden');
+        }
+    }
+    
+    // Événements pour les boutons de table
+    tableButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            // Retirer la sélection précédente
+            tableButtons.forEach(btn => {
+                btn.classList.remove('ring-2', 'ring-[#0288D1]');
+            });
+            
+            // Sélectionner cette table
+            this.classList.add('ring-2', 'ring-[#0288D1]');
+            
+            // Mettre à jour les champs du formulaire
+            const tableId = this.getAttribute('data-table-id');
+            const tableName = this.getAttribute('data-table-name');
+            const tableCapacity = parseInt(this.getAttribute('data-table-capacity'));
+            
+            selectedTableIdInput.value = tableId;
+            selectedTableInput.value = tableName;
+            
+            // Mettre à jour les options de nombre d'invités
+            guestCountSelect.innerHTML = '';
+            for (let i = 1; i <= tableCapacity; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = i + (i === 1 ? ' personne' : ' personnes');
+                guestCountSelect.appendChild(option);
+            }
+            
+            // Charger les créneaux horaires disponibles
+            loadAvailableTimeSlots();
+        });
+    });
+    
+    // Événements pour les champs du formulaire
+    dateInput.addEventListener('change', loadAvailableTimeSlots);
+    timeSelect.addEventListener('change', updateDurationOptions);
+    
+    // Événements pour mettre à jour le récapitulatif
+    guestCountSelect.addEventListener('change', updateReservationSummary);
+    durationSelect.addEventListener('change', updateReservationSummary);
+    
+    // Validation du formulaire
+    reservationForm.addEventListener('submit', function(event) {
+        if (!selectedTableIdInput.value) {
+            event.preventDefault();
+            alert('Veuillez sélectionner une table avant de confirmer la réservation.');
+            return;
+        }
+        
+        if (!timeSelect.value) {
+            event.preventDefault();
+            alert('Veuillez sélectionner une heure de réservation.');
+            return;
+        }
+        
+        if (!durationSelect.value) {
+            event.preventDefault();
+            alert('Veuillez sélectionner une durée pour votre réservation.');
+            return;
+        }
+        
+        if (!guestCountSelect.value) {
+            event.preventDefault();
+            alert('Veuillez indiquer le nombre d\'invités.');
+            return;
+        }
+        
+        // Vérifier si la réservation dépasse l'heure de fermeture
+        const endTime = calculateEndTime(timeSelect.value, parseInt(durationSelect.value));
+        if (exceedsClosingTime(endTime)) {
+            if (!confirm('Attention: votre réservation se termine après l\'heure de fermeture (22h). Les clients doivent quitter l\'établissement à 22h. Souhaitez-vous continuer ?')) {
+                event.preventDefault();
+                return;
+            }
+        }
+        
+        // Confirmation avant envoi (peut être retiré si non désirée)
+        if (!confirm('Confirmez-vous cette réservation ?')) {
+            event.preventDefault();
+        }
+    });
+    
+    // Initialiser avec la date du jour
+    if (!dateInput.value) {
+        dateInput.value = '2025-04-18'; // Date actuelle formatée
+    }
+});
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Get form elements
+    const form = document.getElementById('reservation-form');
+    const tableIdInput = document.getElementById('selected-table-id');
+    const tableNameInput = document.getElementById('selected-table');
+    const guestCountSelect = document.getElementById('guest-count');
+    const dateInput = document.getElementById('reservation-date');
+    const timeSelect = document.getElementById('reservation-time');
+    const durationSelect = document.getElementById('reservation-duration');
+    const specialRequests = document.getElementById('special-requests');
+    const summary = document.getElementById('reservation-summary');
+    const closingTimeWarning = document.getElementById('closing-time-warning');
+    
+    // Summary elements
+    const summaryTable = document.getElementById('summary-table');
+    const summaryDate = document.getElementById('summary-date');
+    const summaryTime = document.getElementById('summary-time');
+    const summaryDuration = document.getElementById('summary-duration');
+    const summaryEndTime = document.getElementById('summary-end-time');
+    const summaryGuests = document.getElementById('summary-guests');
+    
+    // Update summary when inputs change
+    function updateSummary() {
+        if (tableNameInput.value !== 'Aucune table sélectionnée' && 
+            dateInput.value && 
+            timeSelect.value && 
+            durationSelect.value && 
+            guestCountSelect.value) {
+            
+            // Format date for display
+            const formattedDate = new Date(dateInput.value).toLocaleDateString('fr-FR', {
+                day: '2-digit', 
+                month: '2-digit', 
+                year: 'numeric'
+            });
+            
+            // Calculate end time
+            const startTime = timeSelect.value;
+            const duration = parseInt(durationSelect.value);
+            const [hours, minutes] = startTime.split(':').map(Number);
+            
+            let endHours = hours + Math.floor((minutes + duration) / 60);
+            let endMinutes = (minutes + duration) % 60;
+            
+            const endTime = `${endHours.toString().padStart(2, '0')}:${endMinutes.toString().padStart(2, '0')}`;
+            
+            // Update summary fields
+            summaryTable.textContent = tableNameInput.value;
+            summaryDate.textContent = formattedDate;
+            summaryTime.textContent = startTime;
+            summaryDuration.textContent = `${duration} minutes`;
+            summaryEndTime.textContent = endTime;
+            summaryGuests.textContent = `${guestCountSelect.value} personne(s)`;
+            
+            // Show summary
+            summary.classList.remove('hidden');
+        }
+    }
+    
+    // Handle time selection
+    dateInput.addEventListener('change', function() {
+        // Update available times based on date
+        timeSelect.innerHTML = '<option value="">Choisissez une heure</option>';
+        
+        for (let hour = 10; hour < 22; hour++) {
+            for (let minute of ['00', '30']) {
+                const timeValue = `${hour.toString().padStart(2, '0')}:${minute}`;
+                const option = new Option(timeValue, timeValue);
+                timeSelect.add(option);
+            }
+        }
+        
+        timeSelect.disabled = false;
+    });
+    
+    // Handle duration selection
+    timeSelect.addEventListener('change', function() {
+        if (!timeSelect.value) return;
+        
+        durationSelect.innerHTML = '<option value="">Choisissez une durée</option>';
+        
+        // Get selected time
+        const [hours, minutes] = timeSelect.value.split(':').map(Number);
+        
+        // Calculate minutes until closing (22:00)
+        const minutesUntilClosing = (22 - hours) * 60 - minutes;
+        
+        // Add duration options
+        const durations = [30, 60, 90, 120, 150, 180];
+        
+        for (const duration of durations) {
+            if (duration <= minutesUntilClosing) {
+                const option = new Option(`${duration} minutes`, duration);
+                durationSelect.add(option);
+            }
+        }
+        
+        durationSelect.disabled = false;
+        
+        // Show warning if close to closing time
+        if (minutesUntilClosing < 180) {
+            closingTimeWarning.classList.remove('hidden');
+        } else {
+            closingTimeWarning.classList.add('hidden');
+        }
+        
+        updateSummary();
+    });
+    
+    // Update summary when any relevant input changes
+    [tableNameInput, guestCountSelect, dateInput, timeSelect, durationSelect].forEach(element => {
+        element.addEventListener('change', updateSummary);
+    });
+    
+    // Form submission handler
+    form.addEventListener('submit', function(event) {
+        // Prevent default browser submission
+        event.preventDefault();
+        
+        // Validate form
+        if (!tableIdInput.value || !guestCountSelect.value || !dateInput.value || !timeSelect.value || !durationSelect.value) {
+            alert('Veuillez remplir tous les champs obligatoires.');
+            return false;
+        }
+        
+        // Show confirmation dialog
+        if (confirm('Confirmez-vous cette réservation ?')) {
+            // Manually submit the form
+            const formData = new FormData(form);
+            
+            fetch('/reservations', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'Accept': 'text/html,application/xhtml+xml,application/xml',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                credentials: 'same-origin'
+            })
+            .then(response => {
+                if (response.redirected) {
+                    window.location.href = response.url;
+                } else {
+                    return response.text();
+                }
+            })
+            .then(html => {
+                if (html) {
+                    document.open();
+                    document.write(html);
+                    document.close();
+                }
+            })
+            .catch(error => {
+                console.error('Error submitting form:', error);
+                alert('Une erreur est survenue lors de la création de votre réservation. Veuillez réessayer.');
+            });
+        }
+    });
+});
+document.querySelectorAll('.table-select-btn').forEach(button => {
+    button.addEventListener('click', event => {
+        const tableId = button.getAttribute('data-table-id');
+        const tableName = button.getAttribute('data-table-name');
+        const tableCapacity = button.getAttribute('data-table-capacity');
+
+        // Update selected table input
+        document.getElementById('selected-table-id').value = tableId;
+        document.getElementById('selected-table').value = tableName;
+
+        // Populate guest count dropdown
+        const guestCountDropdown = document.getElementById('guest-count');
+        guestCountDropdown.innerHTML = '';
+        for (let i = 1; i <= tableCapacity; i++) {
+            const option = document.createElement('option');
+            option.value = i;
+            option.textContent = `${i} ${i === 1 ? 'personne' : 'personnes'}`;
+            guestCountDropdown.appendChild(option);
+        }
+    });
+});
