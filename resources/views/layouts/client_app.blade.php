@@ -42,7 +42,7 @@
 
             <!-- Main Content Scrollable Area -->
             <main class="main-content" id="main-content">
-                 @yield('content') {{-- Page specific content goes here --}}
+                 @yield('content')
             </main>
 
         </div> <!-- End Content Area -->

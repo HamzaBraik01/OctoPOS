@@ -405,160 +405,277 @@
     </div>
 
     {{-- Tables Section (Hidden by default) --}}
-    <div id="tables-section" class="hidden">
-        <h1 class="text-2xl font-bold mb-6" style="color: var(--text-primary);">Réserver une Table</h1>
-
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <!-- Table Layout -->
-            <div class="dashboard-card p-6 lg:col-span-2">
-                <h2 class="text-lg font-semibold mb-2">Plan des tables</h2>
-                <p class="mb-4" style="color: var(--text-secondary);">Sélectionnez une table disponible.</p>
-
-                <div class="flex flex-wrap gap-3 mb-6">
-                    {{-- Generate dynamically from $tables variable passed from controller --}}
-                    {{-- Example Static Tables --}}
-                    <button class="table-select-btn" data-table-name="Table 1" data-table-capacity="4">
-                         <div class="relative">
-                             <i class="fas fa-utensils text-xl mb-1"></i><p>Table 1</p>
-                             <span class="text-xs block" style="color: var(--text-secondary);">4 places</span>
-                             <span class="absolute top-1 right-1 table-status-dot table-status-available"></span>
-                         </div>
-                     </button>
-                    <button class="table-select-btn" data-table-name="Table 2" data-table-capacity="2">
-                         <div class="relative">
-                             <i class="fas fa-utensils text-xl mb-1"></i><p>Table 2</p>
-                             <span class="text-xs block" style="color: var(--text-secondary);">2 places</span>
-                             <span class="absolute top-1 right-1 table-status-dot table-status-available"></span>
-                         </div>
-                     </button>
-                     <button class="table-select-btn" data-table-name="Table 3" data-table-capacity="4">
-                         <div class="relative">
-                             <i class="fas fa-utensils text-xl mb-1"></i><p>Table 3</p>
-                             <span class="text-xs block" style="color: var(--text-secondary);">4 places</span>
-                             <span class="absolute top-1 right-1 table-status-dot table-status-available"></span>
-                         </div>
-                     </button>
-                     <button class="table-select-btn" disabled>
-                         <div class="relative">
-                             <i class="fas fa-utensils text-xl mb-1"></i><p>Table 4</p>
-                             <span class="text-xs block">6 places</span>
-                             <span class="absolute top-1 right-1 table-status-dot table-status-occupied"></span>
-                         </div>
-                     </button>
-                    <button class="table-select-btn" data-table-name="Table 5" data-table-capacity="4">
-                       <div class="relative">
-                           <i class="fas fa-utensils text-xl mb-1"></i><p>Table 5</p>
-                           <span class="text-xs block" style="color: var(--text-secondary);">4 places</span>
-                           <span class="absolute top-1 right-1 table-status-dot table-status-available"></span>
-                       </div>
-                   </button>
-                    <button class="table-select-btn" disabled>
-                       <div class="relative">
-                           <i class="fas fa-utensils text-xl mb-1"></i><p>Table 6</p>
-                           <span class="text-xs block">2 places</span>
-                           <span class="absolute top-1 right-1 table-status-dot table-status-occupied"></span>
-                       </div>
-                   </button>
-                    <button class="table-select-btn" data-table-name="Table 7" data-table-capacity="4">
-                       <div class="relative">
-                           <i class="fas fa-utensils text-xl mb-1"></i><p>Table 7</p>
-                           <span class="text-xs block" style="color: var(--text-secondary);">4 places</span>
-                           <span class="absolute top-1 right-1 table-status-dot table-status-available"></span>
-                       </div>
-                   </button>
-                    <button class="table-select-btn" data-table-name="Table 8" data-table-capacity="2">
-                       <div class="relative">
-                           <i class="fas fa-utensils text-xl mb-1"></i><p>Table 8</p>
-                           <span class="text-xs block" style="color: var(--text-secondary);">2 places</span>
-                           <span class="absolute top-1 right-1 table-status-dot table-status-available"></span>
-                       </div>
-                   </button>
-                    <button class="table-select-btn" disabled>
-                       <div class="relative">
-                           <i class="fas fa-utensils text-xl mb-1"></i><p>Table 9</p>
-                           <span class="text-xs block">8 places</span>
-                           <span class="absolute top-1 right-1 table-status-dot table-status-occupied"></span>
-                       </div>
-                   </button>
-                    <button class="table-select-btn" data-table-name="Table 10" data-table-capacity="4">
-                       <div class="relative">
-                           <i class="fas fa-utensils text-xl mb-1"></i><p>Table 10</p>
-                           <span class="text-xs block" style="color: var(--text-secondary);">4 places</span>
-                           <span class="absolute top-1 right-1 table-status-dot table-status-available"></span>
-                       </div>
-                   </button>
-                    <button class="table-select-btn" data-table-name="Table 11" data-table-capacity="6">
-                       <div class="relative">
-                           <i class="fas fa-utensils text-xl mb-1"></i><p>Table 11</p>
-                           <span class="text-xs block" style="color: var(--text-secondary);">6 places</span>
-                           <span class="absolute top-1 right-1 table-status-dot table-status-available"></span>
-                       </div>
-                   </button>
-                    <button class="table-select-btn" data-table-name="Table 12" data-table-capacity="6">
-                       <div class="relative">
-                           <i class="fas fa-utensils text-xl mb-1"></i><p>Table 12</p>
-                           <span class="text-xs block" style="color: var(--text-secondary);">6 places</span>
-                           <span class="absolute top-1 right-1 table-status-dot table-status-available"></span>
-                       </div>
-                   </button>
-                    {{-- End Example Tables --}}
+   
+    <div id="tables-section" class="bg-white rounded-xl shadow-lg p-6">
+        <h1 class="text-2xl font-bold mb-6 text-gray-800">Réserver une Table</h1>
+    
+        <!-- Enhanced Filtering Options -->
+        <form id="filter-form" method="GET" action="{{ url()->current() }}">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                <div class="relative">
+                    <label for="dashboard-restaurant-select" class="block text-sm font-medium text-gray-700 mb-1">Restaurant</label>
+                    <select id="dashboard-restaurant-select" name="restaurant" class="form-select w-full rounded-lg border-gray-300 shadow-sm focus:border-[#0288D1] focus:ring focus:ring-[#0288D1] focus:ring-opacity-50">
+                        <option value="">Tous les restaurants</option>
+                        @foreach($restaurantNames as $id => $name)
+                            <option value="{{ $id }}" {{ $restaurantFilter == $id ? 'selected' : '' }}>
+                                {{ $name }}
+                            </option>
+                        @endforeach
+                    </select>
                 </div>
-
-                <div class="flex gap-4 text-sm" style="color: var(--text-secondary);">
-                    <div class="flex items-center"><span class="table-status-dot table-status-available mr-2"></span> Disponible</div>
-                    <div class="flex items-center"><span class="table-status-dot table-status-occupied mr-2"></span> Occupée</div>
-                    <div class="flex items-center"><span class="table-status-dot table-status-selected mr-2"></span> Sélectionnée</div>
+                
+                <div class="relative">
+                    <label for="dashboard-date-select" class="block text-sm font-medium text-gray-700 mb-1">Date</label>
+                    <input 
+                        type="date" 
+                        id="dashboard-date-select" 
+                        name="date" 
+                        value="{{ $dateFilter ?? $today }}"
+                        min="{{ $today }}" 
+                        class="form-input w-full rounded-lg border-gray-300 shadow-sm focus:border-[#0288D1] focus:ring focus:ring-[#0288D1] focus:ring-opacity-50"
+                    >
+                </div>
+                
+                <div class="relative">
+                    <label for="dashboard-persons-select" class="block text-sm font-medium text-gray-700 mb-1">Capacité</label>
+                    <select id="dashboard-persons-select" name="persons" class="form-select w-full rounded-lg border-gray-300 shadow-sm focus:border-[#0288D1] focus:ring focus:ring-[#0288D1] focus:ring-opacity-50">
+                        <option value="">Toutes capacités</option>
+                        @for ($i = 1; $i <= 8; $i++)
+                            <option value="{{ $i }}" {{ $personsFilter == $i ? 'selected' : '' }}>
+                                {{ $i }} {{ $i == 1 ? 'personne' : 'personnes' }}
+                            </option>
+                        @endfor
+                        <option value="9+" {{ $personsFilter == '9+' ? 'selected' : '' }}>9+ personnes</option>
+                    </select>
                 </div>
             </div>
-
-            <!-- New Reservation Form -->
-            <div class="dashboard-card p-6 lg:sticky lg:top-[86px]">
-                <h2 class="text-lg font-semibold mb-4">Compléter la réservation</h2>
-                {{-- Add route('reservations.store') or similar for action --}}
-                <form id="reservation-form" method="POST" action="#">
-                    @csrf {{-- CSRF Protection --}}
+        </form>
+    
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Table Layout with Dynamic Data -->
+            <div id="tables" class="bg-gray-50 p-6 rounded-xl shadow-sm lg:col-span-2">
+                <h2 class="text-lg font-semibold mb-2">Plan des tables</h2>
+                <p class="mb-4 text-gray-600">Sélectionnez une table disponible.</p>
+    
+                <!-- Table Type Tabs -->
+                <div class="flex border-b border-gray-200 mb-6">
+                    <button type="button" data-table-filter="all" class="table-filter-btn py-2 px-4 border-b-2 border-[#0288D1] text-[#0288D1] font-medium">Toutes les tables</button>
+                    <button type="button" data-table-filter="SallePrincipale" class="table-filter-btn py-2 px-4 text-gray-500 hover:text-[#0288D1] transition">Salle Principale</button>
+                    <button type="button" data-table-filter="Vip" class="table-filter-btn py-2 px-4 text-gray-500 hover:text-[#0288D1] transition">Espace VIP</button>
+                    <button type="button" data-table-filter="Terrasse" class="table-filter-btn py-2 px-4 text-gray-500 hover:text-[#0288D1] transition">Terrasse</button>
+                </div>
+    
+                <div class="flex flex-wrap gap-3 mb-6">
+                    <!-- Main Dining Tables -->
+                    @foreach($tablesByType['SallePrincipale']['available'] as $table)
+                        <button class="table-select-btn bg-white hover:bg-gray-50 border border-gray-200 rounded-lg p-3 transition-all hover:shadow-md" 
+                                data-table-id="{{ $table->id }}" 
+                                data-table-name="Table {{ $table->numero }}" 
+                                data-table-capacity="{{ $table->capacite }}"
+                                data-table-type="SallePrincipale">
+                            <div class="relative">
+                                <i class="fas fa-utensils text-xl mb-1 text-[#0288D1]"></i>
+                                <p class="font-medium">Table {{ $table->numero }}</p>
+                                <span class="text-xs block text-gray-600">{{ $table->capacite }} {{ $table->capacite == 1 ? 'place' : 'places' }}</span>
+                                <span class="absolute top-1 right-1 w-3 h-3 rounded-full bg-gradient-to-r from-[#4CAF50] to-[#2E7D32]"></span>
+                            </div>
+                        </button>
+                    @endforeach
+    
+                    @foreach($tablesByType['SallePrincipale']['unavailable'] as $table)
+                        <button class="table-select-btn bg-white opacity-60 border border-gray-200 rounded-lg p-3 cursor-not-allowed" 
+                                disabled
+                                data-table-type="SallePrincipale">
+                            <div class="relative">
+                                <i class="fas fa-utensils text-xl mb-1 text-gray-400"></i>
+                                <p class="font-medium">Table {{ $table->numero }}</p>
+                                <span class="text-xs block text-gray-600">{{ $table->capacite }} {{ $table->capacite == 1 ? 'place' : 'places' }}</span>
+                                <span class="absolute top-1 right-1 w-3 h-3 rounded-full bg-gradient-to-r from-[#F44336] to-[#C62828]"></span>
+                            </div>
+                        </button>
+                    @endforeach
+    
+                    <!-- VIP Tables -->
+                    @foreach($tablesByType['Vip']['available'] as $table)
+                        <button class="table-select-btn bg-white hover:bg-gray-50 border border-gray-200 rounded-lg p-3 transition-all hover:shadow-md" 
+                                data-table-id="{{ $table->id }}" 
+                                data-table-name="VIP {{ $table->numero }}" 
+                                data-table-capacity="{{ $table->capacite }}"
+                                data-table-type="Vip">
+                            <div class="relative">
+                                <i class="fas fa-crown text-xl mb-1 text-[#FFC107]"></i>
+                                <p class="font-medium">VIP {{ $table->numero }}</p>
+                                <span class="text-xs block text-gray-600">{{ $table->capacite }} {{ $table->capacite == 1 ? 'place' : 'places' }}</span>
+                                <span class="absolute top-1 right-1 w-3 h-3 rounded-full bg-gradient-to-r from-[#4CAF50] to-[#2E7D32]"></span>
+                            </div>
+                        </button>
+                    @endforeach
+    
+                    @foreach($tablesByType['Vip']['unavailable'] as $table)
+                        <button class="table-select-btn bg-white opacity-60 border border-gray-200 rounded-lg p-3 cursor-not-allowed" 
+                                disabled
+                                data-table-type="Vip">
+                            <div class="relative">
+                                <i class="fas fa-crown text-xl mb-1 text-gray-400"></i>
+                                <p class="font-medium">VIP {{ $table->numero }}</p>
+                                <span class="text-xs block text-gray-600">{{ $table->capacite }} {{ $table->capacite == 1 ? 'place' : 'places' }}</span>
+                                <span class="absolute top-1 right-1 w-3 h-3 rounded-full bg-gradient-to-r from-[#F44336] to-[#C62828]"></span>
+                            </div>
+                        </button>
+                    @endforeach
+    
+                    <!-- Terrace Tables -->
+                    @foreach($tablesByType['Terrasse']['available'] as $table)
+                        <button class="table-select-btn bg-white hover:bg-gray-50 border border-gray-200 rounded-lg p-3 transition-all hover:shadow-md" 
+                                data-table-id="{{ $table->id }}" 
+                                data-table-name="Terrasse {{ $table->numero }}" 
+                                data-table-capacity="{{ $table->capacite }}"
+                                data-table-type="Terrasse">
+                            <div class="relative">
+                                <i class="fas fa-umbrella-beach text-xl mb-1 text-[#03A9F4]"></i>
+                                <p class="font-medium">Terrasse {{ $table->numero }}</p>
+                                <span class="text-xs block text-gray-600">{{ $table->capacite }} {{ $table->capacite == 1 ? 'place' : 'places' }}</span>
+                                <span class="absolute top-1 right-1 w-3 h-3 rounded-full bg-gradient-to-r from-[#4CAF50] to-[#2E7D32]"></span>
+                            </div>
+                        </button>
+                    @endforeach
+    
+                    @foreach($tablesByType['Terrasse']['unavailable'] as $table)
+                        <button class="table-select-btn bg-white opacity-60 border border-gray-200 rounded-lg p-3 cursor-not-allowed" 
+                                disabled
+                                data-table-type="Terrasse">
+                            <div class="relative">
+                                <i class="fas fa-umbrella-beach text-xl mb-1 text-gray-400"></i>
+                                <p class="font-medium">Terrasse {{ $table->numero }}</p>
+                                <span class="text-xs block text-gray-600">{{ $table->capacite }} {{ $table->capacite == 1 ? 'place' : 'places' }}</span>
+                                <span class="absolute top-1 right-1 w-3 h-3 rounded-full bg-gradient-to-r from-[#F44336] to-[#C62828]"></span>
+                            </div>
+                        </button>
+                    @endforeach
+                </div>
+    
+                <div class="flex gap-4 text-sm text-gray-600">
+                    <div class="flex items-center"><span class="w-3 h-3 rounded-full bg-gradient-to-r from-[#4CAF50] to-[#2E7D32] mr-2"></span> Disponible</div>
+                    <div class="flex items-center"><span class="w-3 h-3 rounded-full bg-gradient-to-r from-[#F44336] to-[#C62828] mr-2"></span> Occupée</div>
+                    <div class="flex items-center"><span class="w-3 h-3 rounded-full bg-[#0288D1] mr-2"></span> Sélectionnée</div>
+                </div>
+            </div>
+    
+            <!-- Reservation Form -->
+            <div class="bg-white p-6 rounded-xl shadow-md lg:sticky lg:top-[86px]">
+                <!-- En-tête avec info utilisateur -->
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-lg font-semibold">Compléter la réservation</h2>
+                    
+                </div>
+                
+                <!-- Date et heure actuelles -->
+                <div class="mb-4 p-2 bg-gray-50 rounded text-xs text-gray-500 flex items-center">
+                    <i class="fas fa-clock mr-1"></i> 
+                    2025-04-18 16:55:13
+                </div>
+            
+                <!-- Formulaire de réservation -->
+                <form id="reservation-form" method="POST" action="/reservations">
+                    @csrf
+                    <input type="hidden" name="user_id" value="{{ Session::get('user_id', 1) }}">
                     <div class="grid grid-cols-1 gap-4">
+                        <!-- Table sélectionnée -->
                         <div>
-                            <label class="form-label" for="selected-table">Table Sélectionnée</label>
-                            {{-- Use a hidden input to store the actual table ID for submission --}}
+                            <label class="block text-sm font-medium text-gray-700 mb-1" for="selected-table">Table Sélectionnée</label>
                             <input type="hidden" name="table_id" id="selected-table-id">
-                            <input type="text" id="selected-table" class="form-input" value="Aucune table sélectionnée" readonly>
+                            <div class="relative">
+                                <input type="text" id="selected-table" class="form-input block w-full rounded-lg border-gray-300 shadow-sm focus:border-[#0288D1] focus:ring focus:ring-[#0288D1] focus:ring-opacity-50" value="Aucune table sélectionnée" readonly>
+                                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                    <i class="fas fa-table text-gray-400"></i>
+                                </div>
+                            </div>
                         </div>
+            
+                        <!-- Nombre d'invités -->
                         <div>
-                            <label class="form-label" for="guest-count">Nombre d'invités</label>
-                            <select id="guest-count" name="number_of_guests" class="form-select" required>
-                                {{-- Options populated by JS --}}
-                                <option value="">Sélectionnez une table d'abord</option>
-                            </select>
+                            <label class="block text-sm font-medium text-gray-700 mb-1" for="guest-count">Nombre d'invités</label>
+                            <div class="relative">
+                                <select id="guest-count" name="number_of_guests" class="form-select block w-full rounded-lg border-gray-300 shadow-sm focus:border-[#0288D1] focus:ring focus:ring-[#0288D1] focus:ring-opacity-50" required>
+                                    <option value="">Sélectionnez une table d'abord</option>
+                                </select>
+                                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                    <i class="fas fa-user-friends text-gray-400"></i>
+                                </div>
+                            </div>
                         </div>
+            
+                        <!-- Date de réservation -->
                         <div>
-                            <label class="form-label" for="reservation-date">Date</label>
-                            <input type="date" id="reservation-date" name="date" class="form-input" required>
+                            <label class="block text-sm font-medium text-gray-700 mb-1" for="reservation-date">Date</label>
+                            <div class="relative">
+                                <input type="date" id="reservation-date" name="date" value="{{ $dateFilter ?? '2025-04-18' }}" min="{{ $today ?? '2025-04-18' }}" class="form-input block w-full rounded-lg border-gray-300 shadow-sm focus:border-[#0288D1] focus:ring focus:ring-[#0288D1] focus:ring-opacity-50" required>
+                                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                    <i class="fas fa-calendar-alt text-gray-400"></i>
+                                </div>
+                            </div>
                         </div>
+            
+                        <!-- Heure de réservation -->
                         <div>
-                            <label class="form-label" for="reservation-time">Heure</label>
-                            <select id="reservation-time" name="time" class="form-select" required>
-                                {{-- Consider generating times dynamically or passing from backend --}}
-                                <option value="17:00">17:00</option><option value="17:30">17:30</option>
-                                <option value="18:00">18:00</option><option value="18:30">18:30</option>
-                                <option value="19:00">19:00</option><option value="19:30">19:30</option>
-                                <option value="20:00">20:00</option><option value="20:30">20:30</option>
-                                <option value="21:00">21:00</option><option value="21:30">21:30</option>
-                                <option value="22:00">22:00</option>
-                            </select>
+                            <label class="block text-sm font-medium text-gray-700 mb-1" for="reservation-time">Heure</label>
+                            <div class="relative">
+                                <select id="reservation-time" name="time" class="form-select block w-full rounded-lg border-gray-300 shadow-sm focus:border-[#0288D1] focus:ring focus:ring-[#0288D1] focus:ring-opacity-50" required>
+                                    <option value="">Sélectionnez une table et une date d'abord</option>
+                                </select>
+                                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                    <i class="fas fa-clock text-gray-400"></i>
+                                </div>
+                            </div>
+                            <p class="mt-1 text-xs text-gray-500">Horaires d'ouverture: 10h - 22h</p>
                         </div>
+            
+                        <!-- Durée de réservation -->
                         <div>
-                            <label class="form-label" for="special-requests">Demandes Spéciales (optionnel)</label>
-                            <textarea id="special-requests" name="special_requests" class="form-textarea" rows="3" placeholder="Allergies, préférences, etc."></textarea>
+                            <label class="block text-sm font-medium text-gray-700 mb-1" for="reservation-duration">Durée</label>
+                            <div class="relative">
+                                <select id="reservation-duration" name="duree" class="form-select block w-full rounded-lg border-gray-300 shadow-sm focus:border-[#0288D1] focus:ring focus:ring-[#0288D1] focus:ring-opacity-50" required>
+                                    <option value="">Sélectionnez date et heure d'abord</option>
+                                </select>
+                                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                    <i class="fas fa-hourglass-half text-gray-400"></i>
+                                </div>
+                            </div>
+                            <div id="closing-time-warning" class="mt-1 text-xs text-amber-600 hidden">
+                                <i class="fas fa-exclamation-triangle mr-1"></i>
+                                La durée est limitée par l'heure de fermeture (22h)
+                            </div>
+                        </div>
+            
+                        <!-- Demandes spéciales -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1" for="special-requests">Demandes Spéciales (optionnel)</label>
+                            <textarea id="special-requests" name="special_requests" class="form-textarea block w-full rounded-lg border-gray-300 shadow-sm focus:border-[#0288D1] focus:ring focus:ring-[#0288D1] focus:ring-opacity-50" rows="3" placeholder="Allergies, préférences, etc."></textarea>
                         </div>
                     </div>
+            
+                    <!-- Récapitulatif de la réservation -->
+                    <div class="mt-4 p-3 bg-gray-50 rounded-lg text-sm hidden" id="reservation-summary">
+                        <h3 class="font-medium text-gray-700 mb-2">Récapitulatif</h3>
+                        <ul class="space-y-1 text-gray-600">
+                            <li><span class="font-medium">Table:</span> <span id="summary-table">-</span></li>
+                            <li><span class="font-medium">Date:</span> <span id="summary-date">-</span></li>
+                            <li><span class="font-medium">Heure:</span> <span id="summary-time">-</span></li>
+                            <li><span class="font-medium">Durée:</span> <span id="summary-duration">-</span></li>
+                            <li><span class="font-medium">Fin prévue:</span> <span id="summary-end-time">-</span></li>
+                            <li><span class="font-medium">Personnes:</span> <span id="summary-guests">-</span></li>
+                        </ul>
+                    </div>
+            
+                    <!-- Bouton de confirmation -->
                     <div class="mt-6">
-                        <button type="submit" class="btn btn-primary w-full">
-                            Confirmer la réservation
+                        <button type="submit" class="w-full py-3 px-4 bg-gradient-to-r from-[#0288D1] to-[#026da8] text-white font-medium rounded-lg shadow-md hover:shadow-lg transition focus:outline-none focus:ring-2 focus:ring-[#0288D1] focus:ring-opacity-50">
+                            <i class="fas fa-calendar-check mr-2"></i>Confirmer la réservation
                         </button>
                     </div>
                 </form>
             </div>
+            
         </div>
     </div>
 
