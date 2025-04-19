@@ -2,8 +2,6 @@
 
 namespace App\Http;
 
-use App\Http\Middleware\CheckAuthTimestamp;
-use App\Http\Middleware\PreventBackHistory;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
 class Kernel extends HttpKernel
@@ -38,9 +36,6 @@ class Kernel extends HttpKernel
             \Illuminate\View\Middleware\ShareErrorsFromSession::class,
             \App\Http\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
-            // PreventBackHistory::class,
-            // CheckAuthTimestamp::class
-
         ],
 
         'api' => [
@@ -72,4 +67,4 @@ class Kernel extends HttpKernel
         'role' => \App\Http\Middleware\RoleMiddleware::class,
         'jwt.auth' => \App\Http\Middleware\JWTAuthentication::class,
     ];
-}
+} 
