@@ -35,7 +35,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::middleware([JWTAuthentication::class])->group(function () {
     Route::get('/proprietaires/dashboard', [ProprietaireController::class, 'index'])
         ->middleware('role:propriétaire')
-        ->name('proprietaires.dashboard');
+        ->name('proprietaires.dashboard'); 
         Route::get('/available-time-slots', 'ReservationController@getAvailableTimeSlots')->middleware('role:propriétaire')
         ->name('reservations.available-times');
     Route::get('/gerants/dashboard', [GerantController::class, 'index'])
