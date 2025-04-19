@@ -7,11 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class Reservation extends Model
 {
-    protected $fillable = ['date', 'utilisateur_id', 'table_id'];
+    protected $fillable = ['date', 'users_id', 'table_id','created_at','update_at','duree','heure_debut','invite'];
 
-    public function utilisateur()
+    public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'users_id');
     }
 
     public function table()
@@ -19,4 +19,6 @@ class Reservation extends Model
         return $this->belongsTo(Table::class);
     }
     use HasFactory;
+
+    
 }
