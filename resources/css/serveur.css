@@ -1,0 +1,70 @@
+
+@layer utilities {
+    .visually-hidden {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        margin: -1px;
+        padding: 0;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        border: 0;
+    }
+
+    
+    .high-contrast {
+        --tw-text-opacity: 1;
+        --tw-bg-opacity: 1;
+        color: rgba(0, 0, 0, var(--tw-text-opacity));
+        background-color: rgba(255, 255, 255, var(--tw-bg-opacity));
+        border: 1px solid #000;
+    }
+
+    .high-contrast .border-gray-200 { 
+        --tw-border-opacity: 1;
+        border-color: rgba(0, 0, 0, var(--tw-border-opacity));
+    }
+
+    
+    .high-contrast .dark\:bg-gray-800, 
+    .high-contrast .dark\:bg-gray-900,
+    .high-contrast .bg-white 
+     {
+         background-color: white !important; /* Forcer le fond blanc */
+         border: 1px solid black !important; /* Ajouter une bordure */
+    }
+     .high-contrast .dark\:text-gray-100, 
+     .high-contrast .text-gray-800 {
+        color: black !important;
+     }
+     .high-contrast .text-primary-500,
+     .high-contrast .text-secondary-500,
+     .high-contrast .text-danger-500,
+     .high-contrast .text-warning-500,
+     .high-contrast .dark\:text-primary-400,
+     .high-contrast .text-transparent {
+         color: black !important;
+         background-image: none !important; 
+         -webkit-background-clip: initial !important;
+         background-clip: initial !important;
+         -webkit-text-fill-color: initial !important;
+     }
+      .high-contrast .border-primary-500,
+      .high-contrast .border-secondary-500,
+      .high-contrast .border-danger-500,
+      .high-contrast .border-warning-500 {
+         border-color: black !important;
+      }
+      /* Supprimer les ombres */
+    .high-contrast .shadow-sm,
+    .high-contrast .shadow-md,
+    .high-contrast .shadow-lg,
+    .high-contrast .shadow-\[0_-4px_15px_rgba\(0\,0\,0\,0\.1\)\],
+    .high-contrast .shadow-\[0_-2px_5px_rgba\(0\,0\,0\,0\.05\)\] {
+        --tw-shadow: none !important; 
+        box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow) !important;
+    }
+
+    
+
+}
