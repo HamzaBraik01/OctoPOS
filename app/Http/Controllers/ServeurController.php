@@ -6,5 +6,8 @@ use Illuminate\Http\Request;
 
 class ServeurController extends Controller
 {
-    //
+    public function index(Request $request)
+    {
+         return view('serveurs.dashboard');
+    }
 }
