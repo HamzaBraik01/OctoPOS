@@ -1,6 +1,4 @@
-/* Core styles */
-@import "tailwindcss";
-@source "../views";
+
 
 :root {
     --primary-color: #0288D1;
