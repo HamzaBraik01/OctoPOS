@@ -55,4 +55,6 @@ Route::middleware([JWTAuthentication::class])->group(function () {
         ->name('clients.dashboard');
 Route::post('/reservations', [ReservationController::class, 'store'])->name('reservations.store');
 Route::get('/clients/reservations-receipt/{id}', [ReservationController::class, 'receipt'])->name('clients.reservations-receipt');
+Route::post('/serveur/select-restaurant', [ServeurController::class, 'selectRestaurant'])
+    ->name('serveur.select.restaurant');
 });
