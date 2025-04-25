@@ -46,6 +46,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const completePaymentBtn = document.getElementById('complete-payment');
     const backToTablesReceiptBtn = document.getElementById('back-to-tables-btn');
     const cleanTableBtn = document.getElementById('clean-table-btn');
+    
+    // Ajouter le sélecteur de restaurant
+    const restaurantSelect = document.getElementById('restaurant-select');
 
 
     let currentTable = null;
@@ -53,6 +56,35 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentTab = 'tables';
     const TAX_RATE = 0.10;
 
+    // Gestion de la sélection de restaurant
+    if (restaurantSelect) {
+        restaurantSelect.addEventListener('change', function() {
+            // Créer un formulaire pour soumettre le restaurant sélectionné
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/serveur/select-restaurant'; // Route pour traiter la sélection
+            form.style.display = 'none';
+            
+            // Ajouter le CSRF token
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = '_token';
+            csrfInput.value = csrfToken;
+            form.appendChild(csrfInput);
+            
+            // Ajouter l'ID du restaurant
+            const restaurantInput = document.createElement('input');
+            restaurantInput.type = 'hidden';
+            restaurantInput.name = 'restaurant_id';
+            restaurantInput.value = this.value;
+            form.appendChild(restaurantInput);
+            
+            // Ajouter le formulaire au document et le soumettre
+            document.body.appendChild(form);
+            form.submit();
+        });
+    }
 
     const formatCurrency = (value) => {
 

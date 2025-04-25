@@ -26,7 +26,7 @@
     <!-- Main Content Area (Tab Panels) -->
     <div class="main-content">
 
-
+        {{-- NOUVELLE SECTION TABLES-TAB INTÉGRÉE --}}
         <div id="tables-tab" class="tab-content" role="tabpanel" aria-labelledby="tab-tables">
             <div class="table-controls">
                 <div class="view-toggle" role="group" aria-label="Changer la vue des tables">
@@ -45,33 +45,86 @@
                 </div>
             </div>
 
-            <div class="tables-grid">
+            {{-- Affiche le nom du restaurant s'il est sélectionné --}}
+            @if(isset($selectedRestaurant) && $selectedRestaurant)
+                <div class="restaurant-heading">
+                    <h2>{{ $selectedRestaurant->nom }}</h2>
+                </div>
+            @endif
 
-                <div class="table-item table-free" data-table="1" tabindex="0" role="button" aria-label="Table 1, 4 personnes, Libre">
-                    <div class="table-number">T1</div>
-                    <div class="table-capacity"><i class="fas fa-users" aria-hidden="true"></i> 4</div>
-                </div>
-                <div class="table-item table-occupied" data-table="2" tabindex="0" role="button" aria-label="Table 2, 2 personnes, Occupée depuis 35 minutes">
-                    <div class="table-number">T2</div>
-                    <div class="table-capacity"><i class="fas fa-users" aria-hidden="true"></i> 2</div>
-                    <div class="table-time"><i class="fas fa-clock" aria-hidden="true"></i> 35 min</div>
-                </div>
-                <div class="table-item table-occupied table-urgent" data-table="3" tabindex="0" role="button" aria-label="Table 3, 6 personnes, Occupée depuis 52 minutes, Urgent">
-                    <div class="table-number">T3</div>
-                    <div class="table-capacity"><i class="fas fa-users" aria-hidden="true"></i> 6</div>
-                    <div class="table-time"><i class="fas fa-clock" aria-hidden="true"></i> 52 min</div>
-                </div>
-                <div class="table-item table-reserved" data-table="4" tabindex="0" role="button" aria-label="Table 4, 4 personnes, Réservée pour 19:30">
-                    <div class="table-number">T4</div>
-                    <div class="table-capacity"><i class="fas fa-users" aria-hidden="true"></i> 4</div>
-                    <div class="table-time"><i class="fas fa-calendar-alt" aria-hidden="true"></i> 19:30</div>
-                </div>
-                <div class="table-item table-free" data-table="5" tabindex="0" role="button" aria-label="Table 5, 2 personnes, Libre"> <div class="table-number">T5</div><div class="table-capacity"><i class="fas fa-users" aria-hidden="true"></i> 2</div></div>
-                <div class="table-item table-free" data-table="6" tabindex="0" role="button" aria-label="Table 6, 4 personnes, Libre"> <div class="table-number">T6</div><div class="table-capacity"><i class="fas fa-users" aria-hidden="true"></i> 4</div></div>
-                <div class="table-item table-reserved" data-table="7" tabindex="0" role="button" aria-label="Table 7, 2 personnes, Réservée pour 20:15"> <div class="table-number">T7</div><div class="table-capacity"><i class="fas fa-users" aria-hidden="true"></i> 2</div><div class="table-time"><i class="fas fa-calendar-alt" aria-hidden="true"></i> 20:15</div></div>
-                <div class="table-item table-free" data-table="8" tabindex="0" role="button" aria-label="Table 8, 6 personnes, Libre"> <div class="table-number">T8</div><div class="table-capacity"><i class="fas fa-users" aria-hidden="true"></i> 6</div></div>
+            <div class="tables-grid">
+                {{-- Vérifie si les tables existent et s'il y en a au moins une --}}
+                @if(isset($tables) && count($tables) > 0)
+                    {{-- Boucle sur chaque table --}}
+                    @foreach($tables as $table)
+                        @php
+                            // Définit la classe CSS et l'aria-label en fonction du statut
+                            $statusClass = '';
+                            $ariaLabel = "Table {$table->numero}, {$table->capacite} personnes, ";
+
+                            if($table->status === 'libre') {
+                                $statusClass = 'table-free';
+                                $ariaLabel .= 'Libre';
+                            } elseif($table->status === 'occupee') {
+                                $statusClass = 'table-occupied';
+                                // Ajoute le temps d'occupation s'il existe
+                                $occupationTime = $table->occupation_time ?? 'N/A';
+                                $ariaLabel .= "Occupée depuis {$occupationTime} minutes";
+                                // Ajoute la classe 'urgent' si nécessaire
+                                if(!empty($table->is_urgent)) { // Utilise !empty pour vérifier si la propriété existe et est vraie
+                                    $statusClass .= ' table-urgent';
+                                    $ariaLabel .= ', Urgent';
+                                }
+                            } elseif($table->status === 'reservee') {
+                                $statusClass = 'table-reserved';
+                                // Ajoute l'heure de réservation si elle existe
+                                $reservationTime = $table->reservation_time ? \Carbon\Carbon::parse($table->reservation_time)->format('H:i') : 'N/A';
+                                $ariaLabel .= "Réservée pour {$reservationTime}";
+                            }
+
+                            // Ajoute le type de table à l'aria-label s'il existe
+                            if(!empty($table->typeTable)) {
+                                $ariaLabel .= ", Type: {$table->typeTable}";
+                            }
+                        @endphp
+
+                        <div class="table-item {{ $statusClass }}" data-table="{{ $table->id }}" tabindex="0" role="button" aria-label="{{ $ariaLabel }}">
+                            <div class="table-number">T{{ $table->numero }}</div>
+                            <div class="table-capacity"><i class="fas fa-users" aria-hidden="true"></i> {{ $table->capacite }}</div>
+
+                            {{-- Affiche le temps si occupée --}}
+                            @if($table->status === 'occupee' && isset($table->occupation_time))
+                                <div class="table-time"><i class="fas fa-clock" aria-hidden="true"></i> {{ $table->occupation_time }} min</div>
+                            {{-- Affiche l'heure de réservation si réservée --}}
+                            @elseif($table->status === 'reservee' && $table->reservation_time)
+                                <div class="table-time"><i class="fas fa-calendar-alt" aria-hidden="true"></i> {{ \Carbon\Carbon::parse($table->reservation_time)->format('H:i') }}</div>
+                            @endif
+
+                            {{-- Affiche le type de table s'il existe --}}
+                            @if(!empty($table->typeTable))
+                                <div class="table-type" style="font-size: 0.8em; margin-top: 5px; color: var(--text-muted);">{{ $table->typeTable }}</div>
+                            @endif
+                        </div>
+                    @endforeach
+                {{-- Message si aucun restaurant n'est sélectionné --}}
+                @elseif(!isset($selectedRestaurant) || !$selectedRestaurant)
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 2rem; color: var(--text-muted);">
+                        <i class="fas fa-utensils" style="font-size: 2rem; margin-bottom: 1rem; display: block;"></i>
+                        <p>Veuillez sélectionner un restaurant pour afficher les tables.</p> {{-- Message mis à jour --}}
+                    </div>
+                {{-- Message si le restaurant sélectionné n'a pas de tables --}}
+                @else
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 2rem; color: var(--text-muted);">
+                        <i class="fas fa-info-circle" style="font-size: 2rem; margin-bottom: 1rem; display: block;"></i>
+                        <p>Aucune table n'est configurée pour le restaurant "{{ $selectedRestaurant->nom }}".</p> {{-- Message mis à jour --}}
+                    </div>
+                @endif
             </div>
         </div>
+        {{-- FIN DE LA NOUVELLE SECTION TABLES-TAB --}}
+
+
+        {{-- CONTENU ORIGINAL DES AUTRES ONGLETS --}}
         <div id="orders-tab" class="tab-content" role="tabpanel" aria-labelledby="tab-orders" hidden>
             <div class="order-header">
                 <div class="table-info">
@@ -112,7 +165,7 @@
             </div>
 
             <div class="menu-grid">
-
+                {{-- Menu items statiques (à remplacer par une boucle dynamique en production) --}}
                 <div class="menu-item" data-id="1" data-name="Salade César" data-price="14.50" {{-- data-category="Entrées" --}} tabindex="0" role="button" aria-label="Ajouter Salade César, 14,50€">
                     <div class="menu-img-container">
                         {{-- Si image locale: <img src="{{ asset('images/menu/' . $item->image_path) }}" alt="{{ $item->name }}"> --}}
@@ -178,7 +231,7 @@
                         <div class="menu-price">8,90€</div>
                     </div>
                 </div>
-
+                {{-- Fin du menu statique --}}
             </div>
         </div>
 
@@ -241,6 +294,8 @@
                 <button class="btn btn-primary" id="complete-payment"><i class="fas fa-check" aria-hidden="true"></i> Valider Paiement</button>
             </div>
         </div>
+
+        <!-- Receipt Tab Content -->
         <div id="receipt-tab" class="tab-content" role="tabpanel" aria-labelledby="tab-receipt" hidden>
             <div class="receipt-container" style="max-width: 600px; margin: auto;">
                 <div class="receipt">
@@ -323,7 +378,7 @@
             </div>
         </div>
 
-
+        <!-- Stats Tab Content -->
         <div id="stats-tab" class="tab-content" role="tabpanel" aria-labelledby="tab-stats" hidden>
             <div class="payment-summary">
                 <div class="summary-title"><i class="fas fa-calendar-day" aria-hidden="true"></i> Statistiques du Jour</div>
@@ -366,10 +421,12 @@
                 </div>
             </div>
         </div>
+        {{-- FIN DU CONTENU ORIGINAL DES AUTRES ONGLETS --}}
 
-    </div>
+    </div> {{-- Fin de .main-content --}}
 
 
+    {{-- PANIER (ORIGINAL) --}}
     <div class="cart" id="cart-panel" aria-labelledby="cart-heading" style="display: none;">
         <div class="cart-header" role="button" aria-expanded="false" aria-controls="cart-details">
             <div class="cart-handle" aria-hidden="true"></div>
@@ -423,7 +480,7 @@
         </div>
     </div>
 
-
+    {{-- MODALE DE PERSONNALISATION (ORIGINALE) --}}
     <div class="modal-overlay" id="customization-overlay">
         <div class="modal" id="customization-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title-label">
             <div class="modal-header">

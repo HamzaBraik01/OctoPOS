@@ -30,7 +30,7 @@ class Table extends Model
         }
         
         $reservations = $this->reservations()
-            ->whereDate('date_reservation', $date->format('Y-m-d'))
+            ->whereDate('date', $date->format('Y-m-d'))
             ->get();
         
         if ($reservations->isEmpty()) {

@@ -94,7 +94,7 @@ class RestaurantController extends Controller
         
         session(['restaurant_id' => $request->restaurant_id]);
         
-        
+        // Récupérer le nom du restaurant pour le message de succès
         $restaurant = Restaurant::find($request->restaurant_id);
         
         return response()->json([

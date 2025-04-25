@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Restaurant;
 use App\Models\Table;
+use Carbon\Carbon;
 
 class ServeurController extends Controller
 {
@@ -12,23 +13,30 @@ class ServeurController extends Controller
     {
         $restaurants = Restaurant::all();
         
-        $tables = null;
-        $selectedRestaurant = null;
+        // Si un restaurant est déjà sélectionné en session, charger ses tables
+        $selectedRestaurantId = $request->session()->get('restaurant_id');
         
-        if ($request->session()->has('restaurant_id')) {
-            $restaurantId = $request->session()->get('restaurant_id');
-            $selectedRestaurant = Restaurant::find($restaurantId);
+        if ($selectedRestaurantId) {
+            $selectedRestaurant = Restaurant::find($selectedRestaurantId);
             
             if ($selectedRestaurant) {
-                $tables = Table::where('restaurant_id', $restaurantId)
+                $tables = Table::where('restaurant_id', $selectedRestaurantId)
                     ->orderBy('numero', 'asc')
                     ->get();
+                
+                // Préparer les tables avec leurs statuts
+                $tables = $this->prepareTablesWithStatus($tables);
+                
+                return view('serveurs.dashboard', compact('restaurants', 'tables', 'selectedRestaurant'));
             }
         }
         
-        return view('serveurs.dashboard', compact('restaurants', 'tables', 'selectedRestaurant'));
+        return view('serveurs.dashboard', compact('restaurants'));
     }
-    
+
+    /**
+     * Handle restaurant selection form submission
+     */
     public function selectRestaurant(Request $request)
     {
         $request->validate([
@@ -38,19 +46,62 @@ class ServeurController extends Controller
         $restaurantId = $request->restaurant_id;
         $request->session()->put('restaurant_id', $restaurantId);
         
-        $restaurant = Restaurant::find($restaurantId);
+        $restaurant = Restaurant::findOrFail($restaurantId);
         $tables = Table::where('restaurant_id', $restaurantId)
             ->orderBy('numero', 'asc')
             ->get();
         
-        $tables->each(function($table) {
-            $table->disponible = $table->isDisponible();
-        });
+        // Prepare tables with status information
+        $tables = $this->prepareTablesWithStatus($tables);
         
-        return response()->json([
-            'success' => true,
-            'tables' => $tables,
-            'restaurant' => $restaurant->nom
-        ]);
+        $restaurants = Restaurant::all();
+        $selectedRestaurant = $restaurant;
+        
+        return view('serveurs.dashboard', compact('restaurants', 'tables', 'selectedRestaurant'));
+    }
+    
+    /**
+     * Helper method to assign status to tables
+     */
+    private function prepareTablesWithStatus($tables)
+    {
+        return $tables->map(function($table) {
+            // Check if the table is available today
+            $isDisponible = $table->isDisponible();
+            
+            // Check for active reservations in the next hour
+            $hasReservation = $table->reservations()
+                ->whereDate('date', Carbon::today())
+                ->where('date', '>=', Carbon::now())
+                ->where('date', '<=', Carbon::now()->addHour())
+                ->exists();
+            
+            // Determine status based on availability and reservations
+            if (!$isDisponible) {
+                $table->status = 'occupee'; // Occupied
+                
+                // Calculate time since occupation (random for demo)
+                $table->occupation_time = rand(5, 60); // Minutes
+                
+                // Check if urgent (over 45 minutes)
+                $table->is_urgent = $table->occupation_time > 45;
+            } else if ($hasReservation) {
+                $table->status = 'reservee'; // Reserved
+                
+                // Get next reservation time
+                $nextReservation = $table->reservations()
+                    ->whereDate('date', Carbon::today())
+                    ->where('date', '>=', Carbon::now())
+                    ->orderBy('date', 'asc')
+                    ->first();
+                
+                $table->reservation_time = $nextReservation ? 
+                    Carbon::parse($nextReservation->date)->format('H:i') : null;
+            } else {
+                $table->status = 'libre'; // Free
+            }
+            
+            return $table;
+        });
     }
 }

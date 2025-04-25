@@ -11,6 +11,7 @@ use App\Http\Controllers\GerantController;
 use App\Http\Middleware\JWTAuthentication;
 use App\Http\Controllers\ServeurController;
 use App\Http\Controllers\CuisinierController;
+use App\Http\Controllers\RestaurantController;
 use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\ProprietaireController;
 
@@ -55,6 +56,7 @@ Route::middleware([JWTAuthentication::class])->group(function () {
         ->name('clients.dashboard');
 Route::post('/reservations', [ReservationController::class, 'store'])->name('reservations.store');
 Route::get('/clients/reservations-receipt/{id}', [ReservationController::class, 'receipt'])->name('clients.reservations-receipt');
-Route::post('/serveur/select-restaurant', [ServeurController::class, 'selectRestaurant'])
-    ->name('serveur.select.restaurant');
+Route::post('/restaurants/set-restaurant', [RestaurantController::class, 'setRestaurant']);
+Route::get('/restaurants/{restaurantId}/tables', [ServeurController::class, 'getRestaurantTables']);
+Route::post('/serveur/select-restaurant', [ServeurController::class, 'selectRestaurant'])->name('serveur.select-restaurant');
 });
