@@ -780,3 +780,59 @@ body {
 
 
 .visually-hidden { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0, 0, 0, 0); border: 0; }
+
+
+/* Style pour le sélecteur de restaurant */
+.restaurant-selector {
+    position: relative;
+    margin-right: 20px;
+    min-width: 180px;
+}
+
+.styled-select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    width: 100%;
+    padding: 8px 12px;
+    font-size: 0.9rem;
+    background-color: var(--bg-secondary, #f5f7fa);
+    color: var(--text-primary, #333);
+    border: 1px solid var(--border-color, #ddd);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Nunito', sans-serif;
+}
+
+.styled-select:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--accent-color-light, rgba(66, 153, 225, 0.3));
+    border-color: var(--accent-color, #3182ce);
+}
+
+.select-arrow {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: var(--text-secondary, #666);
+    font-size: 0.8rem;
+}
+
+/* Style pour le mode sombre */
+[data-theme="dark"] .styled-select {
+    background-color: var(--bg-secondary-dark, #2d3748);
+    color: var(--text-primary-dark, #e2e8f0);
+    border-color: var(--border-color-dark, #4a5568);
+}
+
+[data-theme="dark"] .select-arrow {
+    color: var(--text-secondary-dark, #a0aec0);
+}
+
+/* Style pour le contraste élevé */
+[data-contrast="high"] .styled-select {
+    border-width: 2px;
+}
