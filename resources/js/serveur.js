@@ -824,10 +824,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 t.setAttribute('aria-selected', isSelected);
              });
              const category = catTab.textContent;
+             const categoryFilter = catTab.getAttribute('data-category');
              showToast(`Filtre: ${category}`);
              vibrate(30);
 
-             searchInput.dispatchEvent(new Event('input'));
+             // Filtre les plats en fonction de la catégorie
+             menuItems.forEach(item => {
+                const itemCategory = item.getAttribute('data-category');
+                const matchesCategory = categoryFilter === 'Tous' || itemCategory === categoryFilter;
+                const searchTerm = searchInput.value.toLowerCase().trim();
+                const matchesSearch = item.getAttribute('data-name').toLowerCase().includes(searchTerm);
+                
+                item.style.display = (matchesCategory && matchesSearch) ? 'flex' : 'none';
+             });
          });
          catTab.addEventListener('keydown', (e) => {
               if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); catTab.click(); }

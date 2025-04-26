@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Restaurant;
 use App\Models\Table;
+use App\Models\Menu;
+use App\Models\Plat;
 use Carbon\Carbon;
 
 class ServeurController extends Controller
@@ -27,7 +29,11 @@ class ServeurController extends Controller
                 // Préparer les tables avec leurs statuts
                 $tables = $this->prepareTablesWithStatus($tables);
                 
-                return view('serveurs.dashboard', compact('restaurants', 'tables', 'selectedRestaurant'));
+        
+                $plats = Plat::with('menu')->get();
+                $menus = Menu::all();
+                
+                return view('serveurs.dashboard', compact('restaurants', 'tables', 'selectedRestaurant', 'plats', 'menus'));
             }
         }
         
@@ -54,10 +60,36 @@ class ServeurController extends Controller
         // Prepare tables with status information
         $tables = $this->prepareTablesWithStatus($tables);
         
+        $plats = Plat::with('menu')->get();
+        $menus = Menu::all();
+        
         $restaurants = Restaurant::all();
         $selectedRestaurant = $restaurant;
         
-        return view('serveurs.dashboard', compact('restaurants', 'tables', 'selectedRestaurant'));
+        return view('serveurs.dashboard', compact('restaurants', 'tables', 'selectedRestaurant', 'plats', 'menus'));
+    }
+    
+    /**
+     * Filtre les plats par catégorie de menu
+     */
+    public function filtrerPlats(Request $request)
+    {
+        $categorie = $request->categorie;
+        
+        $query = Plat::with('menu');
+        
+        if ($categorie && $categorie !== 'Tous') {
+            $query->whereHas('menu', function($q) use ($categorie) {
+                $q->where('nom', $categorie);
+            });
+        }
+        
+        $plats = $query->get();
+        
+        return response()->json([
+            'success' => true,
+            'plats' => $plats
+        ]);
     }
     
     /**

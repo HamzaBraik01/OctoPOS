@@ -59,4 +59,5 @@ Route::get('/clients/reservations-receipt/{id}', [ReservationController::class, 
 Route::post('/restaurants/set-restaurant', [RestaurantController::class, 'setRestaurant']);
 Route::get('/restaurants/{restaurantId}/tables', [ServeurController::class, 'getRestaurantTables']);
 Route::post('/serveur/select-restaurant', [ServeurController::class, 'selectRestaurant'])->name('serveur.select-restaurant');
+Route::get('/serveur/filtrer-plats', [ServeurController::class, 'filtrerPlats'])->name('serveur.filtrer-plats');
 });

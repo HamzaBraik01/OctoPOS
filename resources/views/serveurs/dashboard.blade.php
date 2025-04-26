@@ -153,85 +153,48 @@
             </div>
 
             <div class="categories" role="tablist" aria-label="Filtrer par catégorie">
-                {{-- !!! En Production: Remplacer par une boucle @foreach($categories as $category) !!! --}}
-                <button class="category active" role="tab" aria-selected="true">Tous</button>
-                <button class="category" role="tab" aria-selected="false">Entrées</button>
-                <button class="category" role="tab" aria-selected="false">Plats</button>
-                <button class="category" role="tab" aria-selected="false">Desserts</button>
-                <button class="category" role="tab" aria-selected="false">Boissons</button>
-                <button class="category" role="tab" aria-selected="false">Vins</button>
-                <button class="category" role="tab" aria-selected="false">Menu du jour</button>
-                {{-- !!! Fin de la boucle @endforeach !!! --}}
+                <button class="category active" role="tab" aria-selected="true" data-category="Tous">Tous</button>
+                @foreach($menus as $menu)
+                <button class="category" role="tab" aria-selected="false" data-category="{{ $menu->nom }}">{{ $menu->nom }}</button>
+                @endforeach
             </div>
 
             <div class="menu-grid">
-                {{-- Menu items statiques (à remplacer par une boucle dynamique en production) --}}
-                <div class="menu-item" data-id="1" data-name="Salade César" data-price="14.50" {{-- data-category="Entrées" --}} tabindex="0" role="button" aria-label="Ajouter Salade César, 14,50€">
-                    <div class="menu-img-container">
-                        {{-- Si image locale: <img src="{{ asset('images/menu/' . $item->image_path) }}" alt="{{ $item->name }}"> --}}
-                        <img src="https://source.unsplash.com/800x600/?cesar-salad" alt="Salade César" class="menu-img">
-                        {{-- Condition pour badge @if($item->is_vegan) --}}
-                        <div class="menu-badge badge-vegan" title="Vegan">
-                            <i class="fas fa-leaf" aria-hidden="true"></i>
+                @if(isset($plats) && count($plats) > 0)
+                    @foreach($plats as $plat)
+                    <div class="menu-item" 
+                        data-id="{{ $plat->id }}" 
+                        data-name="{{ $plat->nom }}" 
+                        data-price="{{ $plat->prix }}" 
+                        data-category="{{ $plat->menu->nom }}" 
+                        tabindex="0" 
+                        role="button" 
+                        aria-label="Ajouter {{ $plat->nom }}, {{ number_format($plat->prix, 2, ',', ' ') }}€">
+                        <div class="menu-img-container">
+                            <img src="https://source.unsplash.com/800x600/?food-{{ Str::slug($plat->nom) }}" alt="{{ $plat->nom }}" class="menu-img">
+                            @if(stripos($plat->description, 'vegan') !== false || stripos($plat->description, 'végé') !== false)
+                            <div class="menu-badge badge-vegan" title="Vegan/Végétarien">
+                                <i class="fas fa-leaf" aria-hidden="true"></i>
+                            </div>
+                            @endif
+                            @if(stripos($plat->description, 'allergène') !== false || stripos($plat->description, 'allerg') !== false)
+                            <div class="menu-badge badge-allergic" title="Contient des allergènes">
+                                <i class="fas fa-exclamation-triangle" aria-hidden="true"></i>
+                            </div>
+                            @endif
                         </div>
-                        {{-- @endif --}}
-                    </div>
-                    <div class="menu-content">
-                        <div class="menu-title">Salade César</div>
-                        <div class="menu-price">14,50€</div> {{-- Formatter le prix si nécessaire {{ number_format($item->price, 2, ',', ' ') }}€ --}}
-                    </div>
-                </div>
-                <div class="menu-item" data-id="2" data-name="Soupe à l'oignon" data-price="10.50" {{-- data-category="Entrées" --}} tabindex="0" role="button" aria-label="Ajouter Soupe à l'oignon, 10,50€">
-                    <div class="menu-img-container">
-                        <img src="https://source.unsplash.com/800x600/?onion-soup" alt="Soupe à l'oignon" class="menu-img">
-                    </div>
-                    <div class="menu-content">
-                        <div class="menu-title">Soupe à l'oignon</div>
-                        <div class="menu-price">10,50€</div>
-                    </div>
-                </div>
-                <div class="menu-item" data-id="3" data-name="Filet de Boeuf" data-price="26.90" {{-- data-category="Plats" --}} tabindex="0" role="button" aria-label="Ajouter Filet de Boeuf, 26,90€">
-                    <div class="menu-img-container">
-                        <img src="https://source.unsplash.com/800x600/?beef-steak" alt="Filet de Boeuf" class="menu-img">
-                    </div>
-                    <div class="menu-content">
-                        <div class="menu-title">Filet de Boeuf</div>
-                        <div class="menu-price">26,90€</div>
-                    </div>
-                </div>
-                <div class="menu-item" data-id="4" data-name="Risotto aux Cèpes" data-price="19.90" {{-- data-category="Plats" --}} tabindex="0" role="button" aria-label="Ajouter Risotto aux Cèpes, 19,90€">
-                    <div class="menu-img-container">
-                        <img src="https://source.unsplash.com/800x600/?risotto" alt="Risotto aux Cèpes" class="menu-img">
-                    </div>
-                    <div class="menu-content">
-                        <div class="menu-title">Risotto aux Cèpes</div>
-                        <div class="menu-price">19,90€</div>
-                    </div>
-                </div>
-                <div class="menu-item" data-id="5" data-name="Saumon Grillé" data-price="22.50" {{-- data-category="Plats" --}} tabindex="0" role="button" aria-label="Ajouter Saumon Grillé, 22,50€, contient des allergènes">
-                    <div class="menu-img-container">
-                        <img src="https://source.unsplash.com/800x600/?grilled-salmon" alt="Saumon Grillé" class="menu-img">
-                        {{-- Condition pour badge @if($item->has_allergens) --}}
-                        <div class="menu-badge badge-allergic" title="Contient des allergènes (poisson)">
-                            <i class="fas fa-exclamation-triangle" aria-hidden="true"></i>
+                        <div class="menu-content">
+                            <div class="menu-title">{{ $plat->nom }}</div>
+                            <div class="menu-price">{{ number_format($plat->prix, 2, ',', ' ') }}€</div>
                         </div>
-                        {{-- @endif --}}
                     </div>
-                    <div class="menu-content">
-                        <div class="menu-title">Saumon Grillé</div>
-                        <div class="menu-price">22,50€</div>
+                    @endforeach
+                @else
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 2rem; color: var(--text-muted);">
+                        <i class="fas fa-utensils" style="font-size: 2rem; margin-bottom: 1rem; display: block;"></i>
+                        <p>Aucun plat disponible ou veuillez d'abord sélectionner une table.</p>
                     </div>
-                </div>
-                <div class="menu-item" data-id="6" data-name="Crème Brûlée" data-price="8.90" {{-- data-category="Desserts" --}} tabindex="0" role="button" aria-label="Ajouter Crème Brûlée, 8,90€">
-                    <div class="menu-img-container">
-                        <img src="https://source.unsplash.com/800x600/?creme-brulee" alt="Crème Brûlée" class="menu-img">
-                    </div>
-                    <div class="menu-content">
-                        <div class="menu-title">Crème Brûlée</div>
-                        <div class="menu-price">8,90€</div>
-                    </div>
-                </div>
-                {{-- Fin du menu statique --}}
+                @endif
             </div>
         </div>
 
