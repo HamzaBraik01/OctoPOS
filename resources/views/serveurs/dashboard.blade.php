@@ -154,9 +154,11 @@
 
             <div class="categories" role="tablist" aria-label="Filtrer par catégorie">
                 <button class="category active" role="tab" aria-selected="true" data-category="Tous">Tous</button>
-                @foreach($menus as $menu)
-                <button class="category" role="tab" aria-selected="false" data-category="{{ $menu->nom }}">{{ $menu->nom }}</button>
-                @endforeach
+                @if(isset($menus) && count($menus) > 0)
+                    @foreach($menus as $menu)
+                    <button class="category" role="tab" aria-selected="false" data-category="{{ $menu->nom }}">{{ $menu->nom }}</button>
+                    @endforeach
+                @endif
             </div>
 
             <div class="menu-grid">
@@ -171,7 +173,10 @@
                         role="button" 
                         aria-label="Ajouter {{ $plat->nom }}, {{ number_format($plat->prix, 2, ',', ' ') }}€">
                         <div class="menu-img-container">
-                            <img src="https://source.unsplash.com/800x600/?food-{{ Str::slug($plat->nom) }}" alt="{{ $plat->nom }}" class="menu-img">
+                            <img src="{{ !empty($plat->image) ? $plat->image : 'https://source.unsplash.com/800x600/?food-default' }}" 
+                                alt="{{ $plat->nom }}" 
+                                class="menu-img"
+                                onerror="this.onerror=null; this.src='https://source.unsplash.com/800x600/?food-default'; this.alt='Image par défaut pour {{ $plat->nom }}'">
                             @if(stripos($plat->description, 'vegan') !== false || stripos($plat->description, 'végé') !== false)
                             <div class="menu-badge badge-vegan" title="Vegan/Végétarien">
                                 <i class="fas fa-leaf" aria-hidden="true"></i>
@@ -185,7 +190,7 @@
                         </div>
                         <div class="menu-content">
                             <div class="menu-title">{{ $plat->nom }}</div>
-                            <div class="menu-price">{{ number_format($plat->prix, 2, ',', ' ') }}€</div>
+                            <div class="menu-price">{{ number_format($plat->prix, 2, ',', ' ') }}DH</div>
                         </div>
                     </div>
                     @endforeach
