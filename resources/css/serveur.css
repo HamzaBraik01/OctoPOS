@@ -1,4 +1,3 @@
-
 :root {
 
     --primary: #2563EB;
@@ -914,4 +913,56 @@ body {
     .toast-container {
         bottom: 70px; /* Espace pour la navigation inférieure */
     }
+}
+
+/* Styles personnalisés pour les checkboxes dans la modale de personnalisation */
+.extra-item-container {
+    position: relative;
+    margin-bottom: 8px;
+}
+
+.extra-checkbox {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+.extra-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 16px;
+    background-color: var(--bg-secondary);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.extra-checkbox:checked + .extra-item {
+    background-color: var(--primary-light);
+    border-color: var(--primary);
+}
+
+.extra-checkbox:checked + .extra-item .checkbox .fa-check {
+    display: inline-block !important;
+    color: var(--primary);
+}
+
+.checkbox {
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--border-color);
+    border-radius: 4px;
+    margin-right: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.extra-checkbox:checked + .extra-item .checkbox {
+    border-color: var(--primary);
+    background-color: white;
 }

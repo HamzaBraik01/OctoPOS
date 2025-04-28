@@ -70,6 +70,108 @@ class PlatSeeder extends Seeder
                 'created_at' => now(),
                 'updated_at' => now()
             ],
+
+            // Nouveaux plats
+            [
+                'nom' => 'Steak Frites',
+                'description' => 'Steak grillé accompagné de frites maison',
+                'prix' => 110.00,
+                'menu_id' => 1, // Correspond au "Menu Classique"
+                'categorie' => 'Plats',
+                'image' => 'https://images.pexels.com/photos/687824/pexels-photo-687824.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+            [
+                'nom' => 'Soupe de Légumes',
+                'description' => 'Soupe chaude aux légumes frais',
+                'prix' => 35.00,
+                'menu_id' => 2, // Correspond au "Menu Végétarien"
+                'categorie' => 'Entrées',
+                'image' => 'https://images.pexels.com/photos/1058633/pexels-photo-1058633.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+            [
+                'nom' => 'Brownie au Chocolat',
+                'description' => 'Gâteau au chocolat fondant',
+                'prix' => 50.00,
+                'menu_id' => 3, // Correspond au "Menu Enfant"
+                'categorie' => 'Desserts',
+                'image' => 'https://images.pexels.com/photos/1388899/pexels-photo-1388899.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+            [
+                'nom' => 'Jus d\'Orange',
+                'description' => 'Jus d\'orange frais pressé',
+                'prix' => 25.00,
+                'menu_id' => 4, // Correspond au "Menu Découverte"
+                'categorie' => 'Boissons',
+                'image' => 'https://images.pexels.com/photos/1092730/pexels-photo-1092730.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+            [
+                'nom' => 'Bière Blonde',
+                'description' => 'Bière blonde artisanale',
+                'prix' => 80.00,
+                'menu_id' => 5, // Correspond au "Menu Gourmand"
+                'categorie' => 'Boissons',
+                'image' => 'https://images.pexels.com/photos/461224/pexels-photo-461224.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+            [
+                'nom' => 'Pizza Margherita',
+                'description' => 'Pizza classique avec tomate, mozzarella et basilic',
+                'prix' => 95.00,
+                'menu_id' => 6, // Correspond au "Menu Express"
+                'categorie' => 'Plats',
+                'image' => 'https://images.pexels.com/photos/825661/pexels-photo-825661.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+            [
+                'nom' => 'Crème Brûlée',
+                'description' => 'Dessert crémeux avec croûte caramélisée',
+                'prix' => 55.00,
+                'menu_id' => 1, // Correspond au "Menu Classique"
+                'categorie' => 'Desserts',
+                'image' => 'https://images.pexels.com/photos/1070850/pexels-photo-1070850.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+            [
+                'nom' => 'Ceviche de Poisson',
+                'description' => 'Poisson mariné dans du citron vert avec des épices',
+                'prix' => 130.00,
+                'menu_id' => 2, // Correspond au "Menu Végétarien"
+                'categorie' => 'Entrées',
+                'image' => 'https://images.pexels.com/photos/949593/pexels-photo-949593.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+            [
+                'nom' => 'Smoothie Fruits Rouges',
+                'description' => 'Smoothie frais à base de fruits rouges',
+                'prix' => 30.00,
+                'menu_id' => 4, // Correspond au "Menu Découverte"
+                'categorie' => 'Boissons',
+                'image' => 'https://images.pexels.com/photos/578700/pexels-photo-578700.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+            [
+                'nom' => 'Pâtes Carbonara',
+                'description' => 'Pâtes à la crème, lardons et parmesan',
+                'prix' => 85.00,
+                'menu_id' => 6, // Correspond au "Menu Express"
+                'categorie' => 'Plats',
+                'image' => 'https://images.pexels.com/photos/1279330/pexels-photo-1279330.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
         ]);
     }
 }

@@ -513,14 +513,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    sendToKitchenBtn.addEventListener('click', () => {
-         if (currentOrder.length === 0) return;
-
-         console.log(`Sending order for Table ${currentTable}:`, JSON.stringify(currentOrder));
-         showToast(`Commande pour Table ${currentTable} envoyée !`, 'success');
-
-
-         vibrate([50, 100, 50]);
+    sendToKitchenBtn.addEventListener('click', (e) => {
+        if (currentOrder.length === 0) return;
+        
+        // The form will be submitted, which triggers our event handler above
+        orderForm.dispatchEvent(new Event('submit'));
     });
 
      goToPaymentBtn.addEventListener('click', () => {
