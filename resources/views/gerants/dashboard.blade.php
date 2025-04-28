@@ -804,91 +804,9 @@
 
         <!-- Encrypted Messaging and Tables Status -->
         <div class="grid grid-cols-1 lg:grid-cols-7 gap-6 mb-6">
-             {{-- Contenu Messagerie et Plan de table --}}
-            <!-- Messaging System -->
-                <div class="dashboard-card p-4 lg:col-span-3">
-                    <div class="widget-header">
-                        <h2 class="flex items-center">
-                            <i class="fas fa-comment-dots text-blue-500 mr-2"></i>
-                            Messagerie cryptée
-                            <span class="ml-2 text-xs bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded-full">Sécurisée</span>
-                        </h2>
-                        <div class="flex items-center">
-                            <button class="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
-                                <i class="fas fa-ellipsis-v"></i>
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <div class="bg-blue-50 dark:bg-blue-900/30 p-2 rounded-lg mb-4">
-                        <div class="flex items-center text-xs text-blue-700 dark:text-blue-300">
-                            <i class="fas fa-lock mr-2"></i>
-                            <span>Les messages sont chiffrés de bout en bout. Personne en dehors de vous et des destinataires ne peut les lire.</span>
-                        </div>
-                    </div>
-                    
-                    <div class="flex mb-4">
-                        <button class="flex-1 py-2 text-sm font-medium text-center border-b-2 border-primary text-primary">Toute l'équipe</button>
-                        <button class="flex-1 py-2 text-sm font-medium text-center border-b-2 border-transparent text-gray-500 dark:text-gray-400">Pierre (Chef)</button>
-                        <button class="flex-1 py-2 text-sm font-medium text-center border-b-2 border-transparent text-gray-500 dark:text-gray-400">Direction</button>
-                    </div>
-                    
-                    <div class="message-container mb-4">
-                        <div class="message received">
-                            <div class="font-medium text-sm">Thomas Dubois</div>
-                            <p>J'ai besoin de renfort en salle, nous avons un groupe qui vient d'arriver sans réservation.</p>
-                            <div class="message-time">22:45</div>
-                        </div>
-                        
-                        <div class="message received">
-                            <div class="font-medium text-sm">Pierre Lambert</div>
-                            <p>Nous avons un problème avec le four principal. J'ai dû passer au four secondaire.</p>
-                            <div class="flex items-center mt-1">
-                                <div class="bg-gray-200 dark:bg-gray-700 p-1 px-2 rounded text-xs flex items-center">
-                                    <i class="fas fa-file-image text-blue-500 mr-1"></i>
-                                    <span>photo_four.jpg</span>
-                                </div>
-                            </div>
-                            <div class="message-time">22:51</div>
-                        </div>
-                        
-                        <div class="message sent">
-                            <p>@Pierre Merci pour l'info. Demande à Alex de t'aider en cuisine si nécessaire.</p>
-                            <p class="mt-1">@Thomas J'arrive en salle pour te donner un coup de main.</p>
-                            <div class="message-time">22:53</div>
-                        </div>
-                        
-                        <div class="message received">
-                            <div class="font-medium text-sm">Marie Strauss</div>
-                            <p>Je prends en charge les tables 8 à 12. Nous avons une demande spéciale pour la table 10 (allergies).</p>
-                            <div class="message-time">22:56</div>
-                        </div>
-                        
-                        <div class="message sent">
-                            <p>@Marie Super, merci. J'ai prévenu la cuisine pour l'allergie de la table 10.</p>
-                            <div class="message-time">22:57</div>
-                        </div>
-                    </div>
-                    
-                    <div class="flex items-center">
-                        <div class="flex-1 relative">
-                            <input type="text" class="message-input" placeholder="Tapez votre message...">
-                            <div class="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center space-x-2">
-                                <button class="text-gray-400 hover:text-primary">
-                                    <i class="fas fa-paperclip"></i>
-                                </button>
-                                <button class="text-gray-400 hover:text-primary">
-                                    <i class="far fa-smile"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <button class="ml-2 p-3 bg-primary text-white rounded-full">
-                            <i class="fas fa-paper-plane"></i>
-                        </button>
-                    </div>
-                </div>
+             {{-- Contenu Plan de table --}}
             <!-- Tables Layout Status -->
-                <div class="dashboard-card p-4 lg:col-span-4">
+                <div class="dashboard-card p-4 lg:col-span-7">
                     <div class="widget-header">
                         <h2 class="flex items-center">
                             <i class="fas fa-chair text-purple-500 mr-2"></i>

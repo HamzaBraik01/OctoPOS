@@ -46,26 +46,16 @@
                 <i class="fas fa-chart-bar"></i>
                 <span class="menu-text">Rapports</span>
             </a>
-            <a href="#" class="sidebar-link">
-                <i class="fas fa-comment-dots"></i>
-                <span class="menu-text">Messages</span>
-                <span class="ml-auto bg-danger text-white text-xs py-1 px-2 rounded-full">2</span>
-            </a>
         </div>
         
         <div class="mt-auto pt-8">
-            <a href="#" class="sidebar-link">
-                <i class="fas fa-cog"></i>
-                <span class="menu-text">Paramètres</span>
-            </a>
-            <a href="#" class="sidebar-link">
-                <i class="fas fa-question-circle"></i>
-                <span class="menu-text">Aide</span>
-            </a>
-            <a href="login.html" class="sidebar-link text-red-500 hover:bg-red-50 hover:text-red-600">
-                <i class="fas fa-sign-out-alt"></i>
-                <span class="menu-text">Déconnexion</span>
-            </a>
+            <form method="POST" action="{{ route('logout') }}">
+                @csrf
+                <button type="submit" class="sidebar-link w-full text-left text-red-500 hover:bg-red-50 hover:text-red-600">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span class="menu-text">Déconnexion</span>
+                </button>
+            </form>
         </div>
     </div>
 </aside>
