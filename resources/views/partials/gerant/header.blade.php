@@ -5,7 +5,14 @@
                 <i class="fas fa-bars"></i>
             </button>
             <h1 class="text-lg font-semibold text-primary">Supervision Opérationnelle</h1>
-            <span class="ml-3 text-xs bg-blue-100 text-blue-800 font-medium py-1 px-2 rounded dark:bg-blue-900 dark:text-blue-200">Le Bistro Parisien</span>
+            
+            <div class="ml-3">
+                <select id="restaurant-selector" class="text-xs bg-blue-100 text-blue-800 font-medium py-1 px-2 rounded dark:bg-blue-900 dark:text-blue-200 border-none focus:ring-2 focus:ring-blue-300">
+                    @foreach($restaurants as $restaurant)
+                        <option value="{{ $restaurant->id }}">{{ $restaurant->nom }}</option>
+                    @endforeach
+                </select>
+            </div>
         </div>
         
         <div class="flex items-center space-x-2 sm:space-x-4">

@@ -1,4 +1,3 @@
-
 document.addEventListener('DOMContentLoaded', function() {
     const currentDateTime = "2025-04-10 08:33:51";
     const currentUser = "HamzaBr01";
@@ -6,6 +5,28 @@ document.addEventListener('DOMContentLoaded', function() {
     if (dateTimeEl) {
         updateTime();
         setInterval(updateTime, 1000);
+    }
+    
+    // Restaurant selector functionality
+    const restaurantSelector = document.getElementById('restaurant-selector');
+    if (restaurantSelector) {
+        // Check if there's a saved restaurant selection in localStorage
+        const savedRestaurantId = localStorage.getItem('selectedRestaurantId');
+        if (savedRestaurantId) {
+            restaurantSelector.value = savedRestaurantId;
+        }
+        
+        // Add event listener for restaurant change
+        restaurantSelector.addEventListener('change', function() {
+            // Save selection to localStorage
+            localStorage.setItem('selectedRestaurantId', this.value);
+            
+            // You could reload data or make an AJAX call here to update the dashboard
+            showNotification(`Restaurant sélectionné: ${this.options[this.selectedIndex].text}`);
+            
+            // Optional: Reload the page to refresh data for the selected restaurant
+            // window.location.reload();
+        });
     }
     
     function updateTime() {

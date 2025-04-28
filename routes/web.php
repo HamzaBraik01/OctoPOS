@@ -38,9 +38,22 @@ Route::middleware([JWTAuthentication::class])->group(function () {
         ->name('proprietaires.dashboard'); 
         Route::get('/available-time-slots', 'ReservationController@getAvailableTimeSlots')->middleware('role:propriétaire')
         ->name('reservations.available-times');
+    
+    // Gérant routes
     Route::get('/gerants/dashboard', [GerantController::class, 'index'])
         ->middleware('role:gérant')
         ->name('gerants.dashboard');
+    
+    // Gérant section routes - handled via AJAX
+    Route::prefix('gerant')->middleware('role:gérant')->group(function () {
+        Route::get('/dashboard', [GerantController::class, 'dashboard']);
+        Route::get('/reservations', [GerantController::class, 'reservations']);
+        Route::get('/payments', [GerantController::class, 'payments']);
+        Route::get('/orders', [GerantController::class, 'orders']);
+        Route::get('/inventory', [GerantController::class, 'inventory']);
+        Route::get('/staff', [GerantController::class, 'staff']);
+        Route::get('/reports', [GerantController::class, 'reports']);
+    });
 
     Route::get('/serveurs/dashboard', [ServeurController::class, 'index'])
         ->middleware('role:serveur')

@@ -33,5 +33,44 @@
 
     @vite('resources/js/gerant.js')
     @yield('page-scripts')
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Vérifier si le sélecteur de restaurant existe
+            const restaurantSelector = document.getElementById('restaurant-selector');
+            if (restaurantSelector) {
+                // Vérifier s'il y a des options
+                if (restaurantSelector.options.length === 0) {
+                    console.warn("Aucun restaurant n'a été trouvé dans la base de données");
+                    
+                    // Ajouter une option par défaut si aucun restaurant n'est disponible
+                    const defaultOption = document.createElement('option');
+                    defaultOption.text = "Aucun restaurant disponible";
+                    defaultOption.value = "";
+                    restaurantSelector.appendChild(defaultOption);
+                }
+                
+                // Récupérer le restaurant sauvegardé
+                const savedRestaurantId = localStorage.getItem('selectedRestaurantId');
+                if (savedRestaurantId && restaurantSelector.options.length > 0) {
+                    // Vérifier si l'ID existe dans les options
+                    let found = false;
+                    for (let i = 0; i < restaurantSelector.options.length; i++) {
+                        if (restaurantSelector.options[i].value === savedRestaurantId) {
+                            restaurantSelector.selectedIndex = i;
+                            found = true;
+                            break;
+                        }
+                    }
+                    
+                    // Si l'ID sauvegardé n'existe pas, on sélectionne la première option
+                    if (!found && restaurantSelector.options.length > 0) {
+                        restaurantSelector.selectedIndex = 0;
+                        localStorage.setItem('selectedRestaurantId', restaurantSelector.value);
+                    }
+                }
+            }
+        });
+    </script>
 </body>
 </html>
