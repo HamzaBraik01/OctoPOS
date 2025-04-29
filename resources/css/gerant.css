@@ -1,3 +1,4 @@
+/* resources/css/gerant.css */
 
 :root {
     /* Light Theme Colors */
@@ -14,7 +15,7 @@
     --light: #F8FAFC;
     --gray: #64748B;
     --border-color: #E2E8F0;
-    
+
     --background: #F1F5F9;
     --card-bg: #FFFFFF;
     --text-primary: #334155;
@@ -40,7 +41,7 @@
     --light: #0F172A;
     --gray: #94A3B8;
     --border-color: #1E293B;
-    
+
     --background: #0F172A;
     --card-bg: #1E293B;
     --text-primary: #F1F5F9;
@@ -506,18 +507,18 @@ body {
     .sidebar {
         width: 70px;
     }
-    
+
     .sidebar .logo-text,
     .sidebar .menu-text {
         display: none;
     }
-    
+
     .main-content,
     .dashboard-header {
         margin-left: 70px;
         width: calc(100% - 70px);
     }
-    
+
     .crisis-toggle-label {
         display: none;
     }
@@ -528,24 +529,29 @@ body {
         width: 0;
         transform: translateX(-100%);
     }
-    
+
     .sidebar.mobile-open {
         width: 260px;
         transform: translateX(0);
     }
-    
+
     .main-content,
     .dashboard-header {
         margin-left: 0;
         width: 100%;
     }
-    
+
     .mobile-menu-toggle {
         display: flex !important;
     }
-    
+
     .sidebar.mobile-open .logo-text,
     .sidebar.mobile-open .menu-text {
         display: block;
     }
+}
+
+/* Add this if your JS needs to hide sections initially */
+.section-content.hidden {
+    display: none;
 }
