@@ -4,8 +4,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\TableController;
-
-
+use App\Http\Controllers\CommandeController;
+use App\Http\Controllers\UtilisateurController;
+use App\Http\Controllers\HoraireController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\GerantController;
 use App\Http\Middleware\JWTAuthentication;
@@ -43,16 +44,38 @@ Route::middleware([JWTAuthentication::class])->group(function () {
     Route::get('/gerants/dashboard', [GerantController::class, 'index'])
         ->middleware('role:gérant')
         ->name('gerants.dashboard');
-    
-    // Gérant section routes - handled via AJAX
+
+    // Gérant section routes - handled via AJAX or direct access
     Route::prefix('gerant')->middleware('role:gérant')->group(function () {
-        Route::get('/dashboard', [GerantController::class, 'dashboard']);
-        Route::get('/reservations', [GerantController::class, 'reservations']);
-        Route::get('/payments', [GerantController::class, 'payments']);
-        Route::get('/orders', [GerantController::class, 'orders']);
-        Route::get('/inventory', [GerantController::class, 'inventory']);
-        Route::get('/staff', [GerantController::class, 'staff']);
-        Route::get('/reports', [GerantController::class, 'reports']);
+        Route::get('/dashboard', [GerantController::class, 'dashboard'])->name('gerant.dashboard');
+        Route::get('/reservations', [GerantController::class, 'reservations'])->name('gerant.reservations');
+        Route::get('/caisse', [GerantController::class, 'caisse'])->name('gerant.caisse');
+        Route::get('/commandes', [GerantController::class, 'commandes'])->name('gerant.commandes');
+        Route::get('/personnel', [GerantController::class, 'personnel'])->name('gerant.personnel');
+        Route::get('/rapports', [GerantController::class, 'rapports'])->name('gerant.rapports');
+        
+        // Routes pour la gestion des tables
+        Route::get('/tables', [GerantController::class, 'tables'])->name('gerant.tables');
+        Route::post('/tables', [TableController::class, 'store'])->name('gerant.tables.store');
+        Route::put('/tables/{id}', [TableController::class, 'update'])->name('gerant.tables.update');
+        Route::delete('/tables/{id}', [TableController::class, 'destroy'])->name('gerant.tables.destroy');
+        Route::post('/tables/update-status', [TableController::class, 'updateStatus'])->name('gerant.tables.updateStatus');
+        
+        
+        // Routes pour les réservations
+        Route::post('/reservations', [ReservationController::class, 'store'])->name('gerant.reservations.store');
+        Route::post('/reservations/update-status', [ReservationController::class, 'updateStatus'])->name('gerant.reservations.updateStatus');
+        
+        // Routes pour les commandes
+        Route::post('/commandes/update-status', [CommandeController::class, 'updateStatus'])->name('gerant.commandes.updateStatus');
+        
+        // Routes pour le personnel (via UtilisateurController)
+        Route::delete('/personnel/{id}', [UtilisateurController::class, 'destroy'])->name('gerant.personnel.destroy');
+        Route::get('/personnel/{id}/edit', [UtilisateurController::class, 'edit'])->name('gerant.personnel.edit');
+        Route::post('/personnel/update-role', [UtilisateurController::class, 'updateRole'])->name('gerant.personnel.updateRole');
+        
+        // Routes pour les horaires
+        Route::post('/horaires', [GerantController::class, 'storeHoraire'])->name('gerant.horaires.store');
     });
 
     Route::get('/serveurs/dashboard', [ServeurController::class, 'index'])

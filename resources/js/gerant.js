@@ -1,218 +1,298 @@
 // resources/js/gerant.js
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Date et heure actuelles du serveur (peut être passée dynamiquement par Blade si nécessaire)
-    const currentDateTimeFromServer = "2025-04-29 07:07:34";
-    const currentUserFromServer = "HamzaBr01"; // Exemple
 
-    // Mise à jour de l'affichage du temps en temps réel
-    const dateTimeEl = document.getElementById('current-date-time');
-    if (dateTimeEl) {
-        // Initial display with server time is good, but live update should use client time
-        // Or better, get server time offset and calculate continuously
-        dateTimeEl.textContent = currentDateTimeFromServer; // Initial display
-        updateTime(); // Start client-side clock
-        setInterval(updateTime, 1000);
+    // ----- Utilitaires Globaux -----
+
+    function showNotification(message, type = 'info') { // types: 'info', 'success', 'error', 'warning'
+        const existingNotifications = document.querySelectorAll('.dashboard-notification');
+        existingNotifications.forEach(notif => notif.remove());
+
+        const notification = document.createElement('div');
+        let bgColor = 'bg-blue-500'; // Défaut = info
+        if (type === 'success') bgColor = 'bg-green-500';
+        else if (type === 'error') bgColor = 'bg-red-500';
+        else if (type === 'warning') bgColor = 'bg-yellow-500 text-black'; // Warning avec texte noir pour lisibilité
+
+        // Ajout de classes Tailwind pour positionnement, style et transition
+        notification.className = `dashboard-notification fixed bottom-4 right-4 ${bgColor} text-white px-4 py-3 rounded-lg shadow-xl z-[100] transition-all duration-500 ease-out opacity-0 transform translate-y-2`;
+        notification.textContent = message;
+        document.body.appendChild(notification);
+
+        // Animation d'apparition
+        setTimeout(() => {
+            notification.classList.remove('opacity-0', 'translate-y-2');
+        }, 50);
+
+        // Disparition après délai
+        setTimeout(() => {
+             notification.classList.add('opacity-0', 'translate-y-2');
+             // Suppression du DOM après la fin de la transition
+             setTimeout(() => {
+                if (notification.parentNode) {
+                     notification.parentNode.removeChild(notification);
+                }
+            }, 550); // Légèrement plus long que la durée de transition
+        }, 3500); // Durée d'affichage
     }
+    // Rendre accessible globalement si nécessaire (moins idéal que la délégation)
+    window.showNotification = showNotification;
 
-    function updateTime() {
-        const date = new Date();
-        // Formatage simple, ajustez selon vos besoins (ex: toLocaleString)
-        const year = date.getFullYear();
-        const month = (date.getMonth() + 1).toString().padStart(2, '0');
-        const day = date.getDate().toString().padStart(2, '0');
-        const hours = date.getHours().toString().padStart(2, '0');
-        const minutes = date.getMinutes().toString().padStart(2, '0');
-        const seconds = date.getSeconds().toString().padStart(2, '0');
-        const formattedTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-        if (dateTimeEl) { // Check again inside interval
-            dateTimeEl.textContent = formattedTime;
+    function showModal(modalElement) {
+        if (modalElement) {
+            modalElement.classList.remove('hidden');
+            modalElement.classList.add('flex'); // Utiliser flex pour centrer via Tailwind
+             // Empêche le scroll de l'arrière-plan
+             document.body.style.overflow = 'hidden';
+        } else {
+            console.warn("Tentative d'affichage d'une modal inexistante");
         }
     }
 
-    // Fonctionnalité de bascule de la barre latérale
+    function hideModal(modalElement) {
+        if (modalElement) {
+            modalElement.classList.add('hidden');
+            modalElement.classList.remove('flex');
+             // Rétablit le scroll de l'arrière-plan
+             document.body.style.overflow = '';
+        }
+    }
+
+    function getCurrentTime(includeSeconds = false) {
+        const options = { hour: '2-digit', minute: '2-digit' };
+        if (includeSeconds) {
+            options.second = '2-digit';
+        }
+        return new Date().toLocaleTimeString('fr-FR', options);
+    }
+
+    function getFormattedDateTime() {
+        return new Date().toLocaleString('fr-FR', {
+              year: 'numeric', month: '2-digit', day: '2-digit',
+              hour: '2-digit', minute: '2-digit', second: '2-digit'
+         }).replace(',', '');
+    }
+
+    // ----- Initialisation Globale UI -----
+
+    // Mise à jour Date/Heure
+    const dateTimeEl = document.getElementById('current-date-time');
+    if (dateTimeEl) {
+        const updateClock = () => { dateTimeEl.textContent = getFormattedDateTime(); };
+        updateClock();
+        setInterval(updateClock, 1000);
+    } else {
+        console.warn("Élément 'current-date-time' non trouvé.");
+    }
+
+    // Toggle Sidebar
     const sidebarToggle = document.getElementById('sidebar-toggle');
     const sidebar = document.getElementById('sidebar');
     const mainContent = document.getElementById('main-content');
     const header = document.getElementById('header');
 
     if (sidebarToggle && sidebar && mainContent && header) {
-        sidebarToggle.addEventListener('click', function() {
-            sidebar.classList.toggle('collapsed');
-            mainContent.classList.toggle('sidebar-collapsed');
-            header.classList.toggle('sidebar-collapsed');
+        sidebarToggle.addEventListener('click', () => {
+            const isCollapsed = sidebar.classList.toggle('w-[70px]'); // Bascule et vérifie si elle est maintenant réduite
+            sidebar.classList.toggle('w-64', !isCollapsed); // Ajoute w-64 si PAS réduite
 
-            // Changer l'icône de bascule
+            mainContent.classList.toggle('ml-[70px]', isCollapsed);
+            mainContent.classList.toggle('ml-64', !isCollapsed);
+
+            header.classList.toggle('w-[calc(100%-70px)]', isCollapsed);
+            header.classList.toggle('w-[calc(100%-16rem)]', !isCollapsed); // 16rem = 256px = w-64
+
+            // Cache/Affiche les textes du menu et l'icône chevron
+            document.querySelectorAll('.menu-text').forEach(el => el.classList.toggle('hidden', isCollapsed));
             const icon = sidebarToggle.querySelector('i');
-            if (sidebar.classList.contains('collapsed')) {
-                icon.classList.remove('fa-chevron-left');
-                icon.classList.add('fa-chevron-right');
-                // Cacher le texte dans la sidebar réduite (CSS le fait déjà via media query, mais peut être forcé ici si besoin)
-            } else {
-                icon.classList.remove('fa-chevron-right');
-                icon.classList.add('fa-chevron-left');
-                // Afficher le texte
-            }
+            icon.classList.toggle('fa-chevron-left', !isCollapsed);
+            icon.classList.toggle('fa-chevron-right', isCollapsed);
 
-            // Redessiner les graphiques si nécessaire après le redimensionnement
-            window.dispatchEvent(new Event('resize'));
+             // Cache le titre 'Opérations' / 'Gestion' si réduit
+            document.querySelectorAll('.sidebar p.menu-text').forEach(p => p.classList.toggle('hidden', isCollapsed));
+             // Cache le badge de notification si réduit
+             document.querySelectorAll('.sidebar .sidebar-link span.rounded-full').forEach(badge => badge.classList.toggle('hidden', isCollapsed));
+
+             // Ajuste le padding/margin si nécessaire quand réduit
+             document.querySelectorAll('.sidebar-link').forEach(link => {
+                 link.classList.toggle('justify-center', isCollapsed); // Centre l'icône
+             });
         });
+    } else {
+        console.warn("Éléments de la sidebar (toggle, sidebar, main, header) non trouvés.");
     }
 
-    // Bascule du menu mobile
+    // Toggle Menu Mobile
     const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
-
     if (mobileMenuToggle && sidebar) {
-        mobileMenuToggle.addEventListener('click', function() {
-            sidebar.classList.toggle('mobile-open');
-        });
-        // Optionnel: fermer la sidebar si on clique en dehors
-        document.addEventListener('click', function(event) {
-            if (!sidebar.contains(event.target) && !mobileMenuToggle.contains(event.target) && sidebar.classList.contains('mobile-open')) {
-               sidebar.classList.remove('mobile-open');
-            }
-        });
-    }
+         const toggleMobileMenu = () => {
+             sidebar.classList.toggle('translate-x-0');
+             sidebar.classList.toggle('-translate-x-full');
+         };
 
+        mobileMenuToggle.addEventListener('click', toggleMobileMenu);
 
-    // Bascule du thème
-    const themeToggle = document.getElementById('theme-toggle');
-    const docElement = document.documentElement; // Cible <html>
-
-    function applyTheme(theme) {
-        docElement.setAttribute('data-theme', theme);
-        localStorage.setItem('theme', theme);
-         // Informer Chart.js du changement de thème si nécessaire
-        if (window.activeCharts) {
-            Object.values(window.activeCharts).forEach(chart => {
-                // Mettez à jour les options de couleur du graphique ici si elles dépendent du thème
-                // Exemple simple : chart.options.scales.y.ticks.color = (theme === 'dark' ? 'white' : 'black');
-                chart.update();
+        // Ferme le menu mobile quand on clique sur un lien de section
+        sidebar.querySelectorAll('.sidebar-link[data-section]').forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth < 1024 && sidebar.classList.contains('translate-x-0')) { // lg breakpoint for Tailwind
+                    toggleMobileMenu();
+                }
             });
-        }
-         // Informer FullCalendar
-        if (window.globalCalendar) {
-             // Vous pourriez avoir besoin de recharger les événements ou de mettre à jour les options
-             // window.globalCalendar.setOption('...', ...);
-        }
+        });
+
+         // Gère l'affichage initial et le redimensionnement
+        const handleResize = () => {
+            if (window.innerWidth < 1024) { // lg breakpoint
+                mobileMenuToggle.classList.remove('lg:hidden'); // Assure visibilité sur mobile/tablette
+                sidebar.classList.add('-translate-x-full'); // Caché par défaut
+                sidebar.classList.remove('translate-x-0');
+            } else {
+                mobileMenuToggle.classList.add('lg:hidden'); // Cache sur grand écran
+                sidebar.classList.remove('-translate-x-full'); // Visible par défaut sur grand écran
+                sidebar.classList.add('translate-x-0');
+                 // Assure que la sidebar n'est pas en mode réduit si on agrandit l'écran
+                 // (Comportement optionnel, on pourrait vouloir garder l'état réduit)
+                 /*
+                 if (sidebar.classList.contains('w-[70px]')) {
+                     sidebarToggle.click(); // Simule un clic pour l'agrandir
+                 }
+                 */
+            }
+        };
+        window.addEventListener('resize', handleResize);
+        handleResize(); // Appel initial
+
+    } else {
+         console.warn("Bouton de menu mobile ou sidebar non trouvés.");
     }
 
+    // Toggle Thème Sombre/Clair
+    const themeToggle = document.getElementById('theme-toggle');
     if (themeToggle) {
-        // Définir le thème initial
+        const applyTheme = (theme) => {
+            if (theme === 'dark') {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+             // Redessine les charts visibles après changement de thème
+             // Trouve la section actuellement visible
+             const visibleSection = document.querySelector('.section-content:not(.hidden)');
+             if (visibleSection) {
+                 const sectionId = visibleSection.id.replace('section-', '');
+                 if (sectionId === 'caisse') initSalesChart();
+                 else if (sectionId === 'rapports') {
+                     initSalesPerformanceChart();
+                     initTrendsChart();
+                 } else if (sectionId === 'tables') {
+                    // Le rendu des tables utilise des classes Tailwind qui s'adaptent au dark mode
+                    // mais si des couleurs CSS spécifiques sont utilisées, il faut forcer le re-rendu
+                    renderTables(); // Re-render les tables pour appliquer les bonnes couleurs dark:bg-...
+                 }
+             }
+        };
+
+        // Applique le thème sauvegardé ou préféré au chargement
         const savedTheme = localStorage.getItem('theme');
         const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        const initialTheme = savedTheme || (prefersDark ? 'dark' : 'light');
-        applyTheme(initialTheme);
+        applyTheme(savedTheme || (prefersDark ? 'dark' : 'light'));
 
-        themeToggle.addEventListener('click', function() {
-            const currentTheme = docElement.getAttribute('data-theme');
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            applyTheme(newTheme);
+        themeToggle.addEventListener('click', () => {
+            const isDark = document.documentElement.classList.toggle('dark');
+            const newTheme = isDark ? 'dark' : 'light';
+            localStorage.setItem('theme', newTheme);
+            applyTheme(newTheme); // Assure que les charts se mettent à jour
         });
+    } else {
+        console.warn("Bouton de changement de thème non trouvé.");
     }
 
-    // Bascule du mode crise
-    const crisisToggleButton = document.getElementById('crisis-toggle-button');
-    // const crisisBanner = document.getElementById('crisis-banner'); // Assurez-vous que cet ID existe ou ajustez
-    const headerEl = document.getElementById('header'); // Renommé pour éviter conflit
-    // const alertSpeakButton = document.getElementById('alert-speak-button'); // Assurez-vous que cet ID existe ou ajustez
+    // Toggle Mode Crise
+    const crisisToggle = document.getElementById('crisis-toggle-button');
+    const crisisBanner = document.getElementById('crisis-banner');
+    const headerElement = document.getElementById('header'); // Renommé pour clarté
+    const alertSpeakButton = document.getElementById('alert-speak-button');
 
-    if (crisisToggleButton && headerEl) { // Removed banner/speak checks as they weren't in original html
-        crisisToggleButton.addEventListener('click', function() {
-            const isActive = this.classList.toggle('active');
-            headerEl.classList.toggle('crisis-mode', isActive); // Use second arg for toggle
-            document.body.classList.toggle('crisis-active', isActive); // Peut-être utile pour styler d'autres éléments
+    if (crisisToggle && crisisBanner && headerElement) {
+        crisisToggle.addEventListener('click', () => {
+            const isActive = crisisToggle.classList.toggle('active');
+            crisisBanner.classList.toggle('hidden', !isActive);
 
-            // Si le mode crise est activé, déclencher l'alerte vocale
+            // Gère les styles du header avec précaution pour éviter conflits
+            // Il est peut-être préférable d'ajouter/retirer UNE classe spécifique 'crisis-active-header'
+            headerElement.classList.toggle('border-red-500', isActive);
+            headerElement.classList.toggle('bg-red-50', isActive && !document.documentElement.classList.contains('dark'));
+            headerElement.classList.toggle('dark:bg-red-900/20', isActive && document.documentElement.classList.contains('dark'));
+            // Supprime les classes de base pour éviter les conflits si on ne toggle pas bg-white/dark:bg-gray-800
+            if (!isActive) {
+                 headerElement.classList.remove('border-red-500', 'bg-red-50', 'dark:bg-red-900/20');
+            }
+
             if (isActive && 'speechSynthesis' in window) {
-                // speakAlert(); // Décommentez si la fonction speakAlert est définie et nécessaire
-                 console.log("Mode crise activé");
-            } else {
-                 console.log("Mode crise désactivé");
+                speakAlert();
             }
         });
+    } else {
+        console.warn("Éléments du mode crise (toggle, bannière, header) non trouvés.");
     }
 
-    // Synthèse vocale pour les alertes (Exemple, adaptez si nécessaire)
-    /*
+    if (alertSpeakButton && 'speechSynthesis' in window) {
+        alertSpeakButton.addEventListener('click', speakAlert);
+    } else if (!alertSpeakButton) {
+         console.warn("Bouton 'alert-speak-button' non trouvé.");
+    }
+
     function speakAlert() {
-        if ('speechSynthesis' in window) {
-            const alertMessage = "Attention. Mode crise activé. Vérifiez les alertes."; // Message simplifié
-            const utterance = new SpeechSynthesisUtterance(alertMessage);
-            utterance.lang = 'fr-FR';
-            utterance.volume = 1;
-            utterance.rate = 1;
-            utterance.pitch = 1;
-            window.speechSynthesis.speak(utterance);
-        } else {
-            console.warn("Speech Synthesis non supporté par ce navigateur.");
-        }
-    }
+        if (!('speechSynthesis' in window)) {
+             showNotification("La synthèse vocale n'est pas supportée par votre navigateur.", "warning");
+             return;
+         }
+        // Annule toute parole précédente
+        window.speechSynthesis.cancel();
 
-    // Décommentez si vous avez un bouton spécifique pour parler
-    // if (alertSpeakButton && 'speechSynthesis' in window) {
-    //     alertSpeakButton.addEventListener('click', function() {
-    //         speakAlert();
-    //     });
-    // }
-    */
+        const alertMessage = "Attention. Mode crise activé. Gestion prioritaire des ressources et du personnel requise.";
+        const utterance = new SpeechSynthesisUtterance(alertMessage);
+        utterance.lang = 'fr-FR';
+        utterance.volume = 1; // Max volume
+        utterance.rate = 0.9; // Un peu plus lent pour clarté
+        utterance.pitch = 1;
 
-    // Initialisation du calendrier RH
-    const calendarEl = document.getElementById('hr-calendar');
-    window.globalCalendar = null; // Pour référence globale si nécessaire (ex: thème)
-
-    if (calendarEl && typeof FullCalendar !== 'undefined') {
-        const calendar = new FullCalendar.Calendar(calendarEl, {
-            initialView: 'dayGridMonth',
-            headerToolbar: {
-                left: 'prev,next',
-                center: 'title',
-                right: 'dayGridMonth,timeGridWeek' // Gardé, mais pourrait être simplifié
-            },
-            locale: 'fr',
-            height: 'auto', // ou une hauteur fixe si 'auto' pose problème
-            // aspectRatio: 1.5, // Alternative à height
-            events: [ // Données statiques, à remplacer par une source dynamique (AJAX)
-                { title: 'Congé - Thomas', start: '2025-04-15', end: '2025-04-22', backgroundColor: '#3B82F6', borderColor: '#3B82F6' },
-                { title: 'Formation - Pierre', start: '2025-04-10', end: '2025-04-12', backgroundColor: '#10B981', borderColor: '#10B981' },
-                { title: 'Congé - Marie', start: '2025-04-25', end: '2025-04-28', backgroundColor: '#8B5CF6', borderColor: '#8B5CF6' },
-                { title: 'Maladie - Sophie', start: '2025-04-29', backgroundColor: '#EF4444', borderColor: '#EF4444' }
-            ],
-            // eventColor: 'var(--primary)', // Utiliser les variables CSS si possible
-            // eventTextColor: 'white',
-            // Vous pouvez ajouter plus d'options ici (ex: dateClick, eventClick)
-        });
-
-        // Attendre un petit délai pour le rendu initial correct, surtout si dans un conteneur caché
-        setTimeout(() => {
-             calendar.render();
-             window.globalCalendar = calendar; // Stocker la référence
-        }, 100); // Ajustez si nécessaire
-
-         // Si le calendrier est dans une section initialement cachée, le rendre lors de l'affichage
-         const personnelSection = document.getElementById('section-personnel');
-         if (personnelSection) {
-             const observer = new MutationObserver(mutations => {
-                 mutations.forEach(mutation => {
-                     if (mutation.attributeName === 'class' && !personnelSection.classList.contains('hidden')) {
-                         calendar.render(); // Ou calendar.updateSize(); si déjà rendu
-                         observer.disconnect(); // Ne l'observer qu'une fois
-                     }
-                 });
-             });
-             observer.observe(personnelSection, { attributes: true });
+        // Essaye de trouver une voix française
+         let voices = window.speechSynthesis.getVoices();
+         if (voices.length > 0) {
+             const frenchVoice = voices.find(voice => voice.lang === 'fr-FR');
+             if (frenchVoice) {
+                 utterance.voice = frenchVoice;
+             }
+         } else {
+             // Si les voix ne sont pas chargées, attendre l'événement
+             window.speechSynthesis.onvoiceschanged = () => {
+                 voices = window.speechSynthesis.getVoices();
+                 const frenchVoice = voices.find(voice => voice.lang === 'fr-FR');
+                 if (frenchVoice) {
+                     utterance.voice = frenchVoice;
+                 }
+                  // Ne parle qu'après avoir potentiellement défini la voix
+                  window.speechSynthesis.speak(utterance);
+             };
+             // Parle avec la voix par défaut si onvoiceschanged ne se déclenche pas rapidement
+             setTimeout(() => {
+                 if (!utterance.voice && !window.speechSynthesis.speaking) {
+                      window.speechSynthesis.speak(utterance);
+                  }
+              }, 500); // Attend 500ms pour le chargement des voix
+              return; // Sort pour éviter de parler deux fois
          }
 
-
-    } else if (calendarEl) {
-        console.error("FullCalendar n'est pas chargé ou l'élément #hr-calendar est introuvable.");
+        window.speechSynthesis.speak(utterance);
     }
 
 
-    // Gestion de la navigation entre les sections
+    // ----- Navigation des Sections -----
     const sidebarLinks = document.querySelectorAll('.sidebar-link[data-section]');
     const sections = document.querySelectorAll('.section-content');
-    window.activeCharts = {}; // Stocker les instances de graphiques actifs
+    let currentActiveSection = null; // Pour savoir quelle section est active
 
     function showSection(sectionId) {
         let sectionFound = false;
@@ -220,233 +300,909 @@ document.addEventListener('DOMContentLoaded', function() {
             if (section.id === `section-${sectionId}`) {
                 section.classList.remove('hidden');
                 sectionFound = true;
-                // Initialiser les composants spécifiques à la section si nécessaire et pas déjà fait
-                 initializeSectionComponents(sectionId);
+                currentActiveSection = sectionId;
+
+                // Initialise les composants spécifiques à la section SI elle devient visible
+                switch(sectionId) {
+                    case 'caisse':
+                        initSalesChart();
+                        break;
+                    case 'tables':
+                        if (typeof initTableManager === 'function') initTableManager();
+                        else console.error("initTableManager non défini");
+                        break;
+                    case 'personnel':
+                         if (typeof initPersonnelManager === 'function') initPersonnelManager();
+                         else console.error("initPersonnelManager non défini");
+                        break;
+                    case 'rapports':
+                        initSalesPerformanceChart();
+                        initTrendsChart();
+                        break;
+                    // Ajoutez d'autres cas si nécessaire
+                }
             } else {
                 section.classList.add('hidden');
             }
         });
 
         if (!sectionFound) {
-            console.warn(`Section non trouvée : ${sectionId}`);
-            // Afficher une section par défaut si la cible n'existe pas ?
-             // sections[0]?.classList.remove('hidden'); // Affiche la première section
-             // initializeSectionComponents(sections[0]?.id.replace('section-',''));
-        }
-
-        // Mettre à jour le lien actif dans la sidebar
-        sidebarLinks.forEach(link => {
-            link.classList.toggle('active', link.getAttribute('data-section') === sectionId);
-        });
-
-         // Fermer la sidebar mobile si ouverte
-        if (sidebar && sidebar.classList.contains('mobile-open')) {
-            sidebar.classList.remove('mobile-open');
+            console.warn(`Section avec ID 'section-${sectionId}' non trouvée.`);
+            // Optionnel: afficher une section par défaut ou une erreur visuelle
+             const defaultSection = document.getElementById('section-reservations'); // Section par défaut
+             if (defaultSection) {
+                  defaultSection.classList.remove('hidden');
+                  currentActiveSection = 'reservations';
+                   // Mettre à jour le lien actif dans la sidebar
+                   setActiveSidebarLink(currentActiveSection);
+              }
+        } else {
+             // Mettre à jour le lien actif dans la sidebar
+             setActiveSidebarLink(sectionId);
         }
     }
 
-     function initializeSectionComponents(sectionId) {
-        // Utiliser un drapeau pour éviter réinitialisations multiples
-        const sectionElement = document.getElementById(`section-${sectionId}`);
-        if (!sectionElement || sectionElement.dataset.initialized === 'true') {
-            return;
-        }
+     function setActiveSidebarLink(sectionId) {
+         sidebarLinks.forEach(link => {
+             if (link.getAttribute('data-section') === sectionId) {
+                 link.classList.add('bg-blue-50', 'dark:bg-blue-900/20', 'text-blue-600', 'dark:text-blue-400');
+             } else {
+                 link.classList.remove('bg-blue-50', 'dark:bg-blue-900/20', 'text-blue-600', 'dark:text-blue-400');
+             }
+         });
+     }
 
-        console.log(`Initialisation des composants pour : ${sectionId}`);
-
-        if (sectionId === 'caisse' && typeof Chart !== 'undefined') {
-            const canvas = document.getElementById('sales-chart');
-            if (canvas && !window.activeCharts['salesChart']) {
-                initSalesChart(canvas);
-            }
-        } else if (sectionId === 'rapports' && typeof Chart !== 'undefined') {
-            const perfCanvas = document.getElementById('sales-performance-chart');
-            const trendsCanvas = document.getElementById('trends-chart');
-            if (perfCanvas && !window.activeCharts['salesPerformanceChart']) {
-                initSalesPerformanceChart(perfCanvas);
-            }
-            if (trendsCanvas && !window.activeCharts['trendsChart']) {
-                initTrendsChart(trendsCanvas);
-            }
-        } else if (sectionId === 'personnel') {
-            // Si le calendrier n'a pas été rendu car caché initialement
-            if (window.globalCalendar) {
-                // Tenter de redessiner/mettre à jour la taille
-                 window.globalCalendar.updateSize();
-            }
-            // Initialiser SortableJS si besoin (non présent dans l'HTML fourni mais mentionné)
-            // initSortableLists();
-        }
-        // Ajouter d'autres initialisations spécifiques ici (SortableJS, etc.)
-
-        sectionElement.dataset.initialized = 'true'; // Marquer comme initialisé
-    }
-
-
-    // Afficher la section initiale (peut être déterminée par l'URL ou une valeur par défaut)
-    // Lire depuis l'URL hash ou définir une valeur par défaut
-    const initialSection = window.location.hash ? window.location.hash.substring(1) : 'reservations'; // Défaut: réservations
-    showSection(initialSection);
-
-    // Gérer les clics sur les liens de la sidebar
     sidebarLinks.forEach(link => {
         link.addEventListener('click', function(e) {
-            e.preventDefault();
+            // Empêche le comportement par défaut SEULEMENT si c'est un lien de section interne
             const sectionId = this.getAttribute('data-section');
-            showSection(sectionId);
-            // Mettre à jour l'URL hash pour la persistance et le partage de lien
-            window.location.hash = sectionId;
+            if (sectionId) {
+                 e.preventDefault();
+                 showSection(sectionId);
+                 // Ferme le menu mobile si ouvert et si on est sur petit écran
+                 if (window.innerWidth < 1024 && sidebar && sidebar.classList.contains('translate-x-0')) {
+                     sidebar.classList.remove('translate-x-0');
+                     sidebar.classList.add('-translate-x-full');
+                 }
+            }
+            // Laisse les autres liens (comme Déconnexion ou liens externes) fonctionner normalement
         });
     });
 
-    // Gérer le changement de hash (ex: boutons précédent/suivant du navigateur)
-     window.addEventListener('hashchange', () => {
-        const hashSection = window.location.hash.substring(1);
-        if (hashSection) {
-            showSection(hashSection);
-        } else {
-             // Si le hash est vide, revenir à la section par défaut
-             showSection('reservations');
+    // Affiche la section initiale au chargement (défaut: reservations)
+    // Pourrait être modifié pour lire l'URL (ex: #tables)
+    const initialSection = window.location.hash.substring(1) || 'reservations';
+    showSection(initialSection);
+
+
+    // ----- Logique des Graphiques (Chart.js) -----
+    let salesChartInstance = null;
+    let salesPerformanceChartInstance = null;
+    let trendsChartInstance = null;
+
+    function destroyChart(instance) {
+        if (instance) {
+            try {
+                 instance.destroy();
+             } catch (e) {
+                 console.error("Erreur lors de la destruction du chart:", e);
+             }
         }
-    });
+        return null;
+    }
 
+    function getChartColors() {
+        const isDarkMode = document.documentElement.classList.contains('dark');
+        // Utilisation des couleurs définies dans la config Tailwind via JS (si possible)
+        // ou des valeurs codées en dur comme fallback.
+        // Note: Accéder à tailwind.config n'est pas direct ici, il faut soit passer les couleurs
+        // soit utiliser les valeurs hex/rgba.
+        return {
+            primary: isDarkMode ? '#3B82F6' : '#0288D1', // Ajustez si vos couleurs dark sont différentes
+            primaryLight: isDarkMode ? 'rgba(59, 130, 246, 0.3)' : 'rgba(2, 136, 209, 0.1)',
+            green: isDarkMode ? '#22C55E' : '#4CAF50',
+            yellow: isDarkMode ? '#FACC15' : '#FFC107',
+            grid: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+            text: isDarkMode ? '#E5E7EB' : '#374151'
+        };
+    }
 
-    // Initialisation des graphiques (fonctions appelées par initializeSectionComponents)
-    function initSalesChart(canvas) {
-        const ctx = canvas.getContext('2d');
-        window.activeCharts['salesChart'] = new Chart(ctx, {
+    function initSalesChart() {
+        const ctx = document.getElementById('sales-chart')?.getContext('2d');
+        if (!ctx) { /*console.warn("Canvas 'sales-chart' non trouvé.");*/ return; } // Moins de bruit en console
+        salesChartInstance = destroyChart(salesChartInstance);
+        const colors = getChartColors();
+
+        salesChartInstance = new Chart(ctx, {
             type: 'line',
             data: {
                 labels: ['14h', '16h', '18h', '20h', '22h', 'Actuel'],
                 datasets: [{
                     label: 'Ventes (€)',
-                    data: [250, 520, 800, 950, 1100, 1250.80], // Données statiques
-                    borderColor: 'var(--primary)', // Utiliser var CSS
-                    backgroundColor: 'rgba(var(--primary-rgb), 0.1)', // Utiliser var CSS
+                    data: [250.50, 520.00, 800.20, 950.75, 1100.00, 1250.80], // Données exemple
+                    borderColor: colors.primary,
+                    backgroundColor: colors.primaryLight,
                     fill: true,
-                    tension: 0.4
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                // Adaptez les couleurs des axes/légendes au thème si nécessaire
-                 scales: {
-                    y: { ticks: { color: 'var(--text-secondary)' }, grid: { color: 'var(--border-color)' } },
-                    x: { ticks: { color: 'var(--text-secondary)' }, grid: { display: false } }
-                },
-                plugins: { legend: { labels: { color: 'var(--text-primary)' } } }
-            }
-        });
-    }
-
-    function initSalesPerformanceChart(canvas) {
-        const ctx = canvas.getContext('2d');
-        window.activeCharts['salesPerformanceChart'] = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'],
-                datasets: [{
-                    label: 'Cette semaine',
-                    data: [1200, 1500, 1300, 1700, 2100, 2500, 1800], // Données statiques
-                    backgroundColor: 'var(--primary)'
-                }, {
-                    label: 'Semaine précédente',
-                    data: [1100, 1400, 1250, 1600, 1900, 2300, 1700], // Données statiques
-                    backgroundColor: 'rgba(var(--primary-rgb), 0.3)'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                 scales: {
-                    y: { ticks: { color: 'var(--text-secondary)' }, grid: { color: 'var(--border-color)' } },
-                    x: { ticks: { color: 'var(--text-secondary)' }, grid: { display: false } }
-                },
-                plugins: { legend: { labels: { color: 'var(--text-primary)' } } }
-            }
-        });
-    }
-
-    function initTrendsChart(canvas) {
-        const ctx = canvas.getContext('2d');
-        window.activeCharts['trendsChart'] = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin'], // Données statiques
-                datasets: [{
-                    label: 'Clients',
-                    data: [1500, 1700, 1600, 1800, 1900, 2000], // Données statiques
-                    borderColor: 'var(--success)',
-                    tension: 0.3,
-                    yAxisID: 'y'
-                }, {
-                    label: 'Ticket moyen (€)',
-                    data: [48, 52, 51, 54, 56, 58], // Données statiques
-                    borderColor: 'var(--warning)',
-                    tension: 0.3,
-                    yAxisID: 'y1'
+                    tension: 0.4,
+                    pointBackgroundColor: colors.primary,
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: colors.primary,
+                    pointRadius: 4,
+                    pointHoverRadius: 6
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
                 scales: {
-                    y: {
-                        position: 'left',
-                        title: { display: true, text: 'Nombre de clients', color: 'var(--text-primary)' },
-                        ticks: { color: 'var(--text-secondary)' },
-                        grid: { color: 'var(--border-color)' }
-                    },
-                    y1: {
-                        position: 'right',
-                        title: { display: true, text: 'Ticket moyen (€)', color: 'var(--text-primary)' },
-                        ticks: { color: 'var(--text-secondary)' },
-                        grid: { drawOnChartArea: false } // Ne pas dessiner la grille pour l'axe Y1
-                    },
-                     x: { ticks: { color: 'var(--text-secondary)' }, grid: { display: false } }
+                    x: { grid: { color: colors.grid }, ticks: { color: colors.text } },
+                    y: { grid: { color: colors.grid }, ticks: { color: colors.text, callback: value => value + ' €' }, beginAtZero: true }
                 },
-                plugins: { legend: { labels: { color: 'var(--text-primary)' } } }
+                plugins: { legend: { display: false } },
+                 interaction: { intersect: false, mode: 'index' }, // Améliore le tooltip
+                 tooltip: { callbacks: { label: (context) => `${context.dataset.label}: ${context.parsed.y.toFixed(2)} €` } }
             }
         });
     }
 
-    // Fonction utilitaire pour afficher une notification (peut être améliorée)
-    function showNotification(message, type = 'info') { // type peut être 'info', 'success', 'warning', 'danger'
-        const notification = document.createElement('div');
-        // Utilisez les variables CSS pour les couleurs de fond selon le type
-        let bgColorVar = '--info';
-        if (type === 'success') bgColorVar = '--success';
-        if (type === 'warning') bgColorVar = '--warning';
-        if (type === 'danger') bgColorVar = '--danger';
+    function initSalesPerformanceChart() {
+        const ctx = document.getElementById('sales-performance-chart')?.getContext('2d');
+        if (!ctx) { /*console.warn("Canvas 'sales-performance-chart' non trouvé.");*/ return; }
+        salesPerformanceChartInstance = destroyChart(salesPerformanceChartInstance);
+        const colors = getChartColors();
 
-        notification.style.position = 'fixed';
-        notification.style.bottom = '1rem';
-        notification.style.right = '1rem';
-        notification.style.padding = '1rem 1.5rem';
-        notification.style.borderRadius = '0.5rem';
-        notification.style.backgroundColor = `var(${bgColorVar})`;
-        notification.style.color = 'white'; // Assumer un texte blanc pour la plupart des fonds
-        notification.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
-        notification.style.zIndex = '1000';
-        notification.style.opacity = '1';
-        notification.style.transition = 'opacity 0.5s ease-out';
-        notification.textContent = message;
-
-        document.body.appendChild(notification);
-
-        setTimeout(() => {
-            notification.style.opacity = '0';
-            setTimeout(() => {
-                document.body.removeChild(notification);
-            }, 500); // Laisser le temps à la transition de se terminer
-        }, 3000); // Durée d'affichage de la notification
+        salesPerformanceChartInstance = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'],
+                datasets: [{
+                    label: 'Cette semaine',
+                    data: [1200, 1500, 1300, 1700, 2100, 2500, 1800], // Données exemple
+                    backgroundColor: colors.primary,
+                    borderColor: colors.primary, // Ajout bordure pour cohérence
+                    borderWidth: 1,
+                    borderRadius: 4,
+                    maxBarThickness: 40 // Limite la largeur des barres
+                }, {
+                    label: 'Semaine précédente',
+                    data: [1100, 1400, 1250, 1600, 1900, 2300, 1700], // Données exemple
+                    backgroundColor: colors.primaryLight,
+                    borderColor: colors.primaryLight, // Ajout bordure
+                    borderWidth: 1,
+                    borderRadius: 4,
+                    maxBarThickness: 40
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: { grid: { display: false }, ticks: { color: colors.text } },
+                    y: { grid: { color: colors.grid }, ticks: { color: colors.text, callback: value => value + ' €' }, beginAtZero: true }
+                },
+                plugins: { legend: { labels: { color: colors.text } } },
+                 interaction: { mode: 'index' }, // Tooltip pour les deux barres en même temps
+                 tooltip: { callbacks: { label: (context) => `${context.dataset.label}: ${context.parsed.y.toFixed(2)} €` } }
+            }
+        });
     }
 
-    // Exemple d'utilisation (vous pouvez l'appeler depuis d'autres parties de votre code)
-    // showNotification('Bienvenue sur le tableau de bord !');
-    // showNotification('Opération réussie.', 'success');
-    // showNotification('Attention, stock faible.', 'warning');
-    // showNotification('Erreur critique.', 'danger');
+    function initTrendsChart() {
+        const ctx = document.getElementById('trends-chart')?.getContext('2d');
+        if (!ctx) { /*console.warn("Canvas 'trends-chart' non trouvé.");*/ return; }
+        trendsChartInstance = destroyChart(trendsChartInstance);
+        const colors = getChartColors();
 
-});
+        trendsChartInstance = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin'], // Données exemple
+                datasets: [{
+                    label: 'Clients',
+                    data: [1500, 1700, 1600, 1800, 1900, 2000], // Données exemple
+                    borderColor: colors.green,
+                    backgroundColor: colors.green + '1A', // Légère couleur de fond
+                    tension: 0.3, yAxisID: 'yClients',
+                    pointBackgroundColor: colors.green, pointBorderColor: '#fff', pointRadius: 4,
+                    pointHoverBackgroundColor: '#fff', pointHoverBorderColor: colors.green, pointHoverRadius: 6
+                }, {
+                    label: 'Ticket moyen (€)',
+                    data: [48.5, 52.1, 51.0, 54.3, 56.8, 58.2], // Données exemple
+                    borderColor: colors.yellow,
+                    backgroundColor: colors.yellow + '1A',
+                    tension: 0.3, yAxisID: 'yTicket',
+                    pointBackgroundColor: colors.yellow, pointBorderColor: '#fff', pointRadius: 4,
+                    pointHoverBackgroundColor: '#fff', pointHoverBorderColor: colors.yellow, pointHoverRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                 scales: {
+                     x: { grid: { color: colors.grid }, ticks: { color: colors.text } },
+                     yClients: {
+                         position: 'left',
+                         title: { display: true, text: 'Nombre de clients', color: colors.text },
+                         grid: { color: colors.grid },
+                         ticks: { color: colors.text }
+                     },
+                     yTicket: {
+                         position: 'right',
+                         title: { display: true, text: 'Ticket moyen (€)', color: colors.text },
+                         grid: { drawOnChartArea: false }, // Ne pas dessiner la grille pour cet axe
+                         ticks: { color: colors.text, callback: value => value.toFixed(2) + ' €' },
+                         beginAtZero: false // Le ticket moyen ne commence pas forcément à 0
+                     }
+                 },
+                 plugins: { legend: { labels: { color: colors.text } } },
+                 interaction: { intersect: false, mode: 'index' },
+                 tooltip: {
+                     callbacks: {
+                         label: (context) => {
+                              let label = context.dataset.label || '';
+                              if (label) { label += ': '; }
+                              if (context.parsed.y !== null) {
+                                  label += context.parsed.y.toFixed(context.dataset.yAxisID === 'yTicket' ? 2 : 0);
+                                  if (context.dataset.yAxisID === 'yTicket') label += ' €';
+                              }
+                              return label;
+                          }
+                     }
+                 }
+            }
+        });
+    }
+
+    // ----- Logique Section Tables -----
+    // Données exemple (à remplacer par des données dynamiques via Blade/AJAX)
+    let tablesData = [
+        { id: 1, number: 1, capacity: 4, zone: 'ground', type: 'round', status: 'available', x: 100, y: 150, since: null, server: null },
+        { id: 2, number: 2, capacity: 4, zone: 'ground', type: 'round', status: 'occupied', x: 200, y: 150, since: '11:45', server: 'Thomas D.' },
+        { id: 3, number: 3, capacity: 4, zone: 'ground', type: 'round', status: 'ordered', x: 300, y: 150, since: '12:15', server: 'Marie S.' },
+        { id: 4, number: 4, capacity: 4, zone: 'ground', type: 'round', status: 'payment', x: 400, y: 150, since: '13:05', server: 'Thomas D.' },
+        { id: 5, number: 5, capacity: 2, zone: 'ground', type: 'round', status: 'available', x: 100, y: 250, since: null, server: null },
+        { id: 6, number: 6, capacity: 2, zone: 'ground', type: 'round', status: 'reserved', x: 200, y: 250, since: '13:30', server: 'Marie S.' },
+        { id: 7, number: 7, capacity: 6, zone: 'ground', type: 'rect', status: 'available', x: 350, y: 250, since: null, server: null },
+        { id: 8, number: 8, capacity: 8, zone: 'ground', type: 'rect', status: 'occupied', x: 150, y: 350, since: '12:30', server: 'Pierre L.' },
+        { id: 9, number: 9, capacity: 2, zone: 'terrace', type: 'round', status: 'available', x: 500, y: 150, since: null, server: null },
+        { id: 10, number: 10, capacity: 4, zone: 'terrace', type: 'round', status: 'available', x: 600, y: 150, since: null, server: null },
+        { id: 11, number: 11, capacity: 4, zone: 'terrace', type: 'round', status: 'occupied', x: 500, y: 250, since: '12:00', server: 'Sophie R.' },
+        { id: 12, number: 12, capacity: 8, zone: 'private', type: 'rect', status: 'reserved', x: 600, y: 350, since: '19:30', server: 'Thomas D.' }
+    ];
+    let selectedTableId = null;
+    let sortableMapInstance = null;
+    let isTableManagerInitialized = false; // Pour éviter ré-initialisations multiples
+
+    function initTableManager() {
+        if (isTableManagerInitialized) {
+            renderTables(); // Re-render suffit si déjà initialisé
+            renderTablesList();
+            return;
+        }
+
+        const tablesContainer = document.getElementById('tables-container');
+        const tablesListContainer = document.getElementById('tables-list');
+        if (!tablesContainer || !tablesListContainer) {
+            console.warn("Conteneurs de tables non trouvés. Initialisation de Table Manager annulée.");
+            return;
+        }
+
+        console.log("Initialisation Table Manager...");
+        renderTables();
+        renderTablesList();
+        setupTableEventListeners();
+        initializeSortableMap();
+        isTableManagerInitialized = true;
+    }
+
+    function renderTables() {
+        const container = document.getElementById('tables-container');
+        if (!container) return;
+        container.innerHTML = ''; // Vide le conteneur
+        const filterElement = document.getElementById('floor-selector');
+        const filter = filterElement ? filterElement.value : 'all';
+        const isDarkMode = document.documentElement.classList.contains('dark');
+
+        tablesData.forEach(table => {
+            if (filter === 'all' || filter === table.zone) {
+                const tableElement = createTableElement(table, isDarkMode);
+                container.appendChild(tableElement);
+            }
+        });
+        // Réinitialise SortableJS si nécessaire après le rendu
+        initializeSortableMap();
+    }
+
+     function createTableElement(table, isDarkMode) {
+        const tableElement = document.createElement('div');
+        tableElement.id = `map-table-${table.id}`; // ID unique pour la carte
+        tableElement.className = `table-item absolute cursor-grab active:cursor-grabbing transition-all duration-150 transform hover:scale-105 group`; // group pour hover effets internes
+        tableElement.style.left = `${table.x}px`;
+        tableElement.style.top = `${table.y}px`;
+        tableElement.dataset.id = table.id; // Pour SortableJS et clics
+
+        // Forme et Taille
+        let shape, size;
+        if (table.type === 'round') { shape = 'rounded-full'; size = table.capacity <= 2 ? 'w-16 h-16' : 'w-20 h-20'; }
+        else if (table.type === 'rect') { shape = 'rounded-lg'; size = table.capacity <= 4 ? 'w-24 h-16' : 'w-32 h-20'; }
+        else if (table.type === 'booth') { shape = 'rounded-t-lg rounded-b-3xl'; size = 'w-24 h-20'; }
+        else { shape = 'rounded-lg'; size = 'w-20 h-20'; } // Fallback
+
+        // Couleurs basées sur le statut et le thème
+        let bgColor, borderColor, textColor;
+        switch(table.status) {
+            case 'available':
+                bgColor = 'bg-green-100 dark:bg-green-800 dark:bg-opacity-40'; borderColor = 'border-green-500 dark:border-green-600'; textColor = 'text-green-800 dark:text-green-200'; break;
+            case 'occupied':
+                bgColor = 'bg-blue-100 dark:bg-blue-800 dark:bg-opacity-40'; borderColor = 'border-blue-500 dark:border-blue-600'; textColor = 'text-blue-800 dark:text-blue-200'; break;
+            case 'ordered':
+                bgColor = 'bg-amber-100 dark:bg-amber-800 dark:bg-opacity-40'; borderColor = 'border-amber-500 dark:border-amber-600'; textColor = 'text-amber-800 dark:text-amber-200'; break;
+            case 'payment':
+                bgColor = 'bg-red-100 dark:bg-red-800 dark:bg-opacity-40'; borderColor = 'border-red-500 dark:border-red-600'; textColor = 'text-red-800 dark:text-red-200'; break;
+            case 'reserved':
+                bgColor = 'bg-purple-100 dark:bg-purple-800 dark:bg-opacity-40'; borderColor = 'border-purple-500 dark:border-purple-600'; textColor = 'text-purple-800 dark:text-purple-200'; break;
+            default:
+                bgColor = 'bg-gray-200 dark:bg-gray-700'; borderColor = 'border-gray-400 dark:border-gray-500'; textColor = 'text-gray-800 dark:text-gray-200';
+        }
+
+        tableElement.className += ` ${size} ${shape} ${bgColor} border-2 ${borderColor} ${textColor} flex flex-col items-center justify-center shadow-md hover:shadow-lg`;
+
+        tableElement.innerHTML = `
+            <div class="font-bold text-lg pointer-events-none">T${table.number}</div>
+            <div class="text-xs pointer-events-none">${table.capacity} pers.</div>
+            ${table.server ? `<div class="text-[10px] mt-0.5 pointer-events-none truncate max-w-[80%]">${table.server}</div>` : ''}
+        `;
+
+        // Utilise la délégation d'événements sur le conteneur au lieu d'ajouter un listener à chaque table
+        // tableElement.addEventListener('click', handleClickOnTable);
+
+        return tableElement;
+    }
+
+    function renderTablesList() {
+        const container = document.getElementById('tables-list');
+        const searchInput = document.getElementById('table-search');
+        const statusFilterSelect = document.getElementById('status-filter');
+        if (!container || !searchInput || !statusFilterSelect) return;
+
+        container.innerHTML = ''; // Vide la liste
+        const searchTerm = searchInput.value.toLowerCase();
+        const statusFilter = statusFilterSelect.value;
+
+        const filteredAndSortedTables = tablesData
+            .filter(table =>
+                (searchTerm === '' || table.number.toString().includes(searchTerm) || (table.server && table.server.toLowerCase().includes(searchTerm))) &&
+                (statusFilter === 'all' || statusFilter === table.status)
+            )
+            .sort((a, b) => a.number - b.number);
+
+        if (filteredAndSortedTables.length === 0) {
+             container.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-gray-500">Aucune table trouvée.</td></tr>`;
+             return;
+         }
+
+        filteredAndSortedTables.forEach(table => {
+            const row = document.createElement('tr');
+            // Ajoute un data-id à la ligne pour faciliter la récupération
+            row.dataset.id = table.id;
+            row.className = 'border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors duration-150';
+
+            let statusBadge, zoneText;
+             switch(table.status) {
+                 case 'available': statusBadge = '<span class="status-badge bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300">Disponible</span>'; break;
+                 case 'occupied': statusBadge = '<span class="status-badge bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300">Occupée</span>'; break;
+                 case 'ordered': statusBadge = '<span class="status-badge bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300">Commande</span>'; break;
+                 case 'payment': statusBadge = '<span class="status-badge bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300">Paiement</span>'; break;
+                 case 'reserved': statusBadge = '<span class="status-badge bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300">Réservée</span>'; break;
+                 default: statusBadge = '<span class="status-badge bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300">Inconnu</span>';
+             }
+              // Style commun pour les badges
+              statusBadge = statusBadge.replace('class="status-badge', 'class="status-badge inline-block px-2 py-0.5 text-xs font-semibold rounded-full"');
+
+             switch(table.zone) {
+                 case 'ground': zoneText = 'RdC'; break; // Abrégé pour la liste
+                 case 'terrace': zoneText = 'Terrasse'; break;
+                 case 'private': zoneText = 'Privé'; break;
+                 default: zoneText = table.zone;
+             }
+
+            row.innerHTML = `
+                <td class="px-4 py-3 font-medium">T ${table.number}</td>
+                <td class="px-4 py-3 text-sm">${table.capacity}</td>
+                <td class="px-4 py-3 text-sm">${zoneText}</td>
+                <td class="px-4 py-3">${statusBadge}</td>
+                <td class="px-4 py-3 text-sm">${table.since || '-'}</td>
+                <td class="px-4 py-3 text-sm truncate max-w-[100px]">${table.server || '-'}</td>
+                <td class="px-4 py-3">
+                    <div class="flex items-center space-x-1">
+                        <button class="action-button bg-blue-500 hover:bg-blue-600 text-white" title="Modifier" data-action="edit">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                         <button class="action-button bg-yellow-500 hover:bg-yellow-600 text-white ${table.status === 'available' ? 'opacity-50 cursor-not-allowed' : ''}" title="Changer Statut" data-action="status" ${table.status === 'available' ? 'disabled' : ''}>
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                        <button class="action-button bg-green-500 hover:bg-green-600 text-white ${table.status !== 'available' && table.status !== 'reserved' ? 'opacity-50 cursor-not-allowed' : ''}" title="Occuper/Arrivée" data-action="occupy" ${table.status !== 'available' && table.status !== 'reserved' ? 'disabled' : ''}>
+                            <i class="fas fa-check"></i>
+                        </button>
+                        <button class="action-button bg-red-500 hover:bg-red-600 text-white" title="Supprimer" data-action="delete">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            `;
+             // Ajout d'une classe commune aux boutons pour le style et la délégation
+             row.querySelectorAll('.action-button').forEach(btn => {
+                 btn.classList.add('p-1.5', 'text-xs', 'rounded', 'transition-colors', 'duration-150');
+                 btn.querySelector('i')?.classList.add('pointer-events-none'); // Empêche l'icône de recevoir le clic
+             });
+            container.appendChild(row);
+        });
+    }
+
+    function setupTableEventListeners() {
+        // Écouteurs pour les filtres et boutons globaux de la section
+        const floorSelector = document.getElementById('floor-selector');
+        const tableSearch = document.getElementById('table-search');
+        const statusFilter = document.getElementById('status-filter');
+        const btnAddTable = document.getElementById('btn-add-table');
+
+        if (floorSelector) floorSelector.addEventListener('change', renderTables);
+        if (tableSearch) tableSearch.addEventListener('input', renderTablesList);
+        if (statusFilter) statusFilter.addEventListener('change', renderTablesList);
+        if (btnAddTable) btnAddTable.addEventListener('click', () => showTableModal());
+
+        // Écouteurs pour les modales (ajout/modif et suppression)
+        const tableModal = document.getElementById('table-modal');
+        const cancelTableModal = document.getElementById('cancel-table-modal');
+        const saveTableBtn = document.getElementById('save-table');
+        const deleteTableModal = document.getElementById('delete-table-modal');
+        const cancelDeleteTable = document.getElementById('cancel-delete-table');
+        const confirmDeleteTableBtn = document.getElementById('confirm-delete-table');
+
+        if (tableModal && cancelTableModal && saveTableBtn) {
+            cancelTableModal.addEventListener('click', () => hideModal(tableModal));
+            saveTableBtn.addEventListener('click', saveTable);
+             // Ferme la modal si on clique en dehors du contenu
+             tableModal.addEventListener('click', (event) => {
+                 if (event.target === tableModal) hideModal(tableModal);
+             });
+        }
+        if (deleteTableModal && cancelDeleteTable && confirmDeleteTableBtn) {
+            cancelDeleteTable.addEventListener('click', () => hideModal(deleteTableModal));
+            confirmDeleteTableBtn.addEventListener('click', handleDeleteTable);
+             deleteTableModal.addEventListener('click', (event) => {
+                 if (event.target === deleteTableModal) hideModal(deleteTableModal);
+             });
+        }
+
+         // Délégation d'événements pour les actions sur la liste des tables
+         const tablesListContainer = document.getElementById('tables-list');
+         if (tablesListContainer) {
+             tablesListContainer.addEventListener('click', handleTableListAction);
+         }
+
+          // Délégation d'événements pour les clics sur les tables du plan
+          const tablesMapContainer = document.getElementById('tables-container');
+          if (tablesMapContainer) {
+              tablesMapContainer.addEventListener('click', handleClickOnTable);
+          }
+    }
+
+     // Gère les clics sur les boutons de la LISTE des tables
+     function handleTableListAction(event) {
+        const button = event.target.closest('button.action-button[data-action]');
+        if (!button || button.disabled) return;
+
+        const action = button.dataset.action;
+        // Trouve l'ID depuis la ligne parente <tr>
+        const tableRow = button.closest('tr');
+        const id = tableRow ? parseInt(tableRow.dataset.id) : null;
+
+        if (id === null) return;
+
+        switch(action) {
+            case 'edit':
+                editTable(id);
+                break;
+            case 'status': // Bouton "Changer Statut"
+                 cycleTableStatus(id);
+                 break;
+            case 'occupy': // Bouton "Occuper/Arrivée" (check vert)
+                 occupyTable(id);
+                 break;
+            case 'delete':
+                confirmDeleteTable(id);
+                break;
+        }
+    }
+
+     // Gère les clics sur les tables du PLAN de salle
+     function handleClickOnTable(event) {
+         const tableElement = event.target.closest('.table-item[data-id]');
+         // Ignore les clics pendant un drag (géré par SortableJS) ou si pas sur une table
+         if (!tableElement || tableElement.classList.contains('sortable-ghost') || tableElement.classList.contains('sortable-chosen')) return;
+
+         const id = parseInt(tableElement.dataset.id);
+         if (isNaN(id)) return;
+
+         // Action simple au clic sur le plan: cycle le statut (ouvre une modal d'actions plus tard)
+         // showTableActionsModal(id); // Idéalement, ouvrir une petite modal/menu contextuel
+         cycleTableStatus(id); // Pour l'instant, cycle le statut comme sur la liste
+     }
+
+     function findTableById(id) {
+         return tablesData.find(t => t.id === id);
+     }
+     function findTableIndexById(id) {
+         return tablesData.findIndex(t => t.id === id);
+     }
+
+    function editTable(id) {
+        const table = findTableById(id);
+        if (table) {
+            showTableModal(table);
+        } else {
+            showNotification(`Table ID ${id} non trouvée pour modification.`, 'error');
+        }
+    }
+
+     // Gère le clic sur le bouton "Occuper/Arrivée" (check vert)
+     function occupyTable(id) {
+         const tableIndex = findTableIndexById(id);
+         if (tableIndex === -1) return;
+
+         const currentStatus = tablesData[tableIndex].status;
+
+         if (currentStatus === 'available' || currentStatus === 'reserved') {
+             tablesData[tableIndex].status = 'occupied';
+             tablesData[tableIndex].since = getCurrentTime();
+             // Potentiellement demander le serveur ici via une petite modal ou assigner par défaut
+             if (!tablesData[tableIndex].server) tablesData[tableIndex].server = 'Assigné';
+             renderAndUpdate(`Table ${tablesData[tableIndex].number} marquée comme occupée.`);
+         } else {
+             showNotification(`Cette action n'est possible que pour les tables disponibles ou réservées.`, 'warning');
+         }
+     }
+
+     // Cycle à travers les statuts possibles (sauf 'available')
+     function cycleTableStatus(id) {
+         const tableIndex = findTableIndexById(id);
+         if (tableIndex === -1) return;
+
+         const currentStatus = tablesData[tableIndex].status;
+         if (currentStatus === 'available') {
+             showNotification("Utilisez le bouton vert 'Occuper' pour passer une table à 'Occupée'.", "info");
+             return;
+         }
+
+         const statusOrder = ['occupied', 'ordered', 'payment', 'available']; // Ordre de cycle (revient à 'available' à la fin)
+         let currentIndex = statusOrder.indexOf(currentStatus);
+         let nextIndex = (currentIndex + 1) % statusOrder.length;
+         let nextStatus = statusOrder[nextIndex];
+
+         tablesData[tableIndex].status = nextStatus;
+         tablesData[tableIndex].since = getCurrentTime(); // Met à jour l'heure du changement
+
+         let notificationMessage = `Statut de la Table ${tablesData[tableIndex].number} mis à jour : ${nextStatus}.`;
+
+         if (nextStatus === 'available') {
+             tablesData[tableIndex].server = null; // Libère le serveur
+             tablesData[tableIndex].since = null;
+             notificationMessage = `Table ${tablesData[tableIndex].number} libérée.`;
+         } else if (!tablesData[tableIndex].server) {
+             // Assign un serveur si la table devient occupée et n'en a pas
+             tablesData[tableIndex].server = 'Assigné';
+         }
+
+         renderAndUpdate(notificationMessage);
+     }
+
+
+    function confirmDeleteTable(id) {
+        selectedTableId = id;
+        const table = findTableById(id);
+        const modal = document.getElementById('delete-table-modal');
+        const numberSpan = document.getElementById('delete-table-number');
+        if (table && modal && numberSpan) {
+            numberSpan.textContent = `n°${table.number}`;
+            showModal(modal);
+        } else {
+             console.error("Impossible d'ouvrir la modal de suppression pour la table ID:", id);
+        }
+    }
+
+     function handleDeleteTable() {
+         if (selectedTableId === null) return;
+         const tableIndex = findTableIndexById(selectedTableId);
+         if (tableIndex !== -1) {
+             const deletedNumber = tablesData[tableIndex].number;
+             tablesData.splice(tableIndex, 1); // Supprime du tableau local
+             renderAndUpdate(`Table ${deletedNumber} supprimée.`);
+             hideModal(document.getElementById('delete-table-modal'));
+         } else {
+             showNotification(`Erreur lors de la suppression de la table ID ${selectedTableId}.`, 'error');
+         }
+         selectedTableId = null; // Réinitialise l'ID sélectionné
+     }
+
+     // Met à jour l'affichage et affiche une notification
+     function renderAndUpdate(notificationMessage = null, notificationType = 'info') {
+          renderTables();
+          renderTablesList();
+          if (notificationMessage) {
+               showNotification(notificationMessage, notificationType);
+           }
+      }
+
+    function showTableModal(table = null) {
+        const modal = document.getElementById('table-modal');
+        if (!modal) return;
+
+        // Références aux éléments du formulaire
+        const title = document.getElementById('table-modal-title');
+        const numberInput = document.getElementById('table-number');
+        const capacityInput = document.getElementById('table-capacity');
+        const zoneSelect = document.getElementById('table-zone');
+        const typeSelect = document.getElementById('table-type');
+        const xInput = document.getElementById('table-x');
+        const yInput = document.getElementById('table-y');
+
+        // Vérifie que tous les éléments existent
+        if (!title || !numberInput || !capacityInput || !zoneSelect || !typeSelect || !xInput || !yInput) {
+             console.error("Éléments de la modal table manquants.");
+             return;
+         }
+
+        // Reset form elements
+        numberInput.value = ''; capacityInput.value = ''; zoneSelect.value = 'ground';
+        typeSelect.value = 'round'; xInput.value = ''; yInput.value = '';
+
+        if (table) { // Mode édition
+            title.textContent = `Modifier la table ${table.number}`;
+            numberInput.value = table.number;
+            capacityInput.value = table.capacity;
+            zoneSelect.value = table.zone;
+            typeSelect.value = table.type;
+            xInput.value = table.x;
+            yInput.value = table.y;
+            selectedTableId = table.id; // Stocke l'ID pour la sauvegarde
+        } else { // Mode ajout
+            title.textContent = 'Ajouter une table';
+            const maxNumber = tablesData.length > 0 ? Math.max(0, ...tablesData.map(t => t.number)) : 0;
+            numberInput.value = maxNumber + 1;
+            capacityInput.value = 4; // Capacité par défaut
+            selectedTableId = null; // Pas d'ID sélectionné pour l'ajout
+        }
+        showModal(modal);
+    }
+
+    function saveTable() {
+        // Récupère les éléments de la modal
+        const numberInput = document.getElementById('table-number');
+        const capacityInput = document.getElementById('table-capacity');
+        const zoneSelect = document.getElementById('table-zone');
+        const typeSelect = document.getElementById('table-type');
+        const xInput = document.getElementById('table-x');
+        const yInput = document.getElementById('table-y');
+        const modal = document.getElementById('table-modal');
+
+        // Validation simple
+        if (!numberInput.value || !capacityInput.value) {
+            showNotification('Le numéro et la capacité sont obligatoires.', 'warning');
+            return;
+        }
+        const tableNumber = parseInt(numberInput.value);
+        const capacity = parseInt(capacityInput.value);
+        if (isNaN(tableNumber) || tableNumber <= 0 || isNaN(capacity) || capacity <= 0) {
+             showNotification('Numéro ou capacité invalide.', 'warning');
+             return;
+         }
+
+        // Vérifie l'unicité du numéro (sauf si on édite la même table)
+        const existingTable = tablesData.find(t => t.number === tableNumber && t.id !== selectedTableId);
+        if (existingTable) {
+            showNotification(`Une table avec le numéro ${tableNumber} existe déjà.`, 'error');
+            return;
+        }
+
+        // Détermine la position (utilise les inputs ou génère aléatoirement)
+         const mapElement = document.getElementById('restaurant-map');
+         // Dimensions fallback si mapElement non trouvé ou non rendu
+         const mapWidth = mapElement ? mapElement.clientWidth - 100 : 700; // Ajuste pour taille table max
+         const mapHeight = mapElement ? mapElement.clientHeight - 100 : 400;
+         let x = xInput.value ? parseInt(xInput.value) : Math.max(20, Math.floor(Math.random() * mapWidth));
+         let y = yInput.value ? parseInt(yInput.value) : Math.max(20, Math.floor(Math.random() * mapHeight));
+         // S'assure que x et y sont des nombres valides
+         x = isNaN(x) ? 50 : x;
+         y = isNaN(y) ? 50 : y;
+
+
+        const tableData = {
+            number: tableNumber,
+            capacity: capacity,
+            zone: zoneSelect.value,
+            type: typeSelect.value,
+            x: x,
+            y: y
+        };
+
+        if (selectedTableId !== null) { // Mode Modification
+            const tableIndex = findTableIndexById(selectedTableId);
+            if (tableIndex !== -1) {
+                // Fusionne les nouvelles données avec les anciennes (conserve statut, etc.)
+                tablesData[tableIndex] = { ...tablesData[tableIndex], ...tableData };
+                renderAndUpdate(`Table ${tableNumber} modifiée.`, 'success');
+            } else {
+                 showNotification(`Erreur: Table ID ${selectedTableId} non trouvée pour modification.`, 'error');
+            }
+        } else { // Mode Ajout
+            const newId = tablesData.length > 0 ? Math.max(0, ...tablesData.map(t => t.id)) + 1 : 1;
+            const newTable = {
+                ...tableData,
+                id: newId,
+                status: 'available', // Statut par défaut pour une nouvelle table
+                 since: null,
+                 server: null
+            };
+            tablesData.push(newTable);
+            renderAndUpdate(`Table ${tableNumber} ajoutée.`, 'success');
+        }
+
+        hideModal(modal);
+        selectedTableId = null; // Reset après sauvegarde/ajout
+    }
+
+     // --- Initialisation SortableJS ---
+     function initializeSortableMap() {
+         const mapContainer = document.getElementById('tables-container');
+         if (mapContainer && typeof Sortable !== 'undefined') {
+             // Détruit l'instance précédente pour éviter les doublons
+             if (sortableMapInstance) {
+                 try { sortableMapInstance.destroy(); } catch(e) {}
+             }
+             sortableMapInstance = new Sortable(mapContainer, {
+                 animation: 150,
+                 ghostClass: 'opacity-50',
+                 chosenClass: "border-blue-500", // Classe quand on sélectionne
+                 dragClass: "opacity-75", // Classe pendant le drag
+                 // handle: '.table-item', // Permet de drag depuis toute la table
+                 filter: '.pointer-events-none', // Ne pas démarrer le drag sur le texte interne
+                 preventOnFilter: false, // Permet au clic de passer même sur éléments filtrés
+                 onEnd: function (evt) {
+                     const itemEl = evt.item; // L'élément DOM déplacé
+                     const tableId = parseInt(itemEl.dataset.id);
+                     const tableIndex = findTableIndexById(tableId);
+
+                     if (tableIndex !== -1) {
+                         // Lecture de la nouvelle position absolue et calcul relative au conteneur
+                         const mapRect = mapContainer.getBoundingClientRect();
+                         const itemRect = itemEl.getBoundingClientRect();
+
+                         // Position relative au coin supérieur gauche du conteneur mapContainer
+                         const newX = Math.round(itemRect.left - mapRect.left + mapContainer.scrollLeft);
+                         const newY = Math.round(itemRect.top - mapRect.top + mapContainer.scrollTop);
+
+
+                         if (!isNaN(newX) && !isNaN(newY)) {
+                             tablesData[tableIndex].x = newX;
+                             tablesData[tableIndex].y = newY;
+
+                             // Mise à jour visuelle (SortableJS le fait, mais on peut forcer si besoin)
+                             // itemEl.style.left = `${newX}px`;
+                             // itemEl.style.top = `${newY}px`;
+
+                             // Optionnel: Sauvegarder la nouvelle position via AJAX ici
+                             console.log(`Table ${tablesData[tableIndex].number} déplacée vers (${newX}, ${newY})`);
+                             // Pas besoin de re-render complet ici, juste la liste si elle affiche X/Y
+                             showNotification(`Position T${tablesData[tableIndex].number} sauvée (simulation)`, 'info');
+                         } else {
+                             console.warn("Positions invalides après drag&drop");
+                             // Remettre l'élément à sa position initiale si calcul échoue ?
+                             itemEl.style.left = `${tablesData[tableIndex].x}px`;
+                             itemEl.style.top = `${tablesData[tableIndex].y}px`;
+                         }
+                     }
+                 },
+             });
+         } else if (mapContainer && typeof Sortable === 'undefined') {
+             console.warn("Librairie SortableJS non chargée.");
+         }
+     }
+     // --- Fin Logique Section Tables ---
+
+
+    // ----- Logique Section Personnel -----
+    let isPersonnelManagerInitialized = false;
+
+    function initPersonnelManager() {
+        if (isPersonnelManagerInitialized) return; // Évite ré-attachements
+        console.log("Initialisation Personnel Manager...");
+        setupPersonnelEventListeners();
+        isPersonnelManagerInitialized = true;
+    }
+
+    function setupPersonnelEventListeners() {
+        const sectionPersonnel = document.getElementById('section-personnel');
+        if (!sectionPersonnel) return;
+
+        // Références aux Modals spécifiques (si elles ont des ID uniques)
+        const deleteEmployeeModal = document.getElementById('delete-modal'); // Assumant ID générique pour l'instant
+        const scheduleModal = document.getElementById('schedule-modal');
+
+        // Délégation d'événements pour les actions dans la section
+        sectionPersonnel.addEventListener('click', function(event) {
+            const target = event.target;
+            const deleteButton = target.closest('button[title="Supprimer"]');
+            const addShiftButton = target.closest('button.add-shift-button'); // Donner cette classe aux boutons +
+             const addEmployeeButton = target.closest('button.add-employee-button'); // Donner cette classe au bouton principal
+
+            if (deleteButton && deleteEmployeeModal) {
+                const employeeRow = deleteButton.closest('tr');
+                // Récupérer l'ID de l'employé depuis data-id="xxx" sur <tr> ou bouton
+                // const employeeId = employeeRow ? employeeRow.dataset.employeeId : null;
+                // const employeeName = employeeRow?.querySelector('.font-medium')?.textContent || 'cet employé';
+                // deleteEmployeeModal.querySelector('.employee-name-placeholder').textContent = employeeName; // Pour personnaliser modal
+                showModal(deleteEmployeeModal);
+            } else if (addShiftButton && scheduleModal) {
+                // Peut-être pré-remplir la date/heure/employé basé sur où on a cliqué
+                showModal(scheduleModal);
+            } else if (addEmployeeButton) {
+                 // Logique pour ouvrir une modal d'ajout d'employé (à créer)
+                 showNotification("Fonctionnalité 'Ajouter Employé' non implémentée.", "info");
+             }
+        });
+
+        // Gestion des modals (fermeture et confirmation)
+        const cancelDelete = document.getElementById('cancel-delete'); // Pour la modal générique
+        const confirmDelete = document.getElementById('confirm-delete'); // Pour la modal générique
+        const cancelSchedule = document.getElementById('cancel-schedule');
+        const saveSchedule = document.getElementById('save-schedule');
+
+        if (deleteEmployeeModal && cancelDelete && confirmDelete) {
+            cancelDelete.addEventListener('click', () => hideModal(deleteEmployeeModal));
+            confirmDelete.addEventListener('click', () => {
+                // *** AJOUTER LOGIQUE DE SUPPRESSION REELLE (AJAX) ***
+                showNotification("Employé supprimé (simulation).", 'success');
+                hideModal(deleteEmployeeModal);
+                // Mettre à jour la liste du personnel ici après suppression
+            });
+            // Fermeture en cliquant en dehors
+            deleteEmployeeModal.addEventListener('click', (e) => { if (e.target === deleteEmployeeModal) hideModal(deleteEmployeeModal); });
+        }
+
+        if (scheduleModal && cancelSchedule && saveSchedule) {
+            cancelSchedule.addEventListener('click', () => hideModal(scheduleModal));
+            saveSchedule.addEventListener('click', () => {
+                // *** AJOUTER LOGIQUE DE SAUVEGARDE REELLE (AJAX) ***
+                showNotification("Créneau horaire ajouté (simulation).", 'success');
+                hideModal(scheduleModal);
+                // Mettre à jour le tableau de planning ici
+            });
+            // Fermeture en cliquant en dehors
+            scheduleModal.addEventListener('click', (e) => { if (e.target === scheduleModal) hideModal(scheduleModal); });
+        }
+
+        // Gestion des changements de rôle (Select dans la liste)
+        // Ajouter class="employee-role-select" aux <select> de la liste des employés
+        sectionPersonnel.querySelectorAll('select.employee-role-select').forEach(select => {
+            select.addEventListener('change', function() {
+                const selectedRole = this.options[this.selectedIndex].text;
+                const employeeRow = this.closest('tr');
+                // const employeeId = employeeRow ? employeeRow.dataset.employeeId : null;
+                // *** AJOUTER LOGIQUE DE MISE A JOUR REELLE (AJAX) ***
+                showNotification(`Rôle mis à jour vers ${selectedRole} (simulation).`, 'info');
+            });
+        });
+
+         // Gestion des filtres (recherche, rôle) - si présents
+         const searchInput = sectionPersonnel.querySelector('input[type="text"][placeholder="Rechercher..."]');
+         const roleFilterSelect = sectionPersonnel.querySelector('select:not(.employee-role-select)'); // Le select de filtre global
+         if (searchInput) searchInput.addEventListener('input', () => { /* Logique de filtrage */ console.log("Recherche:", searchInput.value); });
+         if (roleFilterSelect) roleFilterSelect.addEventListener('change', () => { /* Logique de filtrage */ console.log("Filtre rôle:", roleFilterSelect.value); });
+
+    }
+    // --- Fin Logique Section Personnel ---
+
+
+}); // Fin de DOMContentLoaded

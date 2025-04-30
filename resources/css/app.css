@@ -1,0 +1,32 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Variables globales de l'application */
+:root {
+  --primary: #0288D1;
+  --primary-dark: #026da8;
+  --primary-light: rgba(2, 136, 209, 0.1);
+  --secondary: #4CAF50;
+  --secondary-dark: #2E7D32;
+  --accent: #FFC107;
+  --danger: #F44336;
+  --success: #4CAF50;
+  --warning: #FF9800;
+  --info: #2196F3;
+  --dark: #1E293B;
+  --light: #F8FAFC;
+  --border-color: #E2E8F0;
+  --border-dark: #475569;
+  --text-primary: #1E293B;
+  --text-dark: #F8FAFC;
+  --card-bg: #FFFFFF;
+  --background: #F1F5F9;
+}
+
+.dark {
+  --text-primary: #F8FAFC;
+  --border-color: #475569;
+  --card-bg: #1E293B;
+  --background: #0F172A;
+}
