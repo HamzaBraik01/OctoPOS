@@ -8,37 +8,34 @@
             </button>
             {{-- Le titre pourrait être dynamique via @yield ou une variable --}}
             <h1 class="text-lg font-semibold text-blue-600 dark:text-blue-400">Supervision Opérationnelle</h1>
-            {{-- Nom du restaurant (dynamique ?) --}}
-            <span class="ml-3 text-xs bg-blue-100 text-blue-800 font-medium py-1 px-2 rounded dark:bg-blue-900 dark:text-blue-200">Le Bistro Parisien</span>
+            
+            {{-- Restaurant Selector (déplacé ici) --}}
+            <div class="ml-4">
+                <select id="header-restaurant-selector" class="text-sm px-3 py-1.5 pr-8 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                    <option value="">Sélectionner un restaurant</option>
+                    @foreach($restaurants as $restaurant)
+                        <option value="{{ $restaurant->id }}" {{ isset($selectedRestaurantId) && $selectedRestaurantId == $restaurant->id ? 'selected' : '' }}>{{ $restaurant->nom }}</option>
+                    @endforeach
+                </select>
+            </div>
+            
         </div>
 
-        {{-- Actions Droite --}}
         <div class="flex items-center space-x-2 sm:space-x-4">
-            {{-- Crisis Mode Toggle --}}
-            {{-- Assurez-vous que l'ID est présent pour le JS --}}
-             <div id="crisis-toggle-button" class="crisis-toggle-button" title="Activer/Désactiver Mode Crise">
-                 <span class="sr-only">Mode Crise</span>
-             </div>
-
+            
             {{-- Theme Toggle --}}
             <div id="theme-toggle" class="theme-toggle mx-2">
                 <span class="sr-only">Basculer le thème jour/nuit</span>
             </div>
 
             {{-- Date/Heure --}}
-            <div class="hidden md:block text-sm text-gray-600 dark:text-gray-300">
-                <span id="current-date-time">Chargement...</span> {{-- Le JS mettra à jour --}}
-            </div>
+            <div id="current-date-time" class="text-sm text-gray-600 dark:text-gray-300 hidden sm:block"></div>
 
-            <div class="border-l border-gray-300 dark:border-gray-700 h-6 mx-2 hidden md:block"></div>
-
-            {{-- Infos Utilisateur (Dynamique avec Auth::user()) --}}
-            @auth {{-- Vérifie si l'utilisateur est connecté --}}
-            <div class="flex items-center">
-                <div class="w-9 h-9 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-white font-semibold mr-2 uppercase">
-                    {{-- Initiales de l'utilisateur --}}
-                    {{ substr(Auth::user()->name, 0, 1) }}{{-- Première lettre du nom --}}
-                    {{-- Vous pouvez améliorer pour avoir 2 initiales si nom composé --}}
+            {{-- Profil --}}
+            @auth
+            <div class="flex items-center ml-4 relative">
+                <div class="w-9 h-9 rounded-full flex items-center justify-center bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400">
+                    <i class="fas fa-user"></i>
                 </div>
                 <div class="hidden md:block">
                     <p class="text-sm font-semibold">{{ Auth::user()->name }}</p>
@@ -49,3 +46,28 @@
         </div>
     </div>
 </header>
+
+{{-- Template pour les réservations (utilisé par JS) --}}
+<template id="reservation-item-template">
+    <div class="reservation-item p-3 hover:bg-gray-50 dark:hover:bg-gray-700/30">
+        <div class="flex justify-between items-start">
+            <div>
+                <div class="font-medium text-gray-800 dark:text-gray-200">
+                    <span class="reservation-time"></span> - <span class="reservation-client"></span>
+                </div>
+                <div class="text-sm text-gray-500 dark:text-gray-400">
+                    <span class="reservation-table"></span> • <span class="reservation-persons"></span> pers.
+                </div>
+            </div>
+            <div class="reservation-status"></div>
+        </div>
+        <div class="mt-2 flex space-x-1">
+            <button class="reservation-arrive p-1 text-xs bg-green-500 hover:bg-green-600 text-white rounded" title="Marquer Arrivé">
+                <i class="fas fa-check"></i>
+            </button>
+            <button class="reservation-cancel p-1 text-xs bg-red-500 hover:bg-red-600 text-white rounded" title="Annuler">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
+</template>

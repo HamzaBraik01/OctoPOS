@@ -1,6 +1,4 @@
-
-        
-        :root {
+:root {
             
             --primary-rgb: 2, 136, 209;
         }
@@ -20,7 +18,7 @@
         }
 
         ::-webkit-scrollbar-thumb {
-            background: theme('colors.gray');
+            background: theme('colors.gray.400');
             border-radius: 4px;
         }
 
@@ -36,7 +34,7 @@
         }
 
         
-        .sidebar, .main-content, .dashboard-header, .theme-toggle::before, .crisis-toggle-button::before {
+        .sidebar, .main-content, .dashboard-header, .theme-toggle::before {
             transition: all 0.3s ease;
         }
 
@@ -69,35 +67,3 @@
         .dark .theme-toggle::before {
             transform: translateX(22px);
         }
-
-        
-        .crisis-toggle-button {
-            position: relative;
-            width: 60px;
-            height: 28px;
-            background-color: theme('colors.border-color');
-            border-radius: 14px;
-            margin-left: 10px;
-            cursor: pointer;
-        }
-
-        .crisis-toggle-button::before {
-            content: '';
-            position: absolute;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            top: 4px;
-            left: 4px;
-            background-color: white;
-            transition: all 0.3s ease; 
-        }
-
-        .crisis-toggle-button.active {
-            background-color: theme('colors.danger');
-        }
-
-        .crisis-toggle-button.active::before {
-            transform: translateX(32px);
-        }
-    
