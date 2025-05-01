@@ -46,6 +46,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const completePaymentBtn = document.getElementById('complete-payment');
     const backToTablesReceiptBtn = document.getElementById('back-to-tables-btn');
     const cleanTableBtn = document.getElementById('clean-table-btn');
+    
+    // Ajouter le sélecteur de restaurant
+    const restaurantSelect = document.getElementById('restaurant-select');
 
 
     let currentTable = null;
@@ -53,6 +56,35 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentTab = 'tables';
     const TAX_RATE = 0.10;
 
+    // Gestion de la sélection de restaurant
+    if (restaurantSelect) {
+        restaurantSelect.addEventListener('change', function() {
+            // Créer un formulaire pour soumettre le restaurant sélectionné
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/serveur/select-restaurant'; // Route pour traiter la sélection
+            form.style.display = 'none';
+            
+            // Ajouter le CSRF token
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = '_token';
+            csrfInput.value = csrfToken;
+            form.appendChild(csrfInput);
+            
+            // Ajouter l'ID du restaurant
+            const restaurantInput = document.createElement('input');
+            restaurantInput.type = 'hidden';
+            restaurantInput.name = 'restaurant_id';
+            restaurantInput.value = this.value;
+            form.appendChild(restaurantInput);
+            
+            // Ajouter le formulaire au document et le soumettre
+            document.body.appendChild(form);
+            form.submit();
+        });
+    }
 
     const formatCurrency = (value) => {
 
@@ -481,14 +513,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    sendToKitchenBtn.addEventListener('click', () => {
-         if (currentOrder.length === 0) return;
-
-         console.log(`Sending order for Table ${currentTable}:`, JSON.stringify(currentOrder));
-         showToast(`Commande pour Table ${currentTable} envoyée !`, 'success');
-
-
-         vibrate([50, 100, 50]);
+    sendToKitchenBtn.addEventListener('click', (e) => {
+        if (currentOrder.length === 0) return;
+        
+        // The form will be submitted, which triggers our event handler above
+        orderForm.dispatchEvent(new Event('submit'));
     });
 
      goToPaymentBtn.addEventListener('click', () => {
@@ -792,10 +821,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 t.setAttribute('aria-selected', isSelected);
              });
              const category = catTab.textContent;
+             const categoryFilter = catTab.getAttribute('data-category');
              showToast(`Filtre: ${category}`);
              vibrate(30);
 
-             searchInput.dispatchEvent(new Event('input'));
+             // Filtre les plats en fonction de la catégorie
+             menuItems.forEach(item => {
+                const itemCategory = item.getAttribute('data-category');
+                const matchesCategory = categoryFilter === 'Tous' || itemCategory === categoryFilter;
+                const searchTerm = searchInput.value.toLowerCase().trim();
+                const matchesSearch = item.getAttribute('data-name').toLowerCase().includes(searchTerm);
+                
+                item.style.display = (matchesCategory && matchesSearch) ? 'flex' : 'none';
+             });
          });
          catTab.addEventListener('keydown', (e) => {
               if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); catTab.click(); }

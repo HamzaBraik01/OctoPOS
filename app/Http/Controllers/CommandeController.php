@@ -28,7 +28,28 @@ class CommandeController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        // Validate the request
+        $validated = $request->validate([
+            'table_id' => 'required|exists:tables,id',
+            'restaurant_id' => 'required|exists:restaurants,id',
+            'total' => 'required|numeric|min:0',
+        ]);
+        
+        // Create a new commande
+        $commande = Commande::create([
+            'table_id' => $validated['table_id'],
+            'restaurant_id' => $validated['restaurant_id'],
+            'date' => now(),
+            'statut' => 'en_cours',
+            'utilisateur_id' => auth()->id(),
+            'total' => $validated['total']
+        ]);
+        
+        return response()->json([
+            'success' => true,
+            'commande_id' => $commande->id,
+            'message' => 'Commande créée avec succès'
+        ]);
     }
 
     /**

@@ -29,6 +29,17 @@
 
         <div class="header-right">
             <div class="datetime">Chargement...</div>
+            <div class="restaurant-selector">
+                <select id="restaurant-select" class="styled-select" aria-label="Sélectionner un restaurant">
+                    <option value="" disabled {{ !session('restaurant_id') ? 'selected' : '' }}>Choisir un restaurant</option>
+                    @foreach($restaurants as $restaurant)
+                        <option value="{{ $restaurant->id }}" {{ session('restaurant_id') == $restaurant->id ? 'selected' : '' }}>
+                            {{ $restaurant->nom }}
+                        </option>
+                    @endforeach
+                </select>
+                <i class="fas fa-chevron-down select-arrow" aria-hidden="true"></i>
+            </div>
 
             <div class="header-buttons">
                 <button id="theme-toggle" class="header-button" aria-label="Basculer le thème sombre/clair">

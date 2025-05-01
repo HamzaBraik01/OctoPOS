@@ -12,7 +12,8 @@ class RestaurantController extends Controller
      */
     public function index()
     {
-        //
+        $restaurants = Restaurant::all();
+        return view('restaurants.index', compact('restaurants'));
     }
 
     /**
@@ -20,7 +21,7 @@ class RestaurantController extends Controller
      */
     public function create()
     {
-        //
+        return view('restaurants.create');
     }
 
     /**
@@ -28,7 +29,15 @@ class RestaurantController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'nom' => 'required|string|max:255',
+            'adresse' => 'required|string|max:255',
+        ]);
+
+        Restaurant::create($validated);
+
+        return redirect()->route('restaurants.index')
+            ->with('success', 'Restaurant créé avec succès.');
     }
 
     /**
@@ -36,7 +45,7 @@ class RestaurantController extends Controller
      */
     public function show(Restaurant $restaurant)
     {
-        //
+        return view('restaurants.show', compact('restaurant'));
     }
 
     /**
@@ -44,7 +53,7 @@ class RestaurantController extends Controller
      */
     public function edit(Restaurant $restaurant)
     {
-        //
+        return view('restaurants.edit', compact('restaurant'));
     }
 
     /**
@@ -52,7 +61,15 @@ class RestaurantController extends Controller
      */
     public function update(Request $request, Restaurant $restaurant)
     {
-        //
+        $validated = $request->validate([
+            'nom' => 'required|string|max:255',
+            'adresse' => 'required|string|max:255',
+        ]);
+
+        $restaurant->update($validated);
+
+        return redirect()->route('restaurants.index')
+            ->with('success', 'Restaurant mis à jour avec succès.');
     }
 
     /**
@@ -60,6 +77,39 @@ class RestaurantController extends Controller
      */
     public function destroy(Restaurant $restaurant)
     {
-        //
+        $restaurant->delete();
+
+        return redirect()->route('restaurants.index')
+            ->with('success', 'Restaurant supprimé avec succès.');
+    }
+
+    /**
+     * Définir le restaurant actif dans la session
+     */
+    public function setRestaurant(Request $request)
+    {
+        $request->validate([
+            'restaurant_id' => 'required|exists:restaurants,id',
+        ]);
+        
+        session(['restaurant_id' => $request->restaurant_id]);
+        
+        // Récupérer le nom du restaurant pour le message de succès
+        $restaurant = Restaurant::find($request->restaurant_id);
+        
+        return response()->json([
+            'success' => true,
+            'restaurant_name' => $restaurant->nom
+        ]);
+    }
+    
+    /**
+     * Récupérer tous les restaurants pour le sélecteur (API)
+     */
+    public function getRestaurants()
+    {
+        $restaurants = Restaurant::all(['id', 'nom']);
+        
+        return response()->json($restaurants);
     }
 }

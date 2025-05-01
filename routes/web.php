@@ -12,7 +12,9 @@ use App\Http\Controllers\GerantController;
 use App\Http\Middleware\JWTAuthentication;
 use App\Http\Controllers\ServeurController;
 use App\Http\Controllers\CuisinierController;
+use App\Http\Controllers\RestaurantController;
 use App\Http\Controllers\ReservationController;
+use App\Http\Controllers\CommandePlatController;
 use App\Http\Controllers\ProprietaireController;
 
 /*
@@ -80,6 +82,20 @@ Route::middleware([JWTAuthentication::class])->group(function () {
     Route::get('/clients/dashboard', [ClientController::class, 'index'])
         ->middleware('role:client')
         ->name('clients.dashboard');
+    
+    // Routes de réservation
     Route::post('/reservations', [ReservationController::class, 'store'])->name('reservations.store');
     Route::get('/clients/reservations-receipt/{id}', [ReservationController::class, 'receipt'])->name('clients.reservations-receipt');
+    
+    // Routes de restaurant et tables
+    Route::post('/restaurants/set-restaurant', [RestaurantController::class, 'setRestaurant']);
+    Route::get('/restaurants/{restaurantId}/tables', [ServeurController::class, 'getRestaurantTables']);
+    
+    // Routes de serveur
+    Route::post('/serveur/select-restaurant', [ServeurController::class, 'selectRestaurant'])->name('serveur.select-restaurant');
+    Route::get('/serveur/filtrer-plats', [ServeurController::class, 'filtrerPlats'])->name('serveur.filtrer-plats');
 });
+
+// Routes pour les commandes
+Route::post('/commandes', [CommandeController::class, 'store'])->name('commandes.store');
+Route::post('/commande-plats', [CommandePlatController::class, 'store'])->name('commande-plats.store');

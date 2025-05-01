@@ -26,7 +26,7 @@
     <!-- Main Content Area (Tab Panels) -->
     <div class="main-content">
 
-
+        {{-- NOUVELLE SECTION TABLES-TAB INTÉGRÉE --}}
         <div id="tables-tab" class="tab-content" role="tabpanel" aria-labelledby="tab-tables">
             <div class="table-controls">
                 <div class="view-toggle" role="group" aria-label="Changer la vue des tables">
@@ -45,33 +45,86 @@
                 </div>
             </div>
 
-            <div class="tables-grid">
+            {{-- Affiche le nom du restaurant s'il est sélectionné --}}
+            @if(isset($selectedRestaurant) && $selectedRestaurant)
+                <div class="restaurant-heading">
+                    <h2>{{ $selectedRestaurant->nom }}</h2>
+                </div>
+            @endif
 
-                <div class="table-item table-free" data-table="1" tabindex="0" role="button" aria-label="Table 1, 4 personnes, Libre">
-                    <div class="table-number">T1</div>
-                    <div class="table-capacity"><i class="fas fa-users" aria-hidden="true"></i> 4</div>
-                </div>
-                <div class="table-item table-occupied" data-table="2" tabindex="0" role="button" aria-label="Table 2, 2 personnes, Occupée depuis 35 minutes">
-                    <div class="table-number">T2</div>
-                    <div class="table-capacity"><i class="fas fa-users" aria-hidden="true"></i> 2</div>
-                    <div class="table-time"><i class="fas fa-clock" aria-hidden="true"></i> 35 min</div>
-                </div>
-                <div class="table-item table-occupied table-urgent" data-table="3" tabindex="0" role="button" aria-label="Table 3, 6 personnes, Occupée depuis 52 minutes, Urgent">
-                    <div class="table-number">T3</div>
-                    <div class="table-capacity"><i class="fas fa-users" aria-hidden="true"></i> 6</div>
-                    <div class="table-time"><i class="fas fa-clock" aria-hidden="true"></i> 52 min</div>
-                </div>
-                <div class="table-item table-reserved" data-table="4" tabindex="0" role="button" aria-label="Table 4, 4 personnes, Réservée pour 19:30">
-                    <div class="table-number">T4</div>
-                    <div class="table-capacity"><i class="fas fa-users" aria-hidden="true"></i> 4</div>
-                    <div class="table-time"><i class="fas fa-calendar-alt" aria-hidden="true"></i> 19:30</div>
-                </div>
-                <div class="table-item table-free" data-table="5" tabindex="0" role="button" aria-label="Table 5, 2 personnes, Libre"> <div class="table-number">T5</div><div class="table-capacity"><i class="fas fa-users" aria-hidden="true"></i> 2</div></div>
-                <div class="table-item table-free" data-table="6" tabindex="0" role="button" aria-label="Table 6, 4 personnes, Libre"> <div class="table-number">T6</div><div class="table-capacity"><i class="fas fa-users" aria-hidden="true"></i> 4</div></div>
-                <div class="table-item table-reserved" data-table="7" tabindex="0" role="button" aria-label="Table 7, 2 personnes, Réservée pour 20:15"> <div class="table-number">T7</div><div class="table-capacity"><i class="fas fa-users" aria-hidden="true"></i> 2</div><div class="table-time"><i class="fas fa-calendar-alt" aria-hidden="true"></i> 20:15</div></div>
-                <div class="table-item table-free" data-table="8" tabindex="0" role="button" aria-label="Table 8, 6 personnes, Libre"> <div class="table-number">T8</div><div class="table-capacity"><i class="fas fa-users" aria-hidden="true"></i> 6</div></div>
+            <div class="tables-grid">
+                {{-- Vérifie si les tables existent et s'il y en a au moins une --}}
+                @if(isset($tables) && count($tables) > 0)
+                    {{-- Boucle sur chaque table --}}
+                    @foreach($tables as $table)
+                        @php
+                            // Définit la classe CSS et l'aria-label en fonction du statut
+                            $statusClass = '';
+                            $ariaLabel = "Table {$table->numero}, {$table->capacite} personnes, ";
+
+                            if($table->status === 'libre') {
+                                $statusClass = 'table-free';
+                                $ariaLabel .= 'Libre';
+                            } elseif($table->status === 'occupee') {
+                                $statusClass = 'table-occupied';
+                                // Ajoute le temps d'occupation s'il existe
+                                $occupationTime = $table->occupation_time ?? 'N/A';
+                                $ariaLabel .= "Occupée depuis {$occupationTime} minutes";
+                                // Ajoute la classe 'urgent' si nécessaire
+                                if(!empty($table->is_urgent)) { // Utilise !empty pour vérifier si la propriété existe et est vraie
+                                    $statusClass .= ' table-urgent';
+                                    $ariaLabel .= ', Urgent';
+                                }
+                            } elseif($table->status === 'reservee') {
+                                $statusClass = 'table-reserved';
+                                // Ajoute l'heure de réservation si elle existe
+                                $reservationTime = $table->reservation_time ? \Carbon\Carbon::parse($table->reservation_time)->format('H:i') : 'N/A';
+                                $ariaLabel .= "Réservée pour {$reservationTime}";
+                            }
+
+                            // Ajoute le type de table à l'aria-label s'il existe
+                            if(!empty($table->typeTable)) {
+                                $ariaLabel .= ", Type: {$table->typeTable}";
+                            }
+                        @endphp
+
+                        <div class="table-item {{ $statusClass }}" data-table="{{ $table->id }}" tabindex="0" role="button" aria-label="{{ $ariaLabel }}">
+                            <div class="table-number">T{{ $table->numero }}</div>
+                            <div class="table-capacity"><i class="fas fa-users" aria-hidden="true"></i> {{ $table->capacite }}</div>
+
+                            {{-- Affiche le temps si occupée --}}
+                            @if($table->status === 'occupee' && isset($table->occupation_time))
+                                <div class="table-time"><i class="fas fa-clock" aria-hidden="true"></i> {{ $table->occupation_time }} min</div>
+                            {{-- Affiche l'heure de réservation si réservée --}}
+                            @elseif($table->status === 'reservee' && $table->reservation_time)
+                                <div class="table-time"><i class="fas fa-calendar-alt" aria-hidden="true"></i> {{ \Carbon\Carbon::parse($table->reservation_time)->format('H:i') }}</div>
+                            @endif
+
+                            {{-- Affiche le type de table s'il existe --}}
+                            @if(!empty($table->typeTable))
+                                <div class="table-type" style="font-size: 0.8em; margin-top: 5px; color: var(--text-muted);">{{ $table->typeTable }}</div>
+                            @endif
+                        </div>
+                    @endforeach
+                {{-- Message si aucun restaurant n'est sélectionné --}}
+                @elseif(!isset($selectedRestaurant) || !$selectedRestaurant)
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 2rem; color: var(--text-muted);">
+                        <i class="fas fa-utensils" style="font-size: 2rem; margin-bottom: 1rem; display: block;"></i>
+                        <p>Veuillez sélectionner un restaurant pour afficher les tables.</p> {{-- Message mis à jour --}}
+                    </div>
+                {{-- Message si le restaurant sélectionné n'a pas de tables --}}
+                @else
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 2rem; color: var(--text-muted);">
+                        <i class="fas fa-info-circle" style="font-size: 2rem; margin-bottom: 1rem; display: block;"></i>
+                        <p>Aucune table n'est configurée pour le restaurant "{{ $selectedRestaurant->nom }}".</p> {{-- Message mis à jour --}}
+                    </div>
+                @endif
             </div>
         </div>
+        {{-- FIN DE LA NOUVELLE SECTION TABLES-TAB --}}
+
+
+        {{-- CONTENU ORIGINAL DES AUTRES ONGLETS --}}
         <div id="orders-tab" class="tab-content" role="tabpanel" aria-labelledby="tab-orders" hidden>
             <div class="order-header">
                 <div class="table-info">
@@ -100,85 +153,53 @@
             </div>
 
             <div class="categories" role="tablist" aria-label="Filtrer par catégorie">
-                {{-- !!! En Production: Remplacer par une boucle @foreach($categories as $category) !!! --}}
-                <button class="category active" role="tab" aria-selected="true">Tous</button>
-                <button class="category" role="tab" aria-selected="false">Entrées</button>
-                <button class="category" role="tab" aria-selected="false">Plats</button>
-                <button class="category" role="tab" aria-selected="false">Desserts</button>
-                <button class="category" role="tab" aria-selected="false">Boissons</button>
-                <button class="category" role="tab" aria-selected="false">Vins</button>
-                <button class="category" role="tab" aria-selected="false">Menu du jour</button>
-                {{-- !!! Fin de la boucle @endforeach !!! --}}
+                <button class="category active" role="tab" aria-selected="true" data-category="Tous">Tous</button>
+                @if(isset($menus) && count($menus) > 0)
+                    @foreach($menus as $menu)
+                    <button class="category" role="tab" aria-selected="false" data-category="{{ $menu->nom }}">{{ $menu->nom }}</button>
+                    @endforeach
+                @endif
             </div>
 
             <div class="menu-grid">
-
-                <div class="menu-item" data-id="1" data-name="Salade César" data-price="14.50" {{-- data-category="Entrées" --}} tabindex="0" role="button" aria-label="Ajouter Salade César, 14,50€">
-                    <div class="menu-img-container">
-                        {{-- Si image locale: <img src="{{ asset('images/menu/' . $item->image_path) }}" alt="{{ $item->name }}"> --}}
-                        <img src="https://source.unsplash.com/800x600/?cesar-salad" alt="Salade César" class="menu-img">
-                        {{-- Condition pour badge @if($item->is_vegan) --}}
-                        <div class="menu-badge badge-vegan" title="Vegan">
-                            <i class="fas fa-leaf" aria-hidden="true"></i>
+                @if(isset($plats) && count($plats) > 0)
+                    @foreach($plats as $plat)
+                    <div class="menu-item" 
+                        data-id="{{ $plat->id }}" 
+                        data-name="{{ $plat->nom }}" 
+                        data-price="{{ $plat->prix }}" 
+                        data-category="{{ $plat->menu->nom }}" 
+                        tabindex="0" 
+                        role="button" 
+                        aria-label="Ajouter {{ $plat->nom }}, {{ number_format($plat->prix, 2, ',', ' ') }}€">
+                        <div class="menu-img-container">
+                            <img src="{{ !empty($plat->image) ? $plat->image : 'https://source.unsplash.com/800x600/?food-default' }}" 
+                                alt="{{ $plat->nom }}" 
+                                class="menu-img"
+                                onerror="this.onerror=null; this.src='https://source.unsplash.com/800x600/?food-default'; this.alt='Image par défaut pour {{ $plat->nom }}'">
+                            @if(stripos($plat->description, 'vegan') !== false || stripos($plat->description, 'végé') !== false)
+                            <div class="menu-badge badge-vegan" title="Vegan/Végétarien">
+                                <i class="fas fa-leaf" aria-hidden="true"></i>
+                            </div>
+                            @endif
+                            @if(stripos($plat->description, 'allergène') !== false || stripos($plat->description, 'allerg') !== false)
+                            <div class="menu-badge badge-allergic" title="Contient des allergènes">
+                                <i class="fas fa-exclamation-triangle" aria-hidden="true"></i>
+                            </div>
+                            @endif
                         </div>
-                        {{-- @endif --}}
-                    </div>
-                    <div class="menu-content">
-                        <div class="menu-title">Salade César</div>
-                        <div class="menu-price">14,50€</div> {{-- Formatter le prix si nécessaire {{ number_format($item->price, 2, ',', ' ') }}€ --}}
-                    </div>
-                </div>
-                <div class="menu-item" data-id="2" data-name="Soupe à l'oignon" data-price="10.50" {{-- data-category="Entrées" --}} tabindex="0" role="button" aria-label="Ajouter Soupe à l'oignon, 10,50€">
-                    <div class="menu-img-container">
-                        <img src="https://source.unsplash.com/800x600/?onion-soup" alt="Soupe à l'oignon" class="menu-img">
-                    </div>
-                    <div class="menu-content">
-                        <div class="menu-title">Soupe à l'oignon</div>
-                        <div class="menu-price">10,50€</div>
-                    </div>
-                </div>
-                <div class="menu-item" data-id="3" data-name="Filet de Boeuf" data-price="26.90" {{-- data-category="Plats" --}} tabindex="0" role="button" aria-label="Ajouter Filet de Boeuf, 26,90€">
-                    <div class="menu-img-container">
-                        <img src="https://source.unsplash.com/800x600/?beef-steak" alt="Filet de Boeuf" class="menu-img">
-                    </div>
-                    <div class="menu-content">
-                        <div class="menu-title">Filet de Boeuf</div>
-                        <div class="menu-price">26,90€</div>
-                    </div>
-                </div>
-                <div class="menu-item" data-id="4" data-name="Risotto aux Cèpes" data-price="19.90" {{-- data-category="Plats" --}} tabindex="0" role="button" aria-label="Ajouter Risotto aux Cèpes, 19,90€">
-                    <div class="menu-img-container">
-                        <img src="https://source.unsplash.com/800x600/?risotto" alt="Risotto aux Cèpes" class="menu-img">
-                    </div>
-                    <div class="menu-content">
-                        <div class="menu-title">Risotto aux Cèpes</div>
-                        <div class="menu-price">19,90€</div>
-                    </div>
-                </div>
-                <div class="menu-item" data-id="5" data-name="Saumon Grillé" data-price="22.50" {{-- data-category="Plats" --}} tabindex="0" role="button" aria-label="Ajouter Saumon Grillé, 22,50€, contient des allergènes">
-                    <div class="menu-img-container">
-                        <img src="https://source.unsplash.com/800x600/?grilled-salmon" alt="Saumon Grillé" class="menu-img">
-                        {{-- Condition pour badge @if($item->has_allergens) --}}
-                        <div class="menu-badge badge-allergic" title="Contient des allergènes (poisson)">
-                            <i class="fas fa-exclamation-triangle" aria-hidden="true"></i>
+                        <div class="menu-content">
+                            <div class="menu-title">{{ $plat->nom }}</div>
+                            <div class="menu-price">{{ number_format($plat->prix, 2, ',', ' ') }}DH</div>
                         </div>
-                        {{-- @endif --}}
                     </div>
-                    <div class="menu-content">
-                        <div class="menu-title">Saumon Grillé</div>
-                        <div class="menu-price">22,50€</div>
+                    @endforeach
+                @else
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 2rem; color: var(--text-muted);">
+                        <i class="fas fa-utensils" style="font-size: 2rem; margin-bottom: 1rem; display: block;"></i>
+                        <p>Aucun plat disponible ou veuillez d'abord sélectionner une table.</p>
                     </div>
-                </div>
-                <div class="menu-item" data-id="6" data-name="Crème Brûlée" data-price="8.90" {{-- data-category="Desserts" --}} tabindex="0" role="button" aria-label="Ajouter Crème Brûlée, 8,90€">
-                    <div class="menu-img-container">
-                        <img src="https://source.unsplash.com/800x600/?creme-brulee" alt="Crème Brûlée" class="menu-img">
-                    </div>
-                    <div class="menu-content">
-                        <div class="menu-title">Crème Brûlée</div>
-                        <div class="menu-price">8,90€</div>
-                    </div>
-                </div>
-
+                @endif
             </div>
         </div>
 
@@ -241,6 +262,8 @@
                 <button class="btn btn-primary" id="complete-payment"><i class="fas fa-check" aria-hidden="true"></i> Valider Paiement</button>
             </div>
         </div>
+
+        <!-- Receipt Tab Content -->
         <div id="receipt-tab" class="tab-content" role="tabpanel" aria-labelledby="tab-receipt" hidden>
             <div class="receipt-container" style="max-width: 600px; margin: auto;">
                 <div class="receipt">
@@ -323,7 +346,7 @@
             </div>
         </div>
 
-
+        <!-- Stats Tab Content -->
         <div id="stats-tab" class="tab-content" role="tabpanel" aria-labelledby="tab-stats" hidden>
             <div class="payment-summary">
                 <div class="summary-title"><i class="fas fa-calendar-day" aria-hidden="true"></i> Statistiques du Jour</div>
@@ -366,64 +389,78 @@
                 </div>
             </div>
         </div>
+        {{-- FIN DU CONTENU ORIGINAL DES AUTRES ONGLETS --}}
 
-    </div>
+    </div> {{-- Fin de .main-content --}}
 
 
+    {{-- PANIER (MODIFIÉ AVEC FORMULAIRE) --}}
     <div class="cart" id="cart-panel" aria-labelledby="cart-heading" style="display: none;">
-        <div class="cart-header" role="button" aria-expanded="false" aria-controls="cart-details">
-            <div class="cart-handle" aria-hidden="true"></div>
-            <div class="cart-summary">
-                <div>
-                    <span class="cart-title" id="cart-heading">Table <span class="cart-table-id">N/A</span></span>
-                    <span class="cart-count">(0 articles)</span>
-                </div>
-                <div style="display: flex; align-items: center;">
-                    <span class="cart-total">0,00€</span>
-                    <button class="cart-toggle-btn" aria-label="Afficher/Masquer le détail du panier">
-                        <i class="fas fa-chevron-up" aria-hidden="true"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
+        <form id="order-form" action="{{ route('commandes.store') }}" method="POST">
+            @csrf
+            <input type="hidden" name="table_id" id="form-table-id" value="">
+            <input type="hidden" name="restaurant_id" id="form-restaurant-id" value="{{ $selectedRestaurant->id ?? '' }}">
+            <input type="hidden" name="total" id="form-total" value="0">
 
-        <div id="cart-details" hidden>
-            <div class="cart-content">
-                <div class="cart-empty-message" style="padding: 2rem; text-align: center; color: var(--text-muted);">
-                    <i class="fas fa-shopping-cart" style="font-size: 2rem; margin-bottom: 0.5rem;"></i>
-                    <p>Le panier est vide.</p>
+            <div class="cart-header" role="button" aria-expanded="false" aria-controls="cart-details">
+                <div class="cart-handle" aria-hidden="true"></div>
+                <div class="cart-summary">
+                    <div>
+                        <span class="cart-title" id="cart-heading">Table <span class="cart-table-id">N/A</span></span>
+                        <span class="cart-count">(0 articles)</span>
+                    </div>
+                    <div style="display: flex; align-items: center;">
+                        <span class="cart-total">0,00DH</span>
+                        <button type="button" class="cart-toggle-btn" aria-label="Afficher/Masquer le détail du panier">
+                            <i class="fas fa-chevron-up" aria-hidden="true"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            <div class="cart-footer">
-                <div class="subtotal-row">
-                    <span class="subtotal-label">Sous-total</span>
-                    <span class="subtotal-value cart-subtotal-footer">0,00€</span>
+            <div id="cart-details" hidden>
+                <div class="cart-content">
+                    <div class="cart-empty-message" style="padding: 2rem; text-align: center; color: var(--text-muted);">
+                        <i class="fas fa-shopping-cart" style="font-size: 2rem; margin-bottom: 0.5rem;"></i>
+                        <p>Le panier est vide.</p>
+                    </div>
+                    <div id="cart-items-container">
+                        {{-- Les éléments du panier seront ajoutés ici dynamiquement --}}
+                        <div id="cart-items-list"></div>
+                        {{-- Conteneur caché pour stocker les données des plats pour la soumission --}}
+                        <div id="cart-items-data" style="display: none;"></div>
+                    </div>
                 </div>
-                <div class="subtotal-row">
-                    <span class="subtotal-label">TVA (10%)</span>
-                    <span class="subtotal-value cart-tax-footer">0,00€</span>
-                </div>
-                <div class="total-row">
-                    <span class="total-label">Total</span>
-                    <span class="total-value cart-grand-total-footer">0,00€</span>
-                </div>
-                <div class="cart-actions">
-                    <button class="btn btn-outline" id="cancel-order-btn" disabled>
-                        <i class="fas fa-trash-alt" aria-hidden="true"></i> Annuler
-                    </button>
-                    <button class="btn btn-primary" id="send-to-kitchen-btn" disabled>
-                        <i class="fas fa-paper-plane" aria-hidden="true"></i> Envoyer
-                    </button>
-                    <button class="btn btn-secondary" id="go-to-payment-btn" style="grid-column: 1 / -1; margin-top: var(--spacing-sm);" disabled>
-                        <i class="fas fa-credit-card" aria-hidden="true"></i> Aller au Paiement
-                    </button>
+
+                <div class="cart-footer">
+                    <div class="subtotal-row">
+                        <span class="subtotal-label">Sous-total</span>
+                        <span class="subtotal-value cart-subtotal-footer">0,00DH</span>
+                    </div>
+                    <div class="subtotal-row">
+                        <span class="subtotal-label">TVA (10%)</span>
+                        <span class="subtotal-value cart-tax-footer">0,00DH</span>
+                    </div>
+                    <div class="total-row">
+                        <span class="total-label">Total</span>
+                        <span class="total-value cart-grand-total-footer">0,00DH</span>
+                    </div>
+                    <div class="cart-actions">
+                        <button type="button" class="btn btn-outline" id="cancel-order-btn" disabled>
+                            <i class="fas fa-trash-alt" aria-hidden="true"></i> Annuler
+                        </button>
+                        <button type="submit" class="btn btn-primary" id="send-to-kitchen-btn" disabled>
+                            <i class="fas fa-paper-plane" aria-hidden="true"></i> Envoyer
+                        </button>
+                        <button type="button" class="btn btn-secondary" id="go-to-payment-btn" style="grid-column: 1 / -1; margin-top: var(--spacing-sm);" disabled>
+                            <i class="fas fa-credit-card" aria-hidden="true"></i> Aller au Paiement
+                        </button>
+                    </div>
                 </div>
             </div>
-        </div>
+        </form>
     </div>
-
-
+    {{-- MODALE DE PERSONNALISATION (AMÉLIORÉE POUR LES CHECKBOXES) --}}
     <div class="modal-overlay" id="customization-overlay">
         <div class="modal" id="customization-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title-label">
             <div class="modal-header">
@@ -434,58 +471,90 @@
             </div>
 
             <div class="modal-body">
+                <form id="item-customization-form">
+                    <input type="hidden" id="item-id" name="plat_id" value="">
+                    <input type="hidden" id="item-name" name="nom" value="">
+                    <input type="hidden" id="item-price" name="prix" value="">
+                    <input type="hidden" id="item-quantity" name="quantite" value="1">
 
-                <div class="option-section">
-                    <h4 class="option-title">Cuisson</h4>
-                    <div class="option-grid" role="radiogroup" aria-labelledby="cooking-level-label">
-                        <div id="cooking-level-label" class="visually-hidden">Choisir la cuisson</div>
-                        <button class="option-item" role="radio" aria-checked="false" data-option="Bleu">Bleu</button>
-                        <button class="option-item" role="radio" aria-checked="false" data-option="Saignant">Saignant</button>
-                        <button class="option-item" role="radio" aria-checked="false" data-option="À point">À point</button>
-                        <button class="option-item" role="radio" aria-checked="false" data-option="Bien cuit">Bien cuit</button>
+                    <div class="option-section">
+                        <h4 class="option-title">Cuisson</h4>
+                        <div class="option-grid" role="radiogroup" aria-labelledby="cooking-level-label">
+                            <div id="cooking-level-label" class="visually-hidden">Choisir la cuisson</div>
+                            <button type="button" class="option-item" role="radio" aria-checked="false" data-option="Peu cuit" data-value="Peu cuit">Peu cuit</button>
+                            <button type="button" class="option-item" role="radio" aria-checked="false" data-option="Moyennement cuit" data-value="Moyennement cuit">Moyennement cuit</button>
+                            <button type="button" class="option-item" role="radio" aria-checked="false" data-option="Bien cuit" data-value="Bien cuit">Bien cuit</button>
+                            <button type="button" class="option-item" role="radio" aria-checked="false" data-option="Très bien cuit" data-value="Très bien cuit">Très bien cuit</button>
+                            <input type="hidden" id="cooking-level-input" name="cuisson" value="">
+                        </div>
                     </div>
-                </div>
-                <div class="option-section">
-                    <h4 class="option-title">Accompagnement</h4>
-                    <div class="option-grid" role="radiogroup" aria-labelledby="side-dish-label">
-                        <div id="side-dish-label" class="visually-hidden">Choisir l'accompagnement</div>
-                        <button class="option-item" role="radio" aria-checked="false" data-option="Frites">Frites</button>
-                        <button class="option-item" role="radio" aria-checked="false" data-option="Légumes">Légumes</button>
-                        <button class="option-item" role="radio" aria-checked="false" data-option="Purée">Purée</button>
-                        <button class="option-item" role="radio" aria-checked="false" data-option="Gratin">Gratin</button>
+
+                    <div class="option-section">
+                        <h4 class="option-title">Accompagnement</h4>
+                        <div class="option-grid" role="radiogroup" aria-labelledby="side-dish-label">
+                            <div id="side-dish-label" class="visually-hidden">Choisir l'accompagnement</div>
+                            <button type="button" class="option-item" role="radio" aria-checked="false" data-option="Frites" data-value="Frites">Frites</button>
+                            <button type="button" class="option-item" role="radio" aria-checked="false" data-option="Pain traditionnel" data-value="Pain traditionnel">Pain traditionnel</button>
+                            <button type="button" class="option-item" role="radio" aria-checked="false" data-option="Semoule" data-value="Semoule">Semoule</button>
+                            <button type="button" class="option-item" role="radio" aria-checked="false" data-option="Légumes confits" data-value="Légumes confits">Légumes confits</button>
+                            <input type="hidden" id="side-dish-input" name="accompagnement" value="">
+                        </div>
                     </div>
-                </div>
-                <div class="option-section">
-                    <h4 class="option-title">Extras</h4>
-                    <div class="extras-list" role="group" aria-labelledby="extras-label">
-                        <div id="extras-label" class="visually-hidden">Choisir les extras</div>
-                        <label class="extra-item" role="checkbox" aria-checked="false" tabindex="0">
-                            <div class="extra-label">
-                                <div class="checkbox" aria-hidden="true"></div>
-                                <span>Sauce béarnaise</span>
+
+                    <div class="option-section">
+                        <h4 class="option-title">Extras</h4>
+                        <div class="extras-list" id="extras-container" role="group" aria-labelledby="extras-label">
+                            <div id="extras-label" class="visually-hidden">Choisir les extras</div>
+                            
+                            <!-- Olives marinées -->
+                            <div class="extra-item-container">
+                                <input type="checkbox" id="extra-olives" name="extras[]" value="Olives marinées" class="extra-checkbox">
+                                <label for="extra-olives" class="extra-item">
+                                    <div class="extra-label">
+                                        <div class="checkbox">
+                                            <i class="fas fa-check" style="display: none;"></i>
+                                        </div>
+                                        <span>Olives marinées</span>
+                                    </div>
+                                    <div class="extra-price">+2,00DH</div>
+                                </label>
                             </div>
-                            <div class="extra-price">+2,50€</div>
-                        </label>
-                        <label class="extra-item" role="checkbox" aria-checked="false" tabindex="0">
-                            <div class="extra-label">
-                                <div class="checkbox" aria-hidden="true"></div>
-                                <span>Supplément frites</span>
+                            
+                            <!-- Supplément frites -->
+                            <div class="extra-item-container">
+                                <input type="checkbox" id="extra-frites" name="extras[]" value="Supplément frites" class="extra-checkbox">
+                                <label for="extra-frites" class="extra-item">
+                                    <div class="extra-label">
+                                        <div class="checkbox">
+                                            <i class="fas fa-check" style="display: none;"></i>
+                                        </div>
+                                        <span>Supplément frites</span>
+                                    </div>
+                                    <div class="extra-price">+3,00DH</div>
+                                </label>
                             </div>
-                            <div class="extra-price">+3,00€</div>
-                        </label>
-                        <label class="extra-item" role="checkbox" aria-checked="false" tabindex="0">
-                            <div class="extra-label">
-                                <div class="checkbox" aria-hidden="true"></div>
-                                <span>Sans sel</span>
+                            
+                            <!-- Sans sel -->
+                            <div class="extra-item-container">
+                                <input type="checkbox" id="extra-sans-sel" name="extras[]" value="Sans sel" class="extra-checkbox">
+                                <label for="extra-sans-sel" class="extra-item">
+                                    <div class="extra-label">
+                                        <div class="checkbox">
+                                            <i class="fas fa-check" style="display: none;"></i>
+                                        </div>
+                                        <span>Sans sel</span>
+                                    </div>
+                                    <div class="extra-price"></div>
+                                </label>
                             </div>
-                            <div class="extra-price"></div>
-                        </label>
+                        </div>
                     </div>
-                </div>
-                <div class="option-section">
-                    <h4 class="option-title" id="notes-label">Notes spéciales</h4>
-                    <textarea class="notes-field" placeholder="Allergies, instructions spéciales..." aria-labelledby="notes-label"></textarea>
-                </div>
+
+                    <div class="option-section">
+                        <h4 class="option-title" id="notes-label">Notes spéciales</h4>
+                        <textarea class="notes-field" name="notes" placeholder="Allergies, préférences, etc." aria-labelledby="notes-label"></textarea>
+                    </div>
+                </form>
             </div>
 
             <div class="modal-actions">
@@ -496,5 +565,7 @@
             </div>
         </div>
     </div>
+
+   
 
 @endsection
