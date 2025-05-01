@@ -49,22 +49,13 @@ Route::middleware([JWTAuthentication::class])->group(function () {
     Route::prefix('gerant')->middleware('role:gérant')->group(function () {
         Route::get('/dashboard', [GerantController::class, 'dashboard'])->name('gerant.dashboard');
         Route::get('/reservations', [GerantController::class, 'reservations'])->name('gerant.reservations');
-        Route::get('/caisse', [GerantController::class, 'caisse'])->name('gerant.caisse');
-        Route::get('/commandes', [GerantController::class, 'commandes'])->name('gerant.commandes');
-        Route::get('/personnel', [GerantController::class, 'personnel'])->name('gerant.personnel');
-        Route::get('/rapports', [GerantController::class, 'rapports'])->name('gerant.rapports');
         
-        // Routes pour la gestion des tables
-        Route::get('/tables', [GerantController::class, 'tables'])->name('gerant.tables');
-        Route::post('/tables', [TableController::class, 'store'])->name('gerant.tables.store');
-        Route::put('/tables/{id}', [TableController::class, 'update'])->name('gerant.tables.update');
-        Route::delete('/tables/{id}', [TableController::class, 'destroy'])->name('gerant.tables.destroy');
+        // API endpoints for restaurant reservations
+        Route::get('/get-reservations', [GerantController::class, 'getReservations'])->name('gerant.getReservations');
+        Route::post('/reservations/update-status', [GerantController::class, 'updateStatus'])->name('gerant.reservations.updateStatus');
+
+        // Routes pour les tables
         Route::post('/tables/update-status', [TableController::class, 'updateStatus'])->name('gerant.tables.updateStatus');
-        
-        
-        // Routes pour les réservations
-        Route::post('/reservations', [ReservationController::class, 'store'])->name('gerant.reservations.store');
-        Route::post('/reservations/update-status', [ReservationController::class, 'updateStatus'])->name('gerant.reservations.updateStatus');
         
         // Routes pour les commandes
         Route::post('/commandes/update-status', [CommandeController::class, 'updateStatus'])->name('gerant.commandes.updateStatus');
@@ -89,6 +80,6 @@ Route::middleware([JWTAuthentication::class])->group(function () {
     Route::get('/clients/dashboard', [ClientController::class, 'index'])
         ->middleware('role:client')
         ->name('clients.dashboard');
-Route::post('/reservations', [ReservationController::class, 'store'])->name('reservations.store');
-Route::get('/clients/reservations-receipt/{id}', [ReservationController::class, 'receipt'])->name('clients.reservations-receipt');
+    Route::post('/reservations', [ReservationController::class, 'store'])->name('reservations.store');
+    Route::get('/clients/reservations-receipt/{id}', [ReservationController::class, 'receipt'])->name('clients.reservations-receipt');
 });

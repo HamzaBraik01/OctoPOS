@@ -1076,6 +1076,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                      if (tableIndex !== -1) {
                          // Lecture de la nouvelle position absolue et calcul relative au conteneur
+                         const mapContainer = document.getElementById('tables-container');
                          const mapRect = mapContainer.getBoundingClientRect();
                          const itemRect = itemEl.getBoundingClientRect();
 
@@ -1204,5 +1205,295 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     // --- Fin Logique Section Personnel ---
 
-
-}); // Fin de DOMContentLoaded
+    // Gestion des réservations
+    const restaurantSelector = document.getElementById('header-restaurant-selector');
+    const reservationsTableBody = document.getElementById('reservations-table-body');
+    const loadingIndicator = document.getElementById('loading-indicator');
+    const dateFilter = document.getElementById('reservation-date-filter');
+    
+    let selectedRestaurantId = null;
+    let currentReservations = [];
+    
+    // Fonction pour charger les réservations
+    function loadReservations() {
+        if (!selectedRestaurantId) return;
+        
+        // Afficher l'indicateur de chargement
+        if (loadingIndicator) loadingIndicator.classList.remove('hidden');
+        
+        // Vider le tableau
+        if (reservationsTableBody) {
+            reservationsTableBody.innerHTML = '';
+        }
+        
+        // Récupérer les réservations via AJAX
+        fetch(`/gerant/get-reservations?restaurant_id=${selectedRestaurantId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (loadingIndicator) loadingIndicator.classList.add('hidden');
+                
+                currentReservations = data.reservations || [];
+                
+                // Filtrer les réservations selon la date
+                const filteredReservations = filterReservationsByDate(currentReservations);
+                
+                // Afficher les réservations
+                displayReservations(filteredReservations);
+            })
+            .catch(error => {
+                console.error('Erreur lors du chargement des réservations:', error);
+                if (loadingIndicator) loadingIndicator.classList.add('hidden');
+                if (reservationsTableBody) {
+                    reservationsTableBody.innerHTML = `
+                        <tr>
+                            <td colspan="7" class="px-4 py-8 text-center text-red-500">
+                                <p>Erreur lors du chargement des réservations. Veuillez réessayer.</p>
+                            </td>
+                        </tr>
+                    `;
+                }
+            });
+    }
+    
+    // Fonction pour filtrer les réservations selon la date
+    function filterReservationsByDate(reservations) {
+        const filterValue = dateFilter ? dateFilter.value : 'all';
+        const today = new Date().toISOString().split('T')[0];
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        const tomorrowStr = tomorrow.toISOString().split('T')[0];
+        
+        // Calculer la date de fin de semaine
+        const endOfWeek = new Date();
+        endOfWeek.setDate(endOfWeek.getDate() + (7 - endOfWeek.getDay()));
+        const endOfWeekStr = endOfWeek.toISOString().split('T')[0];
+        
+        return reservations.filter(reservation => {
+            switch (filterValue) {
+                case 'today':
+                    return reservation.date === today;
+                case 'tomorrow':
+                    return reservation.date === tomorrowStr;
+                case 'week':
+                    return reservation.date >= today && reservation.date <= endOfWeekStr;
+                default:
+                    return true; // 'all' - afficher toutes les réservations
+            }
+        });
+    }
+    
+    // Fonction pour afficher les réservations dans le tableau
+    function displayReservations(reservations) {
+        if (!reservationsTableBody) return;
+        
+        if (reservations.length === 0) {
+            reservationsTableBody.innerHTML = `
+                <tr>
+                    <td colspan="8" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
+                        <p>Aucune réservation trouvée pour cette période.</p>
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+        
+        let html = '';
+        
+        reservations.forEach(reservation => {
+            // Déterminer la classe CSS pour le statut
+            let statusClass = '';
+            switch (reservation.statut) {
+                case 'Confirmé':
+                    statusClass = 'bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300';
+                    break;
+                case 'Refusé':
+                    statusClass = 'bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300';
+                    break;
+                default: // 'En attente'
+                    statusClass = 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/50 dark:text-yellow-300';
+                    break;
+            }
+            
+            // Formater la date pour l'affichage (DD/MM/YYYY)
+            const dateParts = reservation.date.split('-');
+            const formattedDate = `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`;
+            
+            html += `
+                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/30" data-id="${reservation.id}">
+                    <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">${formattedDate}</td>
+                    <td class="px-4 py-3 font-medium text-sm text-gray-900 dark:text-gray-100">${reservation.heure}</td>
+                    <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">${reservation.client}</td>
+                    <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">${reservation.telephone}</td>
+                    <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">${reservation.table}</td>
+                    <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300 text-center">${reservation.personnes}</td>
+                    <td class="px-4 py-3">
+                        <span class="inline-block px-2 py-1 text-xs font-semibold rounded-full ${statusClass}">
+                            ${reservation.statut}
+                        </span>
+                    </td>
+                    <td class="px-4 py-3">
+                        <div class="flex space-x-1">
+                            <form method="POST" action="/gerant/reservations/update-status" class="inline-block">
+                                <input type="hidden" name="_token" value="${document.querySelector('meta[name="csrf-token"]').getAttribute('content')}">
+                                <input type="hidden" name="id" value="${reservation.id}">
+                                
+                                ${reservation.statut !== 'Confirmé' ? 
+                                    `<button type="button" class="confirm-reservation p-1.5 text-xs bg-green-500 hover:bg-green-600 text-white rounded" title="Confirmer" data-reservation-id="${reservation.id}" data-status="Confirmé">
+                                        <i class="fas fa-check"></i>
+                                    </button>` : 
+                                    `<button type="button" class="arrived-btn p-1.5 text-xs bg-blue-500 hover:bg-blue-600 text-white rounded" title="Marquer Arrivé">
+                                        <i class="fas fa-user-check"></i>
+                                    </button>`
+                                }
+                                
+                                ${reservation.statut !== 'Refusé' ? 
+                                    `<button type="button" class="refuse-reservation p-1.5 text-xs bg-red-500 hover:bg-red-600 text-white rounded" title="Refuser" data-reservation-id="${reservation.id}" data-status="Refusé">
+                                        <i class="fas fa-times"></i>
+                                    </button>` : ''
+                                }
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        });
+        
+        reservationsTableBody.innerHTML = html;
+        
+        // Ajouter les événements pour les boutons d'action
+        attachActionButtonEvents();
+    }
+    
+    // Fonction pour attacher les événements aux boutons d'action
+    function attachActionButtonEvents() {
+        // Boutons de confirmation
+        document.querySelectorAll('.confirm-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const row = this.closest('tr');
+                const reservationId = row.dataset.id;
+                updateReservationStatus(reservationId, 'Confirmé');
+            });
+        });
+        
+        // Boutons de refus
+        document.querySelectorAll('.refuse-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const row = this.closest('tr');
+                const reservationId = row.dataset.id;
+                updateReservationStatus(reservationId, 'Refusé');
+            });
+        });
+        
+        // Boutons d'arrivée
+        document.querySelectorAll('.arrived-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const row = this.closest('tr');
+                const reservationId = row.dataset.id;
+                // Ici, on pourrait implémenter une logique pour marquer le client comme arrivé
+                // Pour l'instant, on affiche juste une alerte
+                alert('Le client est arrivé pour sa réservation.');
+                
+                // Vous pourriez ajouter un nouvel endpoint et une fonction pour gérer cela
+                // updateReservationArrival(reservationId);
+            });
+        });
+    }
+    
+    // Fonction pour mettre à jour le statut d'une réservation
+    function updateReservationStatus(id, status) {
+        if (!id || !status) return;
+        
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        
+        fetch('/gerant/reservations/update-status', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken
+            },
+            body: JSON.stringify({
+                id: id,
+                statut: status
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Mettre à jour la réservation dans le tableau currentReservations
+                const index = currentReservations.findIndex(r => r.id == id);
+                if (index !== -1) {
+                    currentReservations[index] = data.reservation;
+                    
+                    // Réafficher les réservations avec le filtre actuel
+                    const filteredReservations = filterReservationsByDate(currentReservations);
+                    displayReservations(filteredReservations);
+                }
+                
+                // Afficher un message de succès
+                showNotification(data.message, 'success');
+            } else {
+                showNotification('Erreur lors de la mise à jour du statut.', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            showNotification('Erreur de connexion.', 'error');
+        });
+    }
+    
+    // Fonction pour afficher une notification
+    function showNotification(message, type = 'info') {
+        const notificationDiv = document.createElement('div');
+        notificationDiv.className = `fixed top-4 right-4 p-4 rounded shadow-lg transition-opacity z-50 ${
+            type === 'success' ? 'bg-green-100 text-green-700 border-l-4 border-green-500' :
+            type === 'error' ? 'bg-red-100 text-red-700 border-l-4 border-red-500' :
+            'bg-blue-100 text-blue-700 border-l-4 border-blue-500'
+        }`;
+        
+        notificationDiv.innerHTML = message;
+        document.body.appendChild(notificationDiv);
+        
+        // Faire disparaître la notification après 3 secondes
+        setTimeout(() => {
+            notificationDiv.style.opacity = '0';
+            setTimeout(() => {
+                document.body.removeChild(notificationDiv);
+            }, 300);
+        }, 3000);
+    }
+    
+    // Gestionnaire d'événement pour le sélecteur de restaurant
+    if (restaurantSelector) {
+        restaurantSelector.addEventListener('change', function() {
+            selectedRestaurantId = this.value;
+            if (selectedRestaurantId) {
+                loadReservations();
+            } else {
+                // Réinitialiser le tableau si aucun restaurant n'est sélectionné
+                if (reservationsTableBody) {
+                    reservationsTableBody.innerHTML = `
+                        <tr>
+                            <td colspan="7" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
+                                <p>Sélectionnez un restaurant pour voir les réservations.</p>
+                            </td>
+                        </tr>
+                    `;
+                }
+            }
+        });
+    }
+    
+    // Gestionnaire d'événement pour le filtre de date
+    if (dateFilter) {
+        dateFilter.addEventListener('change', function() {
+            const filteredReservations = filterReservationsByDate(currentReservations);
+            displayReservations(filteredReservations);
+        });
+    }
+    
+    // Charger les réservations au chargement de la page si un restaurant est déjà sélectionné
+    if (restaurantSelector && restaurantSelector.value) {
+        selectedRestaurantId = restaurantSelector.value;
+        loadReservations();
+    }
+});
