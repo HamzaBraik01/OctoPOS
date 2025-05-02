@@ -517,7 +517,7 @@
                     <div class="info-grid">
                         <div class="info-item">
                             <p class="text-sm text-gray-600">Table :</p>
-                            <p class="font-medium text-gray-800">{{ $table->name }}</p>
+                            <p class="font-medium text-gray-800">{{ $table->numero }}</p>
                         </div>
                         <div class="info-item">
                             <p class="text-sm text-gray-600">Nombre d'invités :</p>
