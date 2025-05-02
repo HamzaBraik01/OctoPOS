@@ -46,7 +46,6 @@
         </div>
     </div>
     
-    {{-- Notification de succès --}}
     <div id="status-notification" class="fixed bottom-4 right-4 p-4 rounded-lg shadow-lg transition-opacity duration-300 opacity-0 z-50 transform translate-y-2">
         <div class="flex items-center">
             <i class="fas fa-check-circle mr-2"></i>
@@ -55,10 +54,8 @@
     </div>
 </div>
 
-{{-- Script pour gérer les boutons de mise à jour de statut --}}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Fonction pour mettre à jour le statut d'une réservation
     function updateReservationStatus(id, status) {
         const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
         
@@ -76,18 +73,8 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                // Afficher la notification
                 showNotification(data.message, 'success');
-                
-                // Recharger les réservations (on pourrait optimiser en mettant à jour uniquement la ligne concernée)
-                if (typeof loadReservations === 'function') {
-                    loadReservations();
-                } else {
-                    // Fallback: recharger la page
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1000);
-                }
+                updateReservationRow(data.reservation);
             } else {
                 showNotification('Erreur lors de la mise à jour du statut.', 'error');
             }
@@ -98,14 +85,70 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Fonction pour afficher une notification stylisée
+    function updateReservationRow(reservation) {
+        const row = document.querySelector(`tr[data-id="${reservation.id}"]`);
+        if (!row) return;
+        
+        let statusClass = '';
+        switch(reservation.statut) {
+            case 'Confirmé':
+                statusClass = 'bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300';
+                break;
+            case 'Refusé':
+                statusClass = 'bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300';
+                break;
+            default:
+                statusClass = 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/50 dark:text-yellow-300';
+                break;
+        }
+        
+        const dateParts = reservation.date.split('-');
+        const formattedDate = `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`;
+        
+        row.cells[0].textContent = formattedDate;
+        row.cells[1].textContent = reservation.heure;
+        row.cells[2].textContent = reservation.client;
+        row.cells[3].textContent = reservation.telephone;
+        row.cells[4].textContent = reservation.table;
+        row.cells[5].textContent = reservation.personnes;
+        
+        row.cells[6].innerHTML = `
+            <span class="inline-block px-2 py-1 text-xs font-semibold rounded-full ${statusClass}">
+                ${reservation.statut}
+            </span>
+        `;
+        
+        row.cells[7].innerHTML = `
+            <div class="flex space-x-1">
+                <form method="POST" action="/gerant/reservations/update-status" class="inline-block">
+                    <input type="hidden" name="_token" value="${document.querySelector('meta[name="csrf-token"]').getAttribute('content')}">
+                    <input type="hidden" name="id" value="${reservation.id}">
+                    
+                    ${reservation.statut !== 'Confirmé' ? 
+                        `<button type="button" class="confirm-reservation p-1.5 text-xs bg-green-500 hover:bg-green-600 text-white rounded" title="Confirmer" data-reservation-id="${reservation.id}" data-status="Confirmé">
+                            <i class="fas fa-check"></i>
+                        </button>` : 
+                        `<button type="button" class="arrived-btn p-1.5 text-xs bg-blue-500 hover:bg-blue-600 text-white rounded" title="Marquer Arrivé">
+                            <i class="fas fa-user-check"></i>
+                        </button>`
+                    }
+                    
+                    ${reservation.statut !== 'Refusé' ? 
+                        `<button type="button" class="refuse-reservation p-1.5 text-xs bg-red-500 hover:bg-red-600 text-white rounded" title="Refuser" data-reservation-id="${reservation.id}" data-status="Refusé">
+                            <i class="fas fa-times"></i>
+                        </button>` : ''
+                    }
+                </form>
+            </div>
+        `;
+    }
+    
     function showNotification(message, type = 'info') {
         const notification = document.getElementById('status-notification');
         const messageEl = document.getElementById('notification-message');
         
         if (!notification || !messageEl) return;
         
-        // Définir les styles en fonction du type
         if (type === 'success') {
             notification.className = 'fixed bottom-4 right-4 p-4 rounded-lg shadow-lg transition-opacity duration-300 z-50 bg-green-100 text-green-700 border-l-4 border-green-500';
             notification.querySelector('i').className = 'fas fa-check-circle mr-2';
@@ -117,23 +160,18 @@ document.addEventListener('DOMContentLoaded', function() {
             notification.querySelector('i').className = 'fas fa-info-circle mr-2';
         }
         
-        // Définir le message
         messageEl.textContent = message;
         
-        // Afficher la notification avec animation
         notification.classList.remove('opacity-0', 'translate-y-2');
         notification.classList.add('opacity-100', 'translate-y-0');
         
-        // Cacher la notification après 3 secondes
         setTimeout(() => {
             notification.classList.add('opacity-0', 'translate-y-2');
             notification.classList.remove('opacity-100', 'translate-y-0');
         }, 3000);
     }
     
-    // Délégation d'événements pour les boutons de confirmation et refus
     document.addEventListener('click', function(event) {
-        // Gestion du bouton de confirmation
         if (event.target.matches('.confirm-reservation') || event.target.closest('.confirm-reservation')) {
             const button = event.target.matches('.confirm-reservation') ? event.target : event.target.closest('.confirm-reservation');
             const reservationId = button.getAttribute('data-reservation-id');
@@ -143,7 +181,6 @@ document.addEventListener('DOMContentLoaded', function() {
             updateReservationStatus(reservationId, status);
         }
         
-        // Gestion du bouton de refus
         if (event.target.matches('.refuse-reservation') || event.target.closest('.refuse-reservation')) {
             const button = event.target.matches('.refuse-reservation') ? event.target : event.target.closest('.refuse-reservation');
             const reservationId = button.getAttribute('data-reservation-id');
@@ -153,13 +190,11 @@ document.addEventListener('DOMContentLoaded', function() {
             updateReservationStatus(reservationId, status);
         }
         
-        // Gestion du bouton "Marquer Arrivé"
         if (event.target.matches('.arrived-btn') || event.target.closest('.arrived-btn')) {
             const button = event.target.matches('.arrived-btn') ? event.target : event.target.closest('.arrived-btn');
             
             event.preventDefault();
             showNotification('Le client est arrivé pour sa réservation.', 'success');
-            // Ici, vous pourriez implémenter une logique pour marquer le client comme arrivé
         }
     });
 });

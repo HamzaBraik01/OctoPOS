@@ -17,9 +17,6 @@ class GerantController extends Controller
          return view('gerants.dashboard', compact('restaurants'));
     }
     
-    /**
-     * Get reservations for a specific restaurant
-     */
     public function getReservations(Request $request)
     {
         $restaurantId = $request->input('restaurant_id');
@@ -28,14 +25,12 @@ class GerantController extends Controller
             return response()->json(['error' => 'Restaurant ID is required'], 400);
         }
         
-        // Get tables belonging to the restaurant
         $tableIds = Table::where('restaurant_id', $restaurantId)->pluck('id')->toArray();
         
         if (empty($tableIds)) {
             return response()->json(['reservations' => []]);
         }
         
-        // Get reservations for these tables
         $reservations = Reservation::whereIn('table_id', $tableIds)
             ->with(['user', 'table'])
             ->orderBy('date', 'asc')
@@ -57,9 +52,6 @@ class GerantController extends Controller
         return response()->json(['reservations' => $reservations]);
     }
     
-    /**
-     * Update reservation status
-     */
     public function updateStatus(Request $request)
     {
         $request->validate([
