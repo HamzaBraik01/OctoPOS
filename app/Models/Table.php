@@ -22,6 +22,11 @@ class Table extends Model
         return $this->hasMany(Reservation::class);
     }
     
+    public function commandes()
+    {
+        return $this->hasMany(Commande::class);
+    }
+    
 
     public function isDisponible($date = null)
     {
