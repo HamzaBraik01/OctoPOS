@@ -19,6 +19,64 @@ class GerantController extends Controller
          return view('gerants.dashboard', compact('restaurants'));
     }
     
+    /**
+     * Get sales summary data for chart visualization
+     */
+    public function getSalesSummary(Request $request)
+    {
+        $restaurantId = $request->input('restaurant_id');
+        
+        if (!$restaurantId) {
+            return response()->json(['error' => 'Restaurant ID is required'], 400);
+        }
+        
+        // Get tables belonging to the restaurant
+        $tableIds = Table::where('restaurant_id', $restaurantId)->pluck('id')->toArray();
+        
+        if (empty($tableIds)) {
+            return response()->json(['data' => []]);
+        }
+        
+        // Get sales data for the last 7 days
+        $startDate = Carbon::now()->subDays(6)->startOfDay();
+        $endDate = Carbon::now()->endOfDay();
+        
+        $salesData = Commande::whereIn('table_id', $tableIds)
+            ->whereBetween('date', [$startDate, $endDate])
+            ->select(
+                DB::raw('DATE(date) as day'),
+                DB::raw('SUM(montant_total) as total_sales'),
+                DB::raw('COUNT(*) as order_count')
+            )
+            ->groupBy('day')
+            ->orderBy('day')
+            ->get();
+        
+        // Format the data for the chart
+        $formattedData = [];
+        $currentDate = clone $startDate;
+        
+        while ($currentDate <= $endDate) {
+            $dayString = $currentDate->format('Y-m-d');
+            $daySales = $salesData->firstWhere('day', $dayString);
+            
+            $formattedData[] = [
+                'day' => $currentDate->format('d/m'),
+                'date' => $dayString,
+                'sales' => $daySales ? round($daySales->total_sales, 2) : 0,
+                'count' => $daySales ? $daySales->order_count : 0
+            ];
+            
+            $currentDate->addDay();
+        }
+        
+        return response()->json([
+            'data' => $formattedData,
+            'today_total' => $formattedData[count($formattedData) - 1]['sales'],
+            'week_total' => round($salesData->sum('total_sales'), 2)
+        ]);
+    }
+    
     public function getReservations(Request $request)
     {
         $restaurantId = $request->input('restaurant_id');

@@ -1,6 +1,9 @@
 // resources/js/gerant.js
 
 document.addEventListener('DOMContentLoaded', function() {
+    // Variables globales pour suivre l'état
+    let currentActiveSection = null;
+    let selectedRestaurantId = null;
 
     // ----- Utilitaires Globaux -----
 
@@ -288,11 +291,125 @@ document.addEventListener('DOMContentLoaded', function() {
         window.speechSynthesis.speak(utterance);
     }
 
+    // Fonction dédiée pour mettre à jour uniquement les résumés des ventes
+    function updateSalesSummary(todayTotal, weekTotal) {
+        // Recherche des éléments dans le DOM, même si la section n'est pas visible
+        const todaySalesElement = document.getElementById('today-sales');
+        const weekSalesElement = document.getElementById('week-sales');
+        
+        // Formatage et mise à jour des valeurs
+        if (todaySalesElement) {
+            todaySalesElement.textContent = (todayTotal || 0).toLocaleString('fr-FR', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }) + ' DH';
+        }
+        
+        if (weekSalesElement) {
+            weekSalesElement.textContent = (weekTotal || 0).toLocaleString('fr-FR', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }) + ' DH';
+        }
+    }
+
+    function loadSalesSummary() {
+        const restaurantSelector = document.getElementById('header-restaurant-selector');
+        if (!restaurantSelector || !restaurantSelector.value) {
+            // Si pas de restaurant sélectionné, mettre des valeurs à zéro
+            updateSalesSummary(0, 0);
+            return;
+        }
+        
+        // Afficher un indicateur visuel que les données se chargent
+        const todaySalesElement = document.getElementById('today-sales');
+        const weekSalesElement = document.getElementById('week-sales');
+        
+        if (todaySalesElement) todaySalesElement.textContent = "...";
+        if (weekSalesElement) weekSalesElement.textContent = "...";
+        
+        fetch(`/gerant/get-sales-summary?restaurant_id=${restaurantSelector.value}`)
+            .then(response => {
+                // Vérifier si la réponse est OK (status 200-299)
+                if (!response.ok) {
+                    throw new Error('Erreur réseau lors de la récupération des données');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Mettre à jour les résumés de ventes
+                updateSalesSummary(data.today_total, data.week_total);
+            })
+            .catch(error => {
+                console.error('Erreur lors du chargement des données de ventes:', error);
+                // En cas d'erreur, mettre des valeurs à zéro
+                updateSalesSummary(0, 0);
+            });
+    }
+
+    // ----- Gestion des changements de restaurant -----
+    const restaurantSelector = document.getElementById('header-restaurant-selector');
+    if (restaurantSelector) {
+        restaurantSelector.addEventListener('change', function() {
+            selectedRestaurantId = this.value;
+            
+            // Rafraîchir les données du résumé de ventes (indépendamment de la section active)
+            loadSalesSummary();
+            
+            // Rafraîchir les données du graphique de ventes
+            if (currentActiveSection === 'caisse') {
+                initSalesChart();
+            }
+            
+            // Charger les réservations si dans la section réservations
+            if (currentActiveSection === 'reservations') {
+                loadReservations();
+            }
+            
+            // Rafraîchir les transactions récentes si dans la section caisse
+            if (currentActiveSection === 'caisse') {
+                const loadRecentTransactions = document.getElementById('refresh-transactions');
+                if (loadRecentTransactions) {
+                    loadRecentTransactions.click();
+                } else {
+                    // Fallback si le bouton n'existe pas
+                    const event = new Event('restaurantChanged');
+                    document.dispatchEvent(event);
+                }
+            }
+            
+            // Mettre à jour les tables si dans la section tables
+            if (currentActiveSection === 'tables') {
+                if (typeof renderTables === 'function') renderTables();
+                if (typeof renderTablesList === 'function') renderTablesList();
+            }
+        });
+    }
+    
+    // Écouter l'événement personnalisé
+    document.addEventListener('restaurantChanged', function() {
+        if (currentActiveSection === 'caisse') {
+            loadRecentTransactions();
+        }
+    });
+
+    // Charger le résumé des ventes au chargement de la page
+    document.addEventListener('DOMContentLoaded', function() {
+        // Appeler loadSalesSummary au chargement initial
+        if (restaurantSelector && restaurantSelector.value) {
+            selectedRestaurantId = restaurantSelector.value;
+            loadSalesSummary(); // Charge immédiatement les résumés de ventes
+            
+            // Charger les réservations si la section est visible
+            if (currentActiveSection === 'reservations') {
+                loadReservations();
+            }
+        }
+    });
 
     // ----- Navigation des Sections -----
     const sidebarLinks = document.querySelectorAll('.sidebar-link[data-section]');
     const sections = document.querySelectorAll('.section-content');
-    let currentActiveSection = null; // Pour savoir quelle section est active
 
     function showSection(sectionId) {
         let sectionFound = false;
@@ -412,38 +529,116 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!ctx) { /*console.warn("Canvas 'sales-chart' non trouvé.");*/ return; } // Moins de bruit en console
         salesChartInstance = destroyChart(salesChartInstance);
         const colors = getChartColors();
-
-        salesChartInstance = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: ['14h', '16h', '18h', '20h', '22h', 'Actuel'],
-                datasets: [{
-                    label: 'Ventes (DH)',
-                    data: [250.50, 520.00, 800.20, 950.75, 1100.00, 1250.80], // Données exemple
-                    borderColor: colors.primary,
-                    backgroundColor: colors.primaryLight,
-                    fill: true,
-                    tension: 0.4,
-                    pointBackgroundColor: colors.primary,
-                    pointBorderColor: '#fff',
-                    pointHoverBackgroundColor: '#fff',
-                    pointHoverBorderColor: colors.primary,
-                    pointRadius: 4,
-                    pointHoverRadius: 6
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    x: { grid: { color: colors.grid }, ticks: { color: colors.text } },
-                    y: { grid: { color: colors.grid }, ticks: { color: colors.text, callback: value => value + ' DH' }, beginAtZero: true }
-                },
-                plugins: { legend: { display: false } },
-                 interaction: { intersect: false, mode: 'index' }, // Améliore le tooltip
-                 tooltip: { callbacks: { label: (context) => `${context.dataset.label}: ${context.parsed.y.toFixed(2)} DH` } }
+        
+        // Get restaurant ID
+        const restaurantSelector = document.getElementById('header-restaurant-selector');
+        if (!restaurantSelector || !restaurantSelector.value) {
+            // Display a message in place of the chart if no restaurant selected
+            const salesChartContainer = document.getElementById('sales-chart').parentNode;
+            if (salesChartContainer) {
+                salesChartContainer.innerHTML = `
+                    <div class="flex items-center justify-center h-full text-gray-500 dark:text-gray-400">
+                        <p>Sélectionnez un restaurant pour voir les données de ventes.</p>
+                    </div>
+                `;
             }
-        });
+            return;
+        }
+        
+        // Show loading state
+        const salesChartContainer = document.getElementById('sales-chart').parentNode;
+        if (salesChartContainer) {
+            salesChartContainer.innerHTML = `
+                <div class="flex items-center justify-center h-full text-gray-500 dark:text-gray-400">
+                    <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mr-2"></div>
+                    <p>Chargement des données...</p>
+                </div>
+            `;
+        }
+        
+        // Fetch data from API
+        fetch(`/gerant/get-sales-summary?restaurant_id=${restaurantSelector.value}`)
+            .then(response => response.json())
+            .then(data => {
+                // Reset container with canvas
+                if (salesChartContainer) {
+                    salesChartContainer.innerHTML = '<canvas id="sales-chart"></canvas>';
+                }
+                
+                // Update summary cards with real data
+                updateSalesSummary(data.today_total, data.week_total);
+                
+                // Get fresh canvas context after recreating canvas
+                const ctx = document.getElementById('sales-chart')?.getContext('2d');
+                if (!ctx) return;
+                
+                // Prepare data for chart
+                const chartLabels = data.data.map(day => day.day);
+                const chartData = data.data.map(day => day.sales);
+                
+                // Create chart
+                salesChartInstance = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: chartLabels,
+                        datasets: [{
+                            label: 'Ventes (DH)',
+                            data: chartData,
+                            borderColor: colors.primary,
+                            backgroundColor: colors.primaryLight,
+                            fill: true,
+                            tension: 0.4,
+                            pointBackgroundColor: colors.primary,
+                            pointBorderColor: '#fff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: colors.primary,
+                            pointRadius: 4,
+                            pointHoverRadius: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: { grid: { color: colors.grid }, ticks: { color: colors.text } },
+                            y: { 
+                                grid: { color: colors.grid }, 
+                                ticks: { 
+                                    color: colors.text, 
+                                    callback: value => value.toLocaleString('fr-FR') + ' DH' 
+                                }, 
+                                beginAtZero: true 
+                            }
+                        },
+                        plugins: { 
+                            legend: { display: false },
+                            tooltip: { 
+                                callbacks: { 
+                                    label: (context) => {
+                                        const value = context.parsed.y;
+                                        const formattedValue = value.toLocaleString('fr-FR', {
+                                            minimumFractionDigits: 2,
+                                            maximumFractionDigits: 2
+                                        });
+                                        return `Ventes: ${formattedValue} DH`;
+                                    }
+                                } 
+                            }
+                        },
+                        interaction: { intersect: false, mode: 'index' }
+                    }
+                });
+            })
+            .catch(error => {
+                console.error('Erreur lors du chargement des données de ventes:', error);
+                if (salesChartContainer) {
+                    salesChartContainer.innerHTML = `
+                        <div class="flex items-center justify-center h-full text-red-500">
+                            <p>Erreur lors du chargement des données. Veuillez réessayer.</p>
+                        </div>
+                    `;
+                }
+            });
     }
 
     function initSalesPerformanceChart() {
@@ -558,7 +753,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Données exemple (à remplacer par des données dynamiques via Blade/AJAX)
     let tablesData = [
         { id: 1, number: 1, capacity: 4, zone: 'ground', type: 'round', status: 'available', x: 100, y: 150, since: null, server: null },
-        { id: 2, number: 2, capacity: 4, zone: 'ground', type: 'round', status: 'occupied', x: 200, y: 150, since: '11:45', server: 'Thomas D.' },
+        { id: 2, number: 2, capacity: 4, zone: 'ground', type: 'round', status: 'occupied', x: 200, y:150, since: '11:45', server: 'Thomas D.' },
         { id: 3, number: 3, capacity: 4, zone: 'ground', type: 'round', status: 'ordered', x: 300, y: 150, since: '12:15', server: 'Marie S.' },
         { id: 4, number: 4, capacity: 4, zone: 'ground', type: 'round', status: 'payment', x: 400, y: 150, since: '13:05', server: 'Thomas D.' },
         { id: 5, number: 5, capacity: 2, zone: 'ground', type: 'round', status: 'available', x: 100, y: 250, since: null, server: null },
@@ -1206,12 +1401,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // --- Fin Logique Section Personnel ---
 
     // Gestion des réservations
-    const restaurantSelector = document.getElementById('header-restaurant-selector');
     const reservationsTableBody = document.getElementById('reservations-table-body');
     const loadingIndicator = document.getElementById('loading-indicator');
     const dateFilter = document.getElementById('reservation-date-filter');
     
-    let selectedRestaurantId = null;
     let currentReservations = [];
     
     // Fonction pour charger les réservations
@@ -1460,27 +1653,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.body.removeChild(notificationDiv);
             }, 300);
         }, 3000);
-    }
-    
-    // Gestionnaire d'événement pour le sélecteur de restaurant
-    if (restaurantSelector) {
-        restaurantSelector.addEventListener('change', function() {
-            selectedRestaurantId = this.value;
-            if (selectedRestaurantId) {
-                loadReservations();
-            } else {
-                // Réinitialiser le tableau si aucun restaurant n'est sélectionné
-                if (reservationsTableBody) {
-                    reservationsTableBody.innerHTML = `
-                        <tr>
-                            <td colspan="7" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
-                                <p>Sélectionnez un restaurant pour voir les réservations.</p>
-                            </td>
-                        </tr>
-                    `;
-                }
-            }
-        });
     }
     
     // Gestionnaire d'événement pour le filtre de date

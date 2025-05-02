@@ -1,4 +1,4 @@
-<div id="section-reservations" class="section-content p-6"> {{-- Retrait de 'hidden' ici, le JS gère l'affichage initial --}}
+<div id="section-reservations" class="section-content p-6">
     <h2 class="text-2xl font-bold mb-6 text-gray-800 dark:text-gray-200">Gestion des Réservations</h2>
 
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 mb-6">
@@ -18,7 +18,7 @@
         </div>
 
         <div class="overflow-x-auto">
-            <table class="w-full min-w-[600px]" id="reservations-table"> {{-- min-w pour éviter compression excessive --}}
+            <table class="w-full min-w-[600px]" id="reservations-table">
                 <thead>
                     <tr class="text-left text-xs uppercase tracking-wider border-b border-gray-200 dark:border-gray-700">
                         <th class="px-4 py-2 text-gray-500 dark:text-gray-400">Date</th>

@@ -58,6 +58,9 @@ Route::middleware([JWTAuthentication::class])->group(function () {
         
         // API endpoint for recent transactions
         Route::get('/get-recent-transactions', [GerantController::class, 'getRecentTransactions'])->name('gerant.getRecentTransactions');
+        
+        // API endpoint for sales summary chart data
+        Route::get('/get-sales-summary', [GerantController::class, 'getSalesSummary'])->name('gerant.getSalesSummary');
 
         // Routes pour les tables
         Route::post('/tables/update-status', [TableController::class, 'updateStatus'])->name('gerant.tables.updateStatus');
