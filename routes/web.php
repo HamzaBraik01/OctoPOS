@@ -55,6 +55,9 @@ Route::middleware([JWTAuthentication::class])->group(function () {
         // API endpoints for restaurant reservations
         Route::get('/get-reservations', [GerantController::class, 'getReservations'])->name('gerant.getReservations');
         Route::post('/reservations/update-status', [GerantController::class, 'updateStatus'])->name('gerant.reservations.updateStatus');
+        
+        // API endpoint for recent transactions
+        Route::get('/get-recent-transactions', [GerantController::class, 'getRecentTransactions'])->name('gerant.getRecentTransactions');
 
         // Routes pour les tables
         Route::post('/tables/update-status', [TableController::class, 'updateStatus'])->name('gerant.tables.updateStatus');

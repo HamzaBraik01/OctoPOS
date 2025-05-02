@@ -418,7 +418,7 @@ document.addEventListener('DOMContentLoaded', function() {
             data: {
                 labels: ['14h', '16h', '18h', '20h', '22h', 'Actuel'],
                 datasets: [{
-                    label: 'Ventes (€)',
+                    label: 'Ventes (DH)',
                     data: [250.50, 520.00, 800.20, 950.75, 1100.00, 1250.80], // Données exemple
                     borderColor: colors.primary,
                     backgroundColor: colors.primaryLight,
@@ -437,11 +437,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 maintainAspectRatio: false,
                 scales: {
                     x: { grid: { color: colors.grid }, ticks: { color: colors.text } },
-                    y: { grid: { color: colors.grid }, ticks: { color: colors.text, callback: value => value + ' €' }, beginAtZero: true }
+                    y: { grid: { color: colors.grid }, ticks: { color: colors.text, callback: value => value + ' DH' }, beginAtZero: true }
                 },
                 plugins: { legend: { display: false } },
                  interaction: { intersect: false, mode: 'index' }, // Améliore le tooltip
-                 tooltip: { callbacks: { label: (context) => `${context.dataset.label}: ${context.parsed.y.toFixed(2)} €` } }
+                 tooltip: { callbacks: { label: (context) => `${context.dataset.label}: ${context.parsed.y.toFixed(2)} DH` } }
             }
         });
     }
@@ -479,11 +479,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 maintainAspectRatio: false,
                 scales: {
                     x: { grid: { display: false }, ticks: { color: colors.text } },
-                    y: { grid: { color: colors.grid }, ticks: { color: colors.text, callback: value => value + ' €' }, beginAtZero: true }
+                    y: { grid: { color: colors.grid }, ticks: { color: colors.text, callback: value => value + ' DH' }, beginAtZero: true }
                 },
                 plugins: { legend: { labels: { color: colors.text } } },
                  interaction: { mode: 'index' }, // Tooltip pour les deux barres en même temps
-                 tooltip: { callbacks: { label: (context) => `${context.dataset.label}: ${context.parsed.y.toFixed(2)} €` } }
+                 tooltip: { callbacks: { label: (context) => `${context.dataset.label}: ${context.parsed.y.toFixed(2)} DH` } }
             }
         });
     }
@@ -507,7 +507,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     pointBackgroundColor: colors.green, pointBorderColor: '#fff', pointRadius: 4,
                     pointHoverBackgroundColor: '#fff', pointHoverBorderColor: colors.green, pointHoverRadius: 6
                 }, {
-                    label: 'Ticket moyen (€)',
+                    label: 'Ticket moyen (DH)',
                     data: [48.5, 52.1, 51.0, 54.3, 56.8, 58.2], // Données exemple
                     borderColor: colors.yellow,
                     backgroundColor: colors.yellow + '1A',
@@ -529,9 +529,9 @@ document.addEventListener('DOMContentLoaded', function() {
                      },
                      yTicket: {
                          position: 'right',
-                         title: { display: true, text: 'Ticket moyen (€)', color: colors.text },
+                         title: { display: true, text: 'Ticket moyen (DH)', color: colors.text },
                          grid: { drawOnChartArea: false }, // Ne pas dessiner la grille pour cet axe
-                         ticks: { color: colors.text, callback: value => value.toFixed(2) + ' €' },
+                         ticks: { color: colors.text, callback: value => value.toFixed(2) + ' DH' },
                          beginAtZero: false // Le ticket moyen ne commence pas forcément à 0
                      }
                  },
@@ -544,7 +544,7 @@ document.addEventListener('DOMContentLoaded', function() {
                               if (label) { label += ': '; }
                               if (context.parsed.y !== null) {
                                   label += context.parsed.y.toFixed(context.dataset.yAxisID === 'yTicket' ? 2 : 0);
-                                  if (context.dataset.yAxisID === 'yTicket') label += ' €';
+                                  if (context.dataset.yAxisID === 'yTicket') label += ' DH';
                               }
                               return label;
                           }
