@@ -64,6 +64,22 @@ class ReservationController extends Controller
     {
         //
     }
+
+    public function cancel(Reservation $reservation)
+    {
+        if (Auth::id() !== $reservation->users_id) {
+            return response()->json(['message' => 'Non autorisé'], 403);
+        }
+   
+        $reservation->delete();
+    
+        return response()->json([
+            'success' => true,
+            'message' => 'Réservation supprimée avec succès.'
+        ]);
+    }
+    
+    
     public function getAvailableTimeSlots(Request $request)
 {
     $date = $request->input('date');

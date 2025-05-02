@@ -325,24 +325,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- Profile Form ---
-     if (profileForm) {
-         profileForm.addEventListener('submit', (e) => {
-             e.preventDefault();
-             const formData = new FormData(profileForm);
-             const data = Object.fromEntries(formData.entries());
-             // Handle checkbox values correctly (unchecked boxes aren't included in FormData)
-             data.vegetarian = formData.has('vegetarian') ? 'on' : 'off';
-             data.gluten_free = formData.has('gluten-free') ? 'on' : 'off';
-             // ... add other checkboxes ...
-             data.email_notifications = formData.has('email_notifications') ? 'on' : 'off';
-             data.sms_notifications = formData.has('sms_notifications') ? 'on' : 'off';
-             data.marketing_communications = formData.has('marketing_communications') ? 'on' : 'off';
-
-             console.log("Profile update submitted:", data);
-              // TODO: Send data to backend via fetch/axios
-             alert("Profil mis à jour avec succès ! (Simulation)");
-         });
-     }
+    
 
      // --- Reservation Filtering ---
      filterButtons.forEach(button => {
@@ -1542,5 +1525,34 @@ document.querySelectorAll('.table-select-btn').forEach(button => {
             option.textContent = `${i} ${i === 1 ? 'personne' : 'personnes'}`;
             guestCountDropdown.appendChild(option);
         }
+    });
+});
+// Improved modal handling
+function openModal(modalId) {
+    document.getElementById(modalId).classList.remove('hidden');
+    document.getElementById('modal-overlay').classList.remove('hidden');
+    document.body.classList.add('overflow-hidden'); // Prevent scrolling
+}
+
+function closeModal(modalId) {
+    document.getElementById(modalId).classList.add('hidden');
+    document.getElementById('modal-overlay').classList.add('hidden');
+    document.body.classList.remove('overflow-hidden');
+}
+
+// Use these functions for specific modals
+function openPasswordModal() {
+    openModal('password-modal');
+}
+
+function openDeleteModal() {
+    openModal('delete-modal');
+}
+
+// Close modal when clicking outside
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('modal-overlay').addEventListener('click', function() {
+        closeModal('password-modal');
+        closeModal('delete-modal');
     });
 });

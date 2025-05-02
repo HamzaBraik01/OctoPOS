@@ -7,11 +7,17 @@ use App\Models\Table;
 use App\Models\Restaurant;
 use App\Models\Reservation;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ClientController extends Controller
 {
     public function index(Request $request)
     {
+        // Current user and date information
+        $currentUser = auth()->user(); // Or use the provided login: HamzaBr01
+        $currentDateTime = '2025-05-02 01:24:37'; // Using provided UTC datetime
+        
+        // Original table filtering functionality
         $restaurantFilter = $request->input('restaurant');
         $personsFilter = $request->input('persons');
         $dateFilter = $request->input('date', date('Y-m-d'));
@@ -84,14 +90,129 @@ class ClientController extends Controller
         
         $today = date('Y-m-d');
         
-        // Pass data to view - using the correct view name from the first implementation
+        // ----- ADDED DASHBOARD FUNCTIONALITY -----
+        
+        // Get client's user ID
+        $userId = $currentUser->id;
+        
+        // 1. Total Reservations Count
+        $totalReservationsCount = Reservation::where('id', $userId)->count();
+        
+        // 2. Calculate reservation growth compared to last month
+        $lastMonth = Carbon::now()->subMonth();
+        $twoMonthsAgo = Carbon::now()->subMonths(2);
+        
+        $currentMonthReservations = Reservation::where('id', $userId)
+            ->whereMonth('date', Carbon::now()->month)
+            ->whereYear('date', Carbon::now()->year)
+            ->count();
+            
+        $lastMonthReservations = Reservation::where('id', $userId)
+            ->whereMonth('date', $lastMonth->month)
+            ->whereYear('date', $lastMonth->year)
+            ->count();
+        
+        $reservationGrowth = $lastMonthReservations > 0 
+            ? round((($currentMonthReservations - $lastMonthReservations) / $lastMonthReservations) * 100) 
+            : 0;
+        
+        // 3. Upcoming Reservations
+        $upcomingReservations = Reservation::where('id', $userId)
+            ->where('date', '>=', Carbon::now()->format('Y-m-d'))
+            ->orderBy('date')
+            ->orderBy('heure_debut')
+            ->take(3)
+            ->get();
+            
+        $upcomingReservationsCount = $upcomingReservations->count();
+        
+        // 4. Weekly growth
+        $thisWeekReservations = Reservation::where('id', $userId)
+            ->whereBetween('date', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])
+            ->count();
+            
+        $lastWeekReservations = Reservation::where('id', $userId)
+            ->whereBetween('date', [Carbon::now()->subWeek()->startOfWeek(), Carbon::now()->subWeek()->endOfWeek()])
+            ->count();
+        
+        $weeklyGrowth = $lastWeekReservations > 0 
+            ? round((($thisWeekReservations - $lastWeekReservations) / $lastWeekReservations) * 100) 
+            : 0;
+        
+        // 5. Favorite Table
+        $favoriteTableData = Reservation::where('id', $userId)
+            ->select('table_id', DB::raw('count(*) as count'))
+            ->groupBy('table_id')
+            ->orderBy('count', 'desc')
+            ->first();
+        
+        $favoriteTable = "Table #N/A";
+        $favoriteTableCount = 0;
+        
+        if ($favoriteTableData) {
+            $tableInfo = Table::find($favoriteTableData->table_id);
+            $favoriteTable = $tableInfo ? "Table #{$tableInfo->numero}" : "Table #{$favoriteTableData->table_id}";
+            $favoriteTableCount = $favoriteTableData->count;
+        }
+        
+        // 6. Total Spent
+        $totalSpent = 0;
+        // Assuming there's an invoices or payments table linked to reservations
+        // If such a table exists, you would query it like:
+        /*
+        $totalSpent = Invoice::where('user_id', $userId)->sum('amount');
+        
+        $lastMonthSpent = Invoice::where('user_id', $userId)
+            ->whereMonth('date', $lastMonth->month)
+            ->whereYear('date', $lastMonth->year)
+            ->sum('amount');
+            
+        $twoMonthsAgoSpent = Invoice::where('user_id', $userId)
+            ->whereMonth('date', $twoMonthsAgo->month)
+            ->whereYear('date', $twoMonthsAgo->year)
+            ->sum('amount');
+        */
+        
+        // For demo purposes, using static data:
+        $totalSpent = 387.20;
+        $spendingGrowth = 8;
+        
+        // Format the reservation data for display
+        foreach ($upcomingReservations as $reservation) {
+            $tableInfo = Table::find($reservation->table_id);
+            
+            // Add formatted date/time
+            $reservation->formatted_date = Carbon::parse($reservation->date)->format('d F Y');
+            $reservation->formatted_time = Carbon::parse($reservation->heure_debut)->format('H:i');
+            
+            // Add table name
+            $reservation->table_name = $tableInfo ? "Table #{$tableInfo->numero}" : "Table #{$reservation->table_id}";
+            
+            // Add reservation number (assuming there's a unique reservation ID or number)
+            $reservation->reservation_number = 'RS' . str_pad($reservation->id, 5, '0', STR_PAD_LEFT);
+        }
+        
+        // Pass data to view
         return view('clients.dashboard', compact(
             'tablesByType', 
             'restaurantNames', 
             'restaurantFilter', 
             'personsFilter', 
             'dateFilter', 
-            'today'
+            'today',
+            // Dashboard variables
+            'totalReservationsCount',
+            'upcomingReservationsCount',
+            'reservationGrowth',
+            'weeklyGrowth',
+            'favoriteTable',
+            'favoriteTableCount',
+            'totalSpent',
+            'spendingGrowth',
+            'upcomingReservations',
+            // Current user info
+            'currentUser',
+            'currentDateTime'
         ));
     }
     

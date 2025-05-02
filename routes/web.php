@@ -14,6 +14,7 @@ use App\Http\Controllers\CommandeController;
 use App\Http\Controllers\CuisinierController;
 use App\Http\Controllers\RestaurantController;
 use App\Http\Controllers\ReservationController;
+use App\Http\Controllers\UtilisateurController;
 use App\Http\Controllers\CommandePlatController;
 use App\Http\Controllers\ProprietaireController;
 
@@ -56,6 +57,23 @@ Route::middleware([JWTAuthentication::class])->group(function () {
     Route::get('/clients/dashboard', [ClientController::class, 'index'])
         ->middleware('role:client')
         ->name('clients.dashboard');
+
+        Route::post('/reservations/{reservation}/cancel', [ReservationController::class, 'cancel'])
+        ->name('profile.cancel');
+    Route::delete('/reservations/{reservation}/cancel', [ReservationController::class, 'cancel'])->name('reservations.cancel');
+      
+        Route::put('/profile', [UtilisateurController::class, 'update'])->name('profile.update');    // Password update
+// In your routes/web.php file
+Route::put('/profile/password', [UtilisateurController::class, 'updatePassword'])->name('profile.password.update');
+    
+    // Account deletion
+    Route::delete('/profile/delete', [UtilisateurController::class, 'delete'])->name('profile.delete');
+    
+    // Profile photo update
+    Route::post('/profile/photo', [UtilisateurController::class, 'updatePhoto'])->name('profile.photo.update');
+
+
+
 Route::post('/reservations', [ReservationController::class, 'store'])->name('reservations.store');
 Route::get('/clients/reservations-receipt/{id}', [ReservationController::class, 'receipt'])->name('clients.reservations-receipt');
 Route::post('/restaurants/set-restaurant', [RestaurantController::class, 'setRestaurant']);

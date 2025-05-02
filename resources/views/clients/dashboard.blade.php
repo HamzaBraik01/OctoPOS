@@ -1,15 +1,13 @@
-@extends('layouts.client_app') {{-- Extend the main layout --}}
-
-@section('title', 'OctoPOS | Tableau de Bord Client') {{-- Set the page title --}}
+@extends('layouts.client_app') 
+@section('title', 'OctoPOS | Tableau de Bord Client') 
 
 @section('content') {{-- Define the content section --}}
 
 <div class="p-6">
 
-    {{-- Dashboard Section (Visible by default) --}}
     <div id="dashboard-section">
         <h1 class="text-2xl font-bold mb-6" style="color: var(--text-primary);">Tableau de bord Client</h1>
-
+    
         <!-- Summary Cards -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
             {{-- Card 1: Total Reservations --}}
@@ -17,91 +15,81 @@
                 <div class="flex items-start justify-between">
                     <div>
                         <h3 class="text-sm" style="color: var(--text-secondary);">Réservations Totales</h3>
-                        {{-- Replace with dynamic data: {{ $totalReservationsCount ?? 24 }} --}}
-                        <p class="text-2xl font-bold mt-1">24</p>
+                        <p class="text-2xl font-bold mt-1">{{ $totalReservationsCount }}</p>
                     </div>
                     <div class="p-3 rounded-lg" style="background-color: rgba(var(--info-rgb), 0.1);">
                         <i class="fas fa-calendar-check text-xl" style="color: var(--info);"></i>
                     </div>
                 </div>
                 <div class="flex items-center mt-4 text-sm">
-                    {{-- Replace with dynamic data --}}
                     <span class="flex items-center mr-1 font-medium" style="color: var(--success);">
-                        <i class="fas fa-arrow-up mr-1 text-xs"></i> 12%
+                        <i class="fas fa-arrow-up mr-1 text-xs"></i> {{ $reservationGrowth }}%
                     </span>
                     <span style="color: var(--text-secondary);"> vs mois dernier</span>
                 </div>
             </div>
-
+    
             {{-- Card 2: Upcoming Reservations --}}
             <div class="dashboard-card p-5">
                 <div class="flex items-start justify-between">
                     <div>
                         <h3 class="text-sm" style="color: var(--text-secondary);">Réservations à venir</h3>
-                         {{-- Replace with dynamic data: {{ $upcomingReservationsCount ?? 3 }} --}}
-                        <p class="text-2xl font-bold mt-1">3</p>
+                        <p class="text-2xl font-bold mt-1">{{ $upcomingReservationsCount }}</p>
                     </div>
-                     <div class="p-3 rounded-lg" style="background-color: rgba(var(--success-rgb), 0.1);">
+                    <div class="p-3 rounded-lg" style="background-color: rgba(var(--success-rgb), 0.1);">
                         <i class="fas fa-clock text-xl" style="color: var(--success);"></i>
                     </div>
                 </div>
                 <div class="flex items-center mt-4 text-sm">
-                     {{-- Replace with dynamic data --}}
-                     <span class="flex items-center mr-1 font-medium" style="color: var(--success);">
-                         <i class="fas fa-arrow-up mr-1 text-xs"></i> 5%
-                     </span>
-                     <span style="color: var(--text-secondary);"> vs semaine dernière</span>
-                 </div>
+                    <span class="flex items-center mr-1 font-medium" style="color: var(--success);">
+                        <i class="fas fa-arrow-up mr-1 text-xs"></i> {{ $weeklyGrowth }}%
+                    </span>
+                    <span style="color: var(--text-secondary);"> vs semaine dernière</span>
+                </div>
             </div>
-
+    
             {{-- Card 3: Favorite Table --}}
-             <div class="dashboard-card p-5">
-                 <div class="flex items-start justify-between">
-                     <div>
-                         <h3 class="text-sm" style="color: var(--text-secondary);">Table Favorite</h3>
-                          {{-- Replace with dynamic data: {{ $favoriteTable ?? 'Table #8' }} --}}
-                         <p class="text-2xl font-bold mt-1">Table #8</p>
-                     </div>
-                      <div class="p-3 rounded-lg" style="background-color: rgba(var(--warning-rgb), 0.1);">
-                         <i class="fas fa-star text-xl" style="color: var(--warning);"></i>
-                     </div>
-                 </div>
-                 <div class="flex items-center mt-4 text-sm">
-                      {{-- Replace with dynamic data --}}
-                      <span class="flex items-center" style="color: var(--text-secondary);">
-                          <i class="fas fa-info-circle mr-1 text-xs"></i> Réservée 5 fois
-                      </span>
-                  </div>
-             </div>
-
+            <div class="dashboard-card p-5">
+                <div class="flex items-start justify-between">
+                    <div>
+                        <h3 class="text-sm" style="color: var(--text-secondary);">Table Favorite</h3>
+                        <p class="text-2xl font-bold mt-1">{{ $favoriteTable }}</p>
+                    </div>
+                    <div class="p-3 rounded-lg" style="background-color: rgba(var(--warning-rgb), 0.1);">
+                        <i class="fas fa-star text-xl" style="color: var(--warning);"></i>
+                    </div>
+                </div>
+                <div class="flex items-center mt-4 text-sm">
+                    <span class="flex items-center" style="color: var(--text-secondary);">
+                        <i class="fas fa-info-circle mr-1 text-xs"></i> Réservée {{ $favoriteTableCount }} fois
+                    </span>
+                </div>
+            </div>
+    
             {{-- Card 4: Total Spent --}}
-             <div class="dashboard-card p-5">
-                 <div class="flex items-start justify-between">
-                     <div>
-                         <h3 class="text-sm" style="color: var(--text-secondary);">Dépenses Totales</h3>
-                         {{-- Replace with dynamic data: €{{ number_format($totalSpent ?? 387.20, 2) }} --}}
-                         <p class="text-2xl font-bold mt-1">€387.20</p>
-                     </div>
-                     <div class="p-3 rounded-lg" style="background-color: rgba(var(--accent-rgb), 0.1);">
-                         <i class="fas fa-wallet text-xl" style="color: var(--accent);"></i>
-                     </div>
-                 </div>
-                 <div class="flex items-center mt-4 text-sm">
-                      {{-- Replace with dynamic data --}}
-                      <span class="flex items-center mr-1 font-medium" style="color: var(--success);">
-                          <i class="fas fa-arrow-up mr-1 text-xs"></i> 8%
-                      </span>
-                      <span style="color: var(--text-secondary);"> vs mois dernier</span>
-                  </div>
-             </div>
+            <div class="dashboard-card p-5">
+                <div class="flex items-start justify-between">
+                    <div>
+                        <h3 class="text-sm" style="color: var(--text-secondary);">Dépenses Totales</h3>
+                        <p class="text-2xl font-bold mt-1">€{{ number_format($totalSpent, 2) }}</p>
+                    </div>
+                    <div class="p-3 rounded-lg" style="background-color: rgba(var(--accent-rgb), 0.1);">
+                        <i class="fas fa-wallet text-xl" style="color: var(--accent);"></i>
+                    </div>
+                </div>
+                <div class="flex items-center mt-4 text-sm">
+                    <span class="flex items-center mr-1 font-medium" style="color: var(--success);">
+                        <i class="fas fa-arrow-up mr-1 text-xs"></i> {{ $spendingGrowth }}%
+                    </span>
+                    <span style="color: var(--text-secondary);"> vs mois dernier</span>
+                </div>
+            </div>
         </div>
-
+    
         <!-- Upcoming Reservations Table -->
-        {{-- Use @include or render dynamically with @foreach --}}
         <div class="dashboard-card p-6 mb-6">
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-lg font-semibold">Réservations à venir</h2>
-                {{-- Use JS navigation or route() if separate page exists --}}
                 <a href="#reservations" class="btn btn-sm btn-outline nav-link">Voir tout</a>
             </div>
             <div class="table-container">
@@ -117,294 +105,263 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {{-- Example Row: Loop through $upcomingReservations in real app --}}
-                        <tr>
-                            <td class="font-medium">#RS12345</td>
-                            <td>20 Avril 2025 - 19:30</td>
-                            <td>Table #3</td>
-                            <td>4</td>
-                            <td><span class="badge badge-green">Confirmée</span></td>
-                            <td>
-                                <button class="btn btn-sm btn-icon btn-outline mr-1" title="Modifier"><i class="fas fa-edit"></i></button>
-                                <button class="btn btn-sm btn-icon btn-outline-danger" title="Annuler"><i class="fas fa-trash"></i></button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="font-medium">#RS12346</td>
-                            <td>25 Avril 2025 - 20:00</td>
-                            <td>Table #8</td>
-                            <td>2</td>
-                            <td><span class="badge badge-yellow">En attente</span></td>
-                            <td>
-                                <button class="btn btn-sm btn-icon btn-outline mr-1" title="Modifier"><i class="fas fa-edit"></i></button>
-                                <button class="btn btn-sm btn-icon btn-outline-danger" title="Annuler"><i class="fas fa-trash"></i></button>
-                            </td>
-                        </tr>
-                         <tr>
-                             <td class="font-medium">#RS12347</td>
-                             <td>3 Mai 2025 - 18:45</td>
-                             <td>Table #12</td>
-                             <td>6</td>
-                             <td><span class="badge badge-green">Confirmée</span></td>
-                             <td>
-                                 <button class="btn btn-sm btn-icon btn-outline mr-1" title="Modifier"><i class="fas fa-edit"></i></button>
-                                 <button class="btn btn-sm btn-icon btn-outline-danger" title="Annuler"><i class="fas fa-trash"></i></button>
-                             </td>
-                         </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Recent Invoices Table -->
-        {{-- Use @include or render dynamically with @foreach --}}
-        <div class="dashboard-card p-6">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-lg font-semibold">Factures Récentes</h2>
-                {{-- Use JS navigation or route() if separate page exists --}}
-                <a href="#invoices" class="btn btn-sm btn-outline nav-link">Voir tout</a>
-            </div>
-            <div class="table-container">
-                <table class="custom-table">
-                    <thead>
-                        <tr>
-                            <th>ID Facture</th>
-                            <th>Date</th>
-                            <th>Montant</th>
-                            <th>Statut</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                         {{-- Example Row: Loop through $recentInvoices in real app --}}
-                        <tr>
-                            <td class="font-medium">#INV-0025</td>
-                            <td>10 Avril 2025</td>
-                            <td>€85.40</td>
-                            <td><span class="badge badge-green">Payée</span></td>
-                            <td>
-                                <button class="btn btn-sm btn-icon btn-outline mr-1" onclick="viewInvoice('INV-0025')" title="Voir"><i class="fas fa-eye"></i></button>
-                                <button class="btn btn-sm btn-icon btn-outline" title="Télécharger"><i class="fas fa-download"></i></button>
-                            </td>
-                        </tr>
-                         <tr>
-                             <td class="font-medium">#INV-0024</td>
-                             <td>28 Mars 2025</td>
-                             <td>€124.60</td>
-                             <td><span class="badge badge-green">Payée</span></td>
-                             <td>
-                                 <button class="btn btn-sm btn-icon btn-outline mr-1" onclick="viewInvoice('INV-0024')" title="Voir"><i class="fas fa-eye"></i></button>
-                                 <button class="btn btn-sm btn-icon btn-outline" title="Télécharger"><i class="fas fa-download"></i></button>
-                             </td>
-                         </tr>
-                          <tr>
-                             <td class="font-medium">#INV-0023</td>
-                             <td>15 Mars 2025</td>
-                             <td>€95.80</td>
-                             <td><span class="badge badge-green">Payée</span></td>
-                             <td>
-                                 <button class="btn btn-sm btn-icon btn-outline mr-1" onclick="viewInvoice('INV-0023')" title="Voir"><i class="fas fa-eye"></i></button>
-                                 <button class="btn btn-sm btn-icon btn-outline" title="Télécharger"><i class="fas fa-download"></i></button>
-                             </td>
-                         </tr>
+                        @forelse($upcomingReservations as $reservation)
+                            <tr>
+                                <td class="font-medium">#{{ $reservation->reservation_number }}</td>
+                                <td>{{ $reservation->formatted_date }} - {{ $reservation->formatted_time }}</td>
+                                <td>{{ $reservation->table_name }}</td>
+                                <td>{{ $reservation->invite }} </td>
+                                <td>
+                                    @if($reservation->status === 'confirmed')
+                                        <span class="badge badge-green">Confirmée</span>
+                                    @elseif($reservation->status === 'pending')
+                                        <span class="badge badge-yellow">En attente</span>
+                                    @else
+                                        <span class="badge badge-gray">{{ ucfirst($reservation->status) }}</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    <!-- IMPORTANT: Changed from onclick to data attributes -->
+                                    <button class="btn btn-sm btn-icon btn-outline mr-1 edit-reservation" 
+                                            data-id="{{ $reservation->id }}" title="Modifier">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-icon btn-outline-danger cancel-reservation"
+                                    data-id="{{ $reservation->id }}" title="Annuler">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="6" class="text-center py-4">Aucune réservation à venir</td>
+                            </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
+    
+    <script>
+        function editReservation(id) {
+           
+        }
+        
+        function editReservation(id) {
+    // Your edit reservation logic here
+    console.log("Editing reservation: " + id);
+}
 
-    {{-- Full Reservations Section (Hidden by default) --}}
-    <div id="reservations-section" class="hidden">
-        <h1 class="text-2xl font-bold mb-6" style="color: var(--text-primary);">Mes Réservations</h1>
 
-        <!-- Reservations Controls -->
-        <div class="dashboard-card p-6 mb-6">
-            <div class="flex flex-col sm:flex-row justify-between items-center gap-4 mb-4">
-                <div class="flex gap-2">
-                     {{-- Use JS to navigate or link to a dedicated booking page/modal --}}
-                    <button class="btn btn-primary btn-sm nav-link" data-href="#tables">
-                        <i class="fas fa-plus"></i> Nouvelle Réservation
-                    </button>
-                    <button class="btn btn-outline btn-sm">
-                        <i class="fas fa-filter"></i> Filtrer
-                    </button>
-                </div>
-                <div class="relative w-full sm:w-auto">
-                    <input type="text" placeholder="Rechercher..." class="form-input !py-1.5 pl-10 w-full sm:w-64">
-                    <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-[var(--text-secondary)]"></i>
-                </div>
+ 
+    </script>
+
+   
+    
+<div id="reservations-section" class="hidden">
+    <h1 class="text-2xl font-bold mb-6" style="color: var(--text-primary);">Mes Réservations</h1>
+
+    <!-- Reservations Controls -->
+    <div class="dashboard-card p-6 mb-6">
+        <div class="flex flex-col sm:flex-row justify-between items-center gap-4 mb-4">
+            <div class="flex gap-2">
+                {{-- Use JS to navigate or link to a dedicated booking page/modal --}}
+                <button class="btn btn-primary btn-sm nav-link" data-href="#tables">
+                    <i class="fas fa-plus"></i> Nouvelle Réservation
+                </button>
+                <button class="btn btn-outline btn-sm">
+                    <i class="fas fa-filter"></i> Filtrer
+                </button>
             </div>
-
-            <div class="flex flex-wrap gap-2 mt-4">
-                <button class="btn btn-sm filter-btn active btn-primary" data-filter="all">Tout</button> {{-- Add btn-primary for active --}}
-                <button class="btn btn-sm btn-outline filter-btn" data-filter="upcoming">À venir</button>
-                <button class="btn btn-sm btn-outline filter-btn" data-filter="past">Passées</button>
-                <button class="btn btn-sm btn-outline filter-btn" data-filter="canceled">Annulées</button>
+            <div class="relative w-full sm:w-auto">
+                <input type="text" placeholder="Rechercher..." class="form-input !py-1.5 pl-10 w-full sm:w-64">
+                <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-[var(--text-secondary)]"></i>
             </div>
         </div>
 
-        <!-- Reservations List -->
-        <div class="space-y-4">
-             {{-- Example Card: Loop through $reservations in real app --}}
-             <div class="dashboard-card p-6 reservation-card" data-status="confirmed" data-time="upcoming">
+        <div class="flex flex-wrap gap-2 mt-4">
+            <button class="btn btn-sm filter-btn active btn-primary" data-filter="all">Tout</button>
+            <button class="btn btn-sm btn-outline filter-btn" data-filter="upcoming">À venir</button>
+            <button class="btn btn-sm btn-outline filter-btn" data-filter="past">Passées</button>
+            <button class="btn btn-sm btn-outline filter-btn" data-filter="canceled">Annulées</button>
+        </div>
+    </div>
+
+    <!-- Reservations List -->
+    <div class="space-y-4">
+        @forelse($upcomingReservations as $reservation)
+            @php
+                // Define badge classes and labels based on status
+                $badgeClasses = [
+                    'confirmed' => 'badge-green',
+                    'pending' => 'badge-yellow',
+                    'completed' => 'badge-gray',
+                    'canceled' => 'badge-red'
+                ];
+                
+                $statusLabels = [
+                    'confirmed' => 'Confirmée',
+                    'pending' => 'En attente',
+                    'completed' => 'Terminée',
+                    'canceled' => 'Annulée'
+                ];
+                
+                // Check if reservation is in the past
+                $isPast = strtotime($reservation->date . ' ' . $reservation->start_time) < strtotime(now());
+                
+                // Determine reservation time (past or upcoming)
+                $timeCategory = $isPast ? 'past' : 'upcoming';
+                
+                // Determine if reservation can be edited or canceled
+                $isEditable = in_array($reservation->status, ['confirmed', 'pending']) && !$isPast;
+                $isCancelable = in_array($reservation->status, ['confirmed', 'pending']) && !$isPast;
+            @endphp
+
+            <div 
+                class="dashboard-card p-6 reservation-card {{ $isPast ? 'past' : '' }}" 
+                data-status="{{ $reservation->status }}" 
+                data-time="{{ $timeCategory }}"
+            >
                 <div class="flex flex-col md:flex-row justify-between">
                     <div class="mb-4 md:mb-0">
                         <div class="flex items-center mb-2">
-                            <span class="badge badge-green mr-2">Confirmée</span>
-                            <span class="text-sm" style="color: var(--text-secondary);">#RS12345</span>
+                            <span class="badge {{ $badgeClasses[$reservation->status] ?? 'badge-gray' }} mr-2">
+                                {{ $statusLabels[$reservation->status] ?? 'Inconnu' }}
+                            </span>
+                            <span class="text-sm" style="color: var(--text-secondary);">#{{ $reservation->id }}</span>
                         </div>
-                        <h3 class="text-lg font-bold mb-1">Réservation Dîner</h3>
+                        <h3 class="text-lg font-bold mb-1 {{ $reservation->status === 'canceled' ? 'line-through' : '' }}">
+                            {{ $reservation->title }}
+                        </h3>
                         <div class="flex items-center text-sm mb-1" style="color: var(--text-secondary);">
                             <i class="fas fa-calendar-alt mr-2 w-4 text-center"></i>
-                            <span>20 Avril 2025</span>
+                            <span>{{ \Carbon\Carbon::parse($reservation->date)->format('j F Y') }}</span>
                         </div>
                         <div class="flex items-center text-sm mb-1" style="color: var(--text-secondary);">
                             <i class="fas fa-clock mr-2 w-4 text-center"></i>
-                            <span>19:30 - 21:30</span>
+                            <span>{{ \Carbon\Carbon::parse($reservation->start_time)->format('H:i') }} - {{ \Carbon\Carbon::parse($reservation->end_time)->format('H:i') }}</span>
                         </div>
                         <div class="flex items-center text-sm" style="color: var(--text-secondary);">
                             <i class="fas fa-user-friends mr-2 w-4 text-center"></i>
-                            <span>4 Invités</span>
+                            <span>{{ $reservation->invite }} Invités</span>
                         </div>
                     </div>
                     <div class="flex flex-col items-start md:items-end">
                         <div class="text-sm mb-2" style="color: var(--text-secondary);">
-                            <i class="fas fa-map-marker-alt mr-1"></i> Table #3
+                            <i class="fas fa-map-marker-alt mr-1"></i> Table #{{ $reservation->table_id }}
                         </div>
                         <div class="mt-4 space-y-2 md:space-y-0 md:space-x-2 flex flex-col md:flex-row w-full md:w-auto">
-                            <button class="btn btn-primary btn-sm w-full md:w-auto">Modifier</button>
-                            <button class="btn btn-outline-danger btn-sm w-full md:w-auto">Annuler</button>
+                            @if($isEditable)
+                                <button class="btn btn-primary btn-sm w-full md:w-auto" 
+                                        onclick="editReservation('{{ $reservation->id }}')">Modifier</button>
+                            @endif
+                            
+                            @if($isCancelable)
+                                <button class="btn btn-outline-danger btn-sm w-full md:w-auto" 
+                                        onclick="cancelReservation('{{ $reservation->id }}')">Annuler</button>
+                            @endif
+                            
+                            @if($isPast)
+                                <button class="btn btn-secondary btn-sm w-full md:w-auto nav-link" data-href="#tables">
+                                    Réserver à nouveau
+                                </button>
+                                
+                                @if($reservation->has_invoice)
+                                    <button class="btn btn-outline btn-sm w-full md:w-auto" 
+                                            onclick="viewInvoice('{{ $reservation->invoice_id }}')">Voir Facture</button>
+                                @endif
+                            @endif
                         </div>
                     </div>
                 </div>
             </div>
-             <div class="dashboard-card p-6 reservation-card" data-status="pending" data-time="upcoming">
-                 <div class="flex flex-col md:flex-row justify-between">
-                     <div class="mb-4 md:mb-0">
-                         <div class="flex items-center mb-2">
-                             <span class="badge badge-yellow mr-2">En attente</span>
-                             <span class="text-sm" style="color: var(--text-secondary);">#RS12346</span>
-                         </div>
-                         <h3 class="text-lg font-bold mb-1">Réservation Déjeuner</h3>
-                         <div class="flex items-center text-sm mb-1" style="color: var(--text-secondary);">
-                             <i class="fas fa-calendar-alt mr-2 w-4 text-center"></i>
-                             <span>25 Avril 2025</span>
-                         </div>
-                         <div class="flex items-center text-sm mb-1" style="color: var(--text-secondary);">
-                             <i class="fas fa-clock mr-2 w-4 text-center"></i>
-                             <span>20:00 - 22:00</span>
-                         </div>
-                         <div class="flex items-center text-sm" style="color: var(--text-secondary);">
-                             <i class="fas fa-user-friends mr-2 w-4 text-center"></i>
-                             <span>2 Invités</span>
-                         </div>
-                     </div>
-                     <div class="flex flex-col items-start md:items-end">
-                         <div class="text-sm mb-2" style="color: var(--text-secondary);">
-                             <i class="fas fa-map-marker-alt mr-1"></i> Table #8
-                         </div>
-                          <div class="mt-4 space-y-2 md:space-y-0 md:space-x-2 flex flex-col md:flex-row w-full md:w-auto">
-                             <button class="btn btn-primary btn-sm w-full md:w-auto">Modifier</button>
-                             <button class="btn btn-outline-danger btn-sm w-full md:w-auto">Annuler</button>
-                         </div>
-                     </div>
-                 </div>
-             </div>
-              <div class="dashboard-card p-6 reservation-card" data-status="confirmed" data-time="upcoming">
-                 <div class="flex flex-col md:flex-row justify-between">
-                     <div class="mb-4 md:mb-0">
-                         <div class="flex items-center mb-2">
-                             <span class="badge badge-green mr-2">Confirmée</span>
-                             <span class="text-sm" style="color: var(--text-secondary);">#RS12347</span>
-                         </div>
-                         <h3 class="text-lg font-bold mb-1">Dîner de Famille</h3>
-                         <div class="flex items-center text-sm mb-1" style="color: var(--text-secondary);">
-                             <i class="fas fa-calendar-alt mr-2 w-4 text-center"></i>
-                             <span>3 Mai 2025</span>
-                         </div>
-                         <div class="flex items-center text-sm mb-1" style="color: var(--text-secondary);">
-                             <i class="fas fa-clock mr-2 w-4 text-center"></i>
-                             <span>18:45 - 20:45</span>
-                         </div>
-                         <div class="flex items-center text-sm" style="color: var(--text-secondary);">
-                             <i class="fas fa-user-friends mr-2 w-4 text-center"></i>
-                             <span>6 Invités</span>
-                         </div>
-                     </div>
-                     <div class="flex flex-col items-start md:items-end">
-                         <div class="text-sm mb-2" style="color: var(--text-secondary);">
-                             <i class="fas fa-map-marker-alt mr-1"></i> Table #12
-                         </div>
-                         <div class="mt-4 space-y-2 md:space-y-0 md:space-x-2 flex flex-col md:flex-row w-full md:w-auto">
-                             <button class="btn btn-primary btn-sm w-full md:w-auto">Modifier</button>
-                             <button class="btn btn-outline-danger btn-sm w-full md:w-auto">Annuler</button>
-                         </div>
-                     </div>
-                 </div>
-             </div>
-              <div class="dashboard-card p-6 reservation-card past" data-status="completed" data-time="past">
-                 <div class="flex flex-col md:flex-row justify-between">
-                     <div class="mb-4 md:mb-0">
-                         <div class="flex items-center mb-2">
-                             <span class="badge badge-gray mr-2">Terminée</span>
-                             <span class="text-sm" style="color: var(--text-secondary);">#RS12340</span>
-                         </div>
-                         <h3 class="text-lg font-bold mb-1">Déjeuner d'affaires</h3>
-                         <div class="flex items-center text-sm mb-1" style="color: var(--text-secondary);">
-                             <i class="fas fa-calendar-alt mr-2 w-4 text-center"></i>
-                             <span>15 Mars 2025</span>
-                         </div>
-                         <div class="flex items-center text-sm mb-1" style="color: var(--text-secondary);">
-                             <i class="fas fa-clock mr-2 w-4 text-center"></i>
-                             <span>12:30 - 14:30</span>
-                         </div>
-                         <div class="flex items-center text-sm" style="color: var(--text-secondary);">
-                             <i class="fas fa-user-friends mr-2 w-4 text-center"></i>
-                             <span>3 Invités</span>
-                         </div>
-                     </div>
-                     <div class="flex flex-col items-start md:items-end">
-                         <div class="text-sm mb-2" style="color: var(--text-secondary);">
-                             <i class="fas fa-map-marker-alt mr-1"></i> Table #5
-                         </div>
-                         <div class="mt-4 space-y-2 md:space-y-0 md:space-x-2 flex flex-col md:flex-row w-full md:w-auto">
-                             <button class="btn btn-secondary btn-sm w-full md:w-auto nav-link" data-href="#tables">Réserver à nouveau</button>
-                             <button class="btn btn-outline btn-sm w-full md:w-auto" onclick="viewInvoice('INV-0023')">Voir Facture</button>
-                         </div>
-                     </div>
-                 </div>
-             </div>
-             <div class="dashboard-card p-6 reservation-card past" data-status="canceled" data-time="past">
-                <div class="flex flex-col md:flex-row justify-between">
-                    <div class="mb-4 md:mb-0">
-                        <div class="flex items-center mb-2">
-                            <span class="badge badge-red mr-2">Annulée</span>
-                            <span class="text-sm" style="color: var(--text-secondary);">#RS12333</span>
-                        </div>
-                        <h3 class="text-lg font-bold mb-1 line-through">Anniversaire</h3>
-                        <div class="flex items-center text-sm mb-1" style="color: var(--text-secondary);">
-                            <i class="fas fa-calendar-alt mr-2 w-4 text-center"></i>
-                            <span>1 Février 2025</span>
-                        </div>
-                        <div class="flex items-center text-sm" style="color: var(--text-secondary);">
-                            <i class="fas fa-user-friends mr-2 w-4 text-center"></i>
-                            <span>5 Invités</span>
-                        </div>
-                    </div>
-                    <div class="flex flex-col items-start md:items-end">
-                         <div class="text-sm mb-2" style="color: var(--text-secondary);">
-                            <i class="fas fa-map-marker-alt mr-1"></i> Table #9
-                        </div>
-                        <div class="mt-4 space-y-2 md:space-y-0 md:space-x-2 flex flex-col md:flex-row w-full md:w-auto">
-                            <button class="btn btn-secondary btn-sm w-full md:w-auto nav-link" data-href="#tables">Réserver à nouveau</button>
-                        </div>
-                    </div>
-                </div>
+        @empty
+            <div class="dashboard-card p-6 text-center">
+                <p class="text-lg" style="color: var(--text-secondary);">Vous n'avez pas encore de réservations.</p>
+                <button class="btn btn-primary mt-4 nav-link" data-href="#tables">
+                    <i class="fas fa-plus mr-2"></i>Créer ma première réservation
+                </button>
             </div>
-        </div>
+        @endforelse
     </div>
+</div>
 
-    {{-- Tables Section (Hidden by default) --}}
+<script>
+    // Current logged in user: {{ Auth::user()->username ?? 'HamzaBr01' }}
+    // Current date/time: {{ now()->format('Y-m-d H:i:s') }}
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        // Filter buttons functionality
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        const reservationCards = document.querySelectorAll('.reservation-card');
+        
+        filterButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                // Remove active class from all buttons
+                filterButtons.forEach(btn => {
+                    btn.classList.remove('active', 'btn-primary');
+                    btn.classList.add('btn-outline');
+                });
+                
+                // Add active class to clicked button
+                this.classList.add('active', 'btn-primary');
+                this.classList.remove('btn-outline');
+                
+                const filter = this.getAttribute('data-filter');
+                
+                // Show/hide reservation cards based on filter
+                reservationCards.forEach(card => {
+                    if (filter === 'all' || 
+                        (filter === 'upcoming' && card.getAttribute('data-time') === 'upcoming') ||
+                        (filter === 'past' && card.getAttribute('data-time') === 'past') ||
+                        (filter === 'canceled' && card.getAttribute('data-status') === 'canceled')) {
+                        card.style.display = 'block';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            });
+        });
+        
+        // Search functionality
+        const searchInput = document.querySelector('input[placeholder="Rechercher..."]');
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            
+            reservationCards.forEach(card => {
+                const title = card.querySelector('h3').textContent.toLowerCase();
+                const id = card.querySelector('span.text-sm').textContent.toLowerCase();
+                
+                if (title.includes(searchTerm) || id.includes(searchTerm)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+    });
+    
+    function editReservation(id) {
+        // Implement reservation editing functionality
+        console.log('Editing reservation', id);
+        // Redirect to edit page or show modal
+    }
+    
+    function cancelReservation(id) {
+        // Implement reservation cancellation with confirmation
+        if (confirm('Êtes-vous sûr de vouloir annuler cette réservation?')) {
+            console.log('Cancelling reservation', id);
+            // Send AJAX request to cancel reservation
+        }
+    }
+    
+    function viewInvoice(invoiceId) {
+        // Implement invoice viewing functionality
+        console.log('Viewing invoice', invoiceId);
+        // Redirect to invoice page or show modal
+    }
+</script>
    
     <div id="tables-section" class="bg-white rounded-xl shadow-lg p-6">
         <h1 class="text-2xl font-bold mb-6 text-gray-800">Réserver une Table</h1>
@@ -887,170 +844,256 @@
     {{-- Profile Section (Hidden by default) --}}
     <div id="profile-section" class="hidden">
         <h1 class="text-2xl font-bold mb-6" style="color: var(--text-primary);">Mon Profil</h1>
-
+    
         <div class="dashboard-card overflow-hidden">
             <div class="md:flex">
                 <!-- Profile Sidebar -->
                 <div class="p-6 md:w-1/3 flex flex-col items-center border-b md:border-b-0 md:border-r" style="border-color: var(--border-color);">
                     <div class="relative mb-4">
-                        {{-- Get profile photo from Auth::user() --}}
                         <img src="{{ Auth::user()->profile_photo_url ?? 'https://randomuser.me/api/portraits/men/1.jpg' }}" alt="{{ Auth::user()->name ?? 'User' }}" class="h-28 w-28 rounded-full border-4 object-cover" style="border-color: var(--primary);">
-                        <button class="absolute bottom-0 right-0 bg-[var(--primary)] text-white rounded-full p-1.5 leading-none hover:bg-[var(--primary-dark)] focus:outline-none border-2 border-white dark:border-gray-800" title="Changer la photo">
+                        <button onclick="triggerPhotoUpload()" class="absolute bottom-0 right-0 bg-[var(--primary)] text-white rounded-full p-1.5 leading-none hover:bg-[var(--primary-dark)] focus:outline-none border-2 border-white dark:border-gray-800" title="Changer la photo">
                             <i class="fas fa-camera text-xs"></i>
                         </button>
                     </div>
-                    <h2 class="text-xl font-bold">{{ Auth::user()->name ?? 'John Doe' }}</h2>
-                    {{-- Replace with dynamic data: Client depuis {{ optional(Auth::user()->created_at)->year ?? '2023' }} --}}
+                    <h2 class="text-xl font-bold">{{ Auth::user()->first_name ." " . Auth::user()->last_name  ?? 'John Doe' }}</h2>
                     <p class="mb-4" style="color: var(--text-secondary);">Client fidèle depuis 2023</p>
-
-                     <div class="mt-6 w-full">
-                         <h3 class="text-lg font-semibold mb-3">Points de Fidélité</h3>
-                          <div class="p-4 rounded-lg" style="background-color: rgba(var(--primary-rgb), 0.05);">
-                              <div class="flex justify-between items-center mb-2">
-                                  {{-- Replace with dynamic data: {{ $loyaltyPoints ?? 250 }} points --}}
-                                  <span class="font-bold text-xl">250 points</span>
-                                  <span class="text-sm" style="color: var(--text-secondary);">Membre Argent</span> {{-- Replace with dynamic data --}}
-                              </div>
-                              <div class="w-full loyalty-progress-bg">
-                                  {{-- Calculate width dynamically: style="width: {{ ($loyaltyPoints / 500) * 100 }}%" --}}
-                                  <div class="loyalty-progress-bar" style="width: 45%"></div>
-                              </div>
-                              <p class="text-sm mt-2" style="color: var(--text-secondary);">Encore 250 points pour le statut Or</p> {{-- Replace with dynamic data --}}
-                              <button class="mt-3 w-full btn btn-secondary btn-sm">Utiliser mes points</button>
-                          </div>
-                     </div>
                 </div>
-
+    
                 <!-- Profile Form -->
                 <div class="p-6 md:w-2/3">
-                     {{-- Add route('profile.update') or similar --}}
-                    <form id="profile-form" method="POST" action="#">
+                    <form id="profile-form" method="POST" action="{{ route('profile.update') }}">
                         @csrf
-                        @method('PUT') {{-- Or PATCH --}}
-
-                        <h3 class="text-lg font-semibold mb-4 border-b pb-2" style="border-color: var(--border-color);">Informations Personnelles</h3>
+                        @method('PUT')
+                        
+                        <!-- Only include the existing fields that are in the database -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 mb-6">
                             <div>
                                 <label class="form-label" for="profile-first-name">Prénom</label>
-                                {{-- Populate value from Auth::user() --}}
-                                <input type="text" id="profile-first-name" name="first_name" value="{{ old('first_name', Auth::user()->first_name ?? 'John') }}" class="form-input">
-                                {{-- Add @error('first_name') ... @enderror for validation --}}
+                                <input type="text" id="profile-first-name" name="first_name" value="{{ old('first_name', Auth::user()->first_name ?? '') }}" class="form-input">
+                                @error('first_name')
+                                    <span class="text-red-500 text-sm">{{ $message }}</span>
+                                @enderror
                             </div>
                             <div>
                                 <label class="form-label" for="profile-last-name">Nom</label>
-                                <input type="text" id="profile-last-name" name="last_name" value="{{ old('last_name', Auth::user()->last_name ?? 'Doe') }}" class="form-input">
+                                <input type="text" id="profile-last-name" name="last_name" value="{{ old('last_name', Auth::user()->last_name ?? '') }}" class="form-input">
+                                @error('last_name')
+                                    <span class="text-red-500 text-sm">{{ $message }}</span>
+                                @enderror
                             </div>
-                             <div>
+                            <div>
                                 <label class="form-label" for="profile-email">Adresse E-mail</label>
-                                <input type="email" id="profile-email" name="email" value="{{ old('email', Auth::user()->email ?? 'john.doe@example.com') }}" class="form-input">
+                                <input type="email" id="profile-email" name="email" value="{{ old('email', Auth::user()->email ?? '') }}" class="form-input">
+                                @error('email')
+                                    <span class="text-red-500 text-sm">{{ $message }}</span>
+                                @enderror
                             </div>
-                             <div>
+                            <div>
                                 <label class="form-label" for="profile-phone">Téléphone</label>
-                                <input type="tel" id="profile-phone" name="phone" value="{{ old('phone', Auth::user()->phone ?? '+1 234 567 890') }}" class="form-input">
+                                <input type="tel" id="profile-phone" name="phone" value="{{ old('phone', Auth::user()->phone ?? '') }}" class="form-input">
+                                @error('phone')
+                                    <span class="text-red-500 text-sm">{{ $message }}</span>
+                                @enderror
                             </div>
                         </div>
-
+                    
+                        <!-- Include other fields as client-side preferences (stored in session) -->
                         <h3 class="text-lg font-semibold mb-4 border-b pb-2" style="border-color: var(--border-color);">Préférences</h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 mb-6">
                             <div>
                                 <label class="form-label" for="profile-fav-cuisine">Cuisine Favorite</label>
                                 <select id="profile-fav-cuisine" name="favorite_cuisine" class="form-select">
-                                    {{-- Populate options, set selected based on Auth::user()->favorite_cuisine --}}
-                                    <option value="italian" {{ (old('favorite_cuisine', Auth::user()->favorite_cuisine ?? '') == 'italian') ? 'selected' : '' }}>Italienne</option>
-                                    <option value="french" {{ (old('favorite_cuisine', Auth::user()->favorite_cuisine ?? '') == 'french') ? 'selected' : '' }}>Française</option>
-                                    <option value="mediterranean" {{ (old('favorite_cuisine', Auth::user()->favorite_cuisine ?? '') == 'mediterranean') ? 'selected' : '' }}>Méditerranéenne</option>
-                                    <option value="asian" {{ (old('favorite_cuisine', Auth::user()->favorite_cuisine ?? '') == 'asian') ? 'selected' : '' }}>Asiatique</option>
-                                    <option value="american" {{ (old('favorite_cuisine', Auth::user()->favorite_cuisine ?? '') == 'american') ? 'selected' : '' }}>Américaine</option>
+                                    <option value="italian" {{ (old('favorite_cuisine', session('favorite_cuisine')) == 'italian') ? 'selected' : '' }}>Italienne</option>
+                                    <option value="french" {{ (old('favorite_cuisine', session('favorite_cuisine')) == 'french') ? 'selected' : '' }}>Française</option>
+                                    <option value="mediterranean" {{ (old('favorite_cuisine', session('favorite_cuisine')) == 'mediterranean') ? 'selected' : '' }}>Méditerranéenne</option>
+                                    <option value="asian" {{ (old('favorite_cuisine', session('favorite_cuisine')) == 'asian') ? 'selected' : '' }}>Asiatique</option>
+                                    <option value="american" {{ (old('favorite_cuisine', session('favorite_cuisine')) == 'american') ? 'selected' : '' }}>Américaine</option>
                                 </select>
                             </div>
-                             <div>
-                                <label class="form-label" for="profile-pref-seating">Placement Préféré</label>
-                                 <select id="profile-pref-seating" name="preferred_seating" class="form-select">
-                                     <option value="indoor" {{ (old('preferred_seating', Auth::user()->preferred_seating ?? '') == 'indoor') ? 'selected' : '' }}>Intérieur</option>
-                                     <option value="outdoor" {{ (old('preferred_seating', Auth::user()->preferred_seating ?? '') == 'outdoor') ? 'selected' : '' }}>Extérieur (si disponible)</option>
-                                     <option value="window" {{ (old('preferred_seating', Auth::user()->preferred_seating ?? '') == 'window') ? 'selected' : '' }}>Près de la fenêtre</option>
-                                     <option value="booth" {{ (old('preferred_seating', Auth::user()->preferred_seating ?? '') == 'booth') ? 'selected' : '' }}>Cabine privée</option>
-                                     <option value="any" {{ (old('preferred_seating', Auth::user()->preferred_seating ?? '') == 'any') ? 'selected' : '' }}>Aucune préférence</option>
-                                 </select>
-                            </div>
-                            <div class="md:col-span-2">
-                                <label class="form-label">Restrictions Alimentaires</label>
-                                <div class="mt-2 grid grid-cols-2 gap-x-6 gap-y-2">
-                                    {{-- Check based on Auth::user()->dietary_restrictions array/flags --}}
-                                    <div class="flex items-center">
-                                        <input type="checkbox" id="profile-vegetarian" name="dietary_vegetarian" class="form-checkbox" {{ old('dietary_vegetarian', Auth::user()->is_vegetarian ?? false) ? 'checked' : '' }}>
-                                        <label for="profile-vegetarian" class="form-check-label">Végétarien</label>
-                                    </div>
-                                    <div class="flex items-center">
-                                        <input type="checkbox" id="profile-gluten-free" name="dietary_gluten_free" class="form-checkbox" {{ old('dietary_gluten_free', Auth::user()->is_gluten_free ?? false) ? 'checked' : '' }}>
-                                        <label for="profile-gluten-free" class="form-check-label">Sans Gluten</label>
-                                    </div>
-                                     <div class="flex items-center">
-                                        <input type="checkbox" id="profile-lactose-free" name="dietary_lactose_free" class="form-checkbox" {{ old('dietary_lactose_free', Auth::user()->is_lactose_free ?? false) ? 'checked' : '' }}>
-                                        <label for="profile-lactose-free" class="form-check-label">Sans Lactose</label>
-                                    </div>
-                                    <div class="flex items-center">
-                                        <input type="checkbox" id="profile-nut-allergy" name="dietary_nut_allergy" class="form-checkbox" {{ old('dietary_nut_allergy', Auth::user()->has_nut_allergy ?? false) ? 'checked' : '' }}>
-                                        <label for="profile-nut-allergy" class="form-check-label">Allergie aux noix</label>
-                                    </div>
-                                     <div class="flex items-center">
-                                        <input type="checkbox" id="profile-vegan" name="dietary_vegan" class="form-checkbox" {{ old('dietary_vegan', Auth::user()->is_vegan ?? false) ? 'checked' : '' }}>
-                                        <label for="profile-vegan" class="form-check-label">Vegan</label>
-                                    </div>
-                                     <div class="flex items-center">
-                                        <input type="checkbox" id="profile-shellfish-allergy" name="dietary_shellfish_allergy" class="form-checkbox" {{ old('dietary_shellfish_allergy', Auth::user()->has_shellfish_allergy ?? false) ? 'checked' : '' }}>
-                                        <label for="profile-shellfish-allergy" class="form-check-label">Allergie fruits de mer</label>
-                                    </div>
-                                </div>
-                            </div>
+                            <!-- Other preference fields -->
                         </div>
-
-                        <h3 class="text-lg font-semibold mb-4 border-b pb-2" style="border-color: var(--border-color);">Paramètres de Notification</h3>
-                        <div class="space-y-4 mb-6">
-                             <div class="flex justify-between items-center p-3 rounded-md" style="background-color: rgba(var(--primary-rgb), 0.03);">
-                                 <div>
-                                     <p class="font-medium">Notifications par E-mail</p>
-                                     <p class="text-sm" style="color: var(--text-secondary);">Confirmations, mises à jour, rappels</p>
-                                 </div>
-                                 <label class="toggle-switch">
-                                     <input type="checkbox" id="email-toggle" name="email_notifications" {{ old('email_notifications', Auth::user()->email_notifications ?? true) ? 'checked' : '' }}>
-                                     <span class="toggle-slider"></span>
-                                 </label>
-                             </div>
-                             <div class="flex justify-between items-center p-3 rounded-md" style="background-color: rgba(var(--primary-rgb), 0.03);">
-                                 <div>
-                                     <p class="font-medium">Notifications par SMS</p>
-                                     <p class="text-sm" style="color: var(--text-secondary);">Rappels de réservation importants</p>
-                                 </div>
-                                  <label class="toggle-switch">
-                                     <input type="checkbox" id="sms-toggle" name="sms_notifications" {{ old('sms_notifications', Auth::user()->sms_notifications ?? true) ? 'checked' : '' }}>
-                                     <span class="toggle-slider"></span>
-                                 </label>
-                             </div>
-                             <div class="flex justify-between items-center p-3 rounded-md" style="background-color: rgba(var(--primary-rgb), 0.03);">
-                                 <div>
-                                     <p class="font-medium">Communications Marketing</p>
-                                     <p class="text-sm" style="color: var(--text-secondary);">Offres spéciales et promotions</p>
-                                 </div>
-                                 <label class="toggle-switch">
-                                     <input type="checkbox" id="marketing-toggle" name="marketing_communications" {{ old('marketing_communications', Auth::user()->marketing_communications ?? false) ? 'checked' : '' }}>
-                                     <span class="toggle-slider"></span>
-                                 </label>
-                             </div>
-                        </div>
-
-                        <div class="flex flex-col sm:flex-row sm:justify-between gap-3 border-t pt-6 mt-6" style="border-color: var(--border-color);">
+                        
+                        <div class="flex justify-between mt-6 pt-6 border-t" style="border-color: var(--border-color);">
                             <button type="submit" class="btn btn-primary">
                                 Enregistrer les Modifications
                             </button>
-                            <div class="flex flex-col sm:flex-row gap-3">
-                                {{-- Link to password change route/modal --}}
-                                <button type="button" class="btn btn-outline">Changer Mot de Passe</button>
-                                {{-- Link to account deletion route/modal --}}
-                                <button type="button" class="btn btn-outline-danger">Supprimer Mon Compte</button>
+                            
+                            <div class="flex gap-3">
+                                <button type="button" class="btn btn-outline" onclick="openPasswordModal()">Changer Mot de Passe</button>
+                                <button type="button" class="btn btn-outline-danger" onclick="openDeleteModal()">Supprimer Mon Compte</button>
                             </div>
                         </div>
                     </form>
+                    
+                    <!-- Profile Photo Update Form -->
+                    <form id="photo-form" method="POST" action="{{ route('profile.photo.update') }}" enctype="multipart/form-data" class="hidden">
+                        @csrf
+                        <input type="file" id="profile-photo-input" name="photo" onchange="this.form.submit()">
+                    </form>
+                    
+                    <!-- Modal Overlay -->
+                    <div id="modal-overlay" class="fixed inset-0 bg-black bg-opacity-50 hidden z-40" onclick="closeAllModals()"></div>
+                    
+                    <!-- Password Change Modal -->
+                    <!-- Password Change Modal -->
+<div id="password-modal" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-md z-50 hidden">
+    <div class="flex justify-between items-center mb-4 pb-3 border-b" style="border-color: var(--border-color);">
+        <h3 class="text-lg font-semibold">Changer de Mot de Passe</h3>
+        <button type="button" class="text-gray-400 hover:text-gray-500" onclick="closePasswordModal()">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    
+    <!-- Display validation errors if any -->
+    @if ($errors->updatePassword->any())
+        <div class="bg-red-50 text-red-600 p-3 rounded mb-4">
+            <ul class="list-disc pl-5">
+                @foreach ($errors->updatePassword->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+    
+    <form method="POST" action="{{ route('profile.password.update') }}" id="password-change-form">
+        @csrf
+        @method('PUT')
+        
+        <div class="mb-4">
+            <label class="form-label" for="current_password">Mot de passe actuel</label>
+            <input type="password" id="current_password" name="current_password" class="form-input w-full" required>
+        </div>
+        
+        <div class="mb-4">
+            <label class="form-label" for="password">Nouveau mot de passe</label>
+            <input type="password" id="password" name="password" class="form-input w-full" required minlength="8">
+            <p class="text-xs mt-1" style="color: var(--text-secondary);">Minimum 8 caractères</p>
+        </div>
+        
+        <div class="mb-6">
+            <label class="form-label" for="password_confirmation">Confirmer le mot de passe</label>
+            <input type="password" id="password_confirmation" name="password_confirmation" class="form-input w-full" required>
+        </div>
+        
+        <div class="flex justify-end pt-4 border-t gap-3" style="border-color: var(--border-color);">
+            <button type="button" class="btn btn-outline" onclick="closePasswordModal()">Annuler</button>
+            <button type="submit" class="btn btn-primary">Mettre à jour le mot de passe</button>
+        </div>
+    </form>
+</div>
+                    
+                    <!-- Delete Account Modal -->
+                    <div id="delete-modal" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-md z-50 hidden">
+                        <div class="flex justify-between items-center mb-4 pb-3 border-b" style="border-color: var(--border-color);">
+                            <h3 class="text-lg font-semibold text-red-600">Supprimer Mon Compte</h3>
+                            <button type="button" class="text-gray-400 hover:text-gray-500" onclick="closeDeleteModal()">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="bg-red-50 p-4 rounded mb-4">
+                            <p class="text-red-600 font-semibold mb-2">Attention! Cette action est irréversible.</p>
+                            <p class="text-red-600 text-sm">Toutes vos données personnelles, historique et préférences seront définitivement supprimés.</p>
+                        </div>
+                        
+                        <form method="POST" action="{{ route('profile.delete') }}">
+                            @csrf
+                            @method('DELETE')
+                            
+                            <div class="mb-4">
+                                <label class="form-label" for="delete_confirmation">Pour confirmer, tapez "SUPPRIMER"</label>
+                                <input type="text" id="delete_confirmation" class="form-input w-full" required pattern="SUPPRIMER" title="Vous devez taper exactement 'SUPPRIMER'">
+                                <p class="text-xs mt-1" style="color: var(--text-secondary);">Sensible à la casse</p>
+                            </div>
+                            
+                            <div class="mb-6">
+                                <label class="form-label" for="delete_password">Mot de passe actuel</label>
+                                <input type="password" id="delete_password" name="password" class="form-input w-full" required>
+                                @error('password')
+                                    <span class="text-red-500 text-sm">{{ $message }}</span>
+                                @enderror
+                            </div>
+                            
+                            <div class="flex justify-end pt-4 border-t gap-3" style="border-color: var(--border-color);">
+                                <button type="button" class="btn btn-outline" onclick="closeDeleteModal()">Annuler</button>
+                                <button type="submit" class="btn btn-danger" id="delete-account-button" disabled>Supprimer définitivement mon compte</button>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <script>
+                        // Functions to handle modal interactions
+                        function openPasswordModal() {
+                            document.getElementById('password-modal').classList.remove('hidden');
+                            document.getElementById('modal-overlay').classList.remove('hidden');
+                            document.body.classList.add('overflow-hidden');
+                        }
+                        
+                        function closePasswordModal() {
+                            document.getElementById('password-modal').classList.add('hidden');
+                            document.getElementById('modal-overlay').classList.add('hidden');
+                            document.body.classList.remove('overflow-hidden');
+                        }
+                        
+                        function openDeleteModal() {
+                            document.getElementById('delete-modal').classList.remove('hidden');
+                            document.getElementById('modal-overlay').classList.remove('hidden');
+                            document.body.classList.add('overflow-hidden');
+                        }
+                        
+                        function closeDeleteModal() {
+                            document.getElementById('delete-modal').classList.add('hidden');
+                            document.getElementById('modal-overlay').classList.add('hidden');
+                            document.body.classList.remove('overflow-hidden');
+                        }
+                        
+                        function closeAllModals() {
+                            closePasswordModal();
+                            closeDeleteModal();
+                        }
+                        
+                        // Function to trigger photo upload
+                        function triggerPhotoUpload() {
+                            document.getElementById('profile-photo-input').click();
+                        }
+                        
+                        // Enable delete button only when confirmation is correct
+                        document.addEventListener('DOMContentLoaded', function() {
+                            const deleteConfirmationInput = document.getElementById('delete_confirmation');
+                            const deleteButton = document.getElementById('delete-account-button');
+                            
+                            deleteConfirmationInput.addEventListener('input', function() {
+                                if (this.value === 'SUPPRIMER') {
+                                    deleteButton.disabled = false;
+                                } else {
+                                    deleteButton.disabled = true;
+                                }
+                            });
+                        });
+                        // Add this to your existing script section
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle password change form submission
+    const passwordForm = document.getElementById('password-change-form');
+    if (passwordForm) {
+        passwordForm.addEventListener('submit', function(e) {
+            // Show loading state if desired
+            const submitBtn = this.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Traitement...';
+                submitBtn.disabled = true;
+            }
+            
+            // Let the form submit normally from here
+            // The modal will close when the page reloads after submission
+        });
+    }
+    
+    // If there are password errors, show the password modal
+    @if ($errors->updatePassword && $errors->updatePassword->any())
+        openPasswordModal();
+    @endif
+});
+                    </script>
                 </div>
             </div>
         </div>
