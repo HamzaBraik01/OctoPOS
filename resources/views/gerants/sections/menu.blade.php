@@ -1,10 +1,10 @@
 {{-- resources/views/gerants/sections/menu.blade.php --}}
 <div id="section-menu" class="section-content p-6 hidden">
     <h2 class="text-2xl font-bold mb-6 text-gray-800 dark:text-gray-200">Gestion des Menus et Plats</h2>
-
+    
     {{-- Liste des menus --}}
     <div class="bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 p-5 mb-6 overflow-hidden relative">
-        <!-- Élément décoratif -->
+        <!-- Éléments décoratifs -->
         <div class="absolute top-0 right-0 w-32 h-32 bg-blue-400/10 dark:bg-blue-600/10 rounded-full -mr-16 -mt-16"></div>
         <div class="absolute bottom-0 left-0 w-24 h-24 bg-yellow-400/10 dark:bg-yellow-600/10 rounded-full -ml-12 -mb-12"></div>
         
@@ -13,17 +13,16 @@
                 <div class="flex items-center justify-center w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400">
                     <i class="fas fa-utensils"></i>
                 </div>
-                <h3 class="text-xl font-semibold text-gray-800 dark:text-gray-200">
-                    Menus disponibles
-                </h3>
+                <h3 class="text-xl font-semibold text-gray-800 dark:text-gray-200">Menus disponibles</h3>
             </div>
-
+            
             <div class="flex flex-wrap items-center gap-3 w-full md:w-auto relative z-10">
                 {{-- Recherche --}}
                 <div class="relative flex-grow md:flex-grow-0">
                     <input type="text" placeholder="Rechercher un menu..." class="pl-10 pr-4 py-2.5 w-full md:w-52 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-1 focus:ring-blue-500 shadow-sm" aria-label="Rechercher un menu">
                     <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"></i>
                 </div>
+                
                 {{-- Filtres --}}
                 <select class="px-3 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-1 focus:ring-blue-500 shadow-sm" aria-label="Filtrer par catégorie">
                     <option value="">Toutes les catégories</option>
@@ -32,13 +31,14 @@
                     <option value="dessert">Desserts</option>
                     <option value="boisson">Boissons</option>
                 </select>
+                
                 {{-- Bouton Ajouter --}}
                 <button type="button" class="add-menu-button bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-4 rounded-lg flex items-center transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 shadow-sm">
                     <i class="fas fa-plus mr-2"></i> Ajouter
                 </button>
             </div>
         </div>
-
+        
         {{-- Tableau des menus --}}
         <div class="overflow-x-auto relative z-10 bg-white dark:bg-gray-800/80 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
             <table class="w-full min-w-[800px]">
@@ -48,58 +48,57 @@
                         <th width="120" class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700">Actions</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-100 dark:divide-gray-700/50">
-                    {{-- Les données réelles viendraient d'une boucle @foreach($menus as $menu) --}}
-                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
+                <tbody id="menu-table-body" class="divide-y divide-gray-100 dark:divide-gray-700/50">
+                    {{-- Exemples de menus --}}
+                    <tr data-id="1" class="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
                         <td class="px-5 py-4">
                             <div class="font-medium text-gray-900 dark:text-gray-100">Menu du jour</div>
                         </td>
                         <td class="px-5 py-4">
                             <div class="flex space-x-2">
-                                <button type="button" class="p-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md transition-colors" title="Modifier">
+                                <button type="button" class="p-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md transition-colors" title="Modifier" onclick="editMenu(this)">
                                     <i class="fas fa-edit"></i>
                                 </button>
                                 <button type="button" class="p-2 bg-purple-500 hover:bg-purple-600 text-white rounded-md transition-colors" title="Voir les plats">
                                     <i class="fas fa-list"></i>
                                 </button>
-                                <button type="button" class="p-2 bg-red-500 hover:bg-red-600 text-white rounded-md transition-colors" title="Supprimer">
+                                <button type="button" class="p-2 bg-red-500 hover:bg-red-600 text-white rounded-md transition-colors" title="Supprimer" onclick="deleteItem(this, 'menu')">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </div>
                         </td>
                     </tr>
-                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
+                    <tr data-id="2" class="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
                         <td class="px-5 py-4">
                             <div class="font-medium text-gray-900 dark:text-gray-100">Menu enfant</div>
                         </td>
                         <td class="px-5 py-4">
                             <div class="flex space-x-2">
-                                <button type="button" class="p-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md transition-colors" title="Modifier">
+                                <button type="button" class="p-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md transition-colors" title="Modifier" onclick="editMenu(this)">
                                     <i class="fas fa-edit"></i>
                                 </button>
                                 <button type="button" class="p-2 bg-purple-500 hover:bg-purple-600 text-white rounded-md transition-colors" title="Voir les plats">
                                     <i class="fas fa-list"></i>
                                 </button>
-                                <button type="button" class="p-2 bg-red-500 hover:bg-red-600 text-white rounded-md transition-colors" title="Supprimer">
+                                <button type="button" class="p-2 bg-red-500 hover:bg-red-600 text-white rounded-md transition-colors" title="Supprimer" onclick="deleteItem(this, 'menu')">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </div>
                         </td>
                     </tr>
-                    <!-- Exemple d'un menu supplémentaire -->
-                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
+                    <tr data-id="3" class="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
                         <td class="px-5 py-4">
                             <div class="font-medium text-gray-900 dark:text-gray-100">Menu Découverte</div>
                         </td>
                         <td class="px-5 py-4">
                             <div class="flex space-x-2">
-                                <button type="button" class="p-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md transition-colors" title="Modifier">
+                                <button type="button" class="p-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md transition-colors" title="Modifier" onclick="editMenu(this)">
                                     <i class="fas fa-edit"></i>
                                 </button>
                                 <button type="button" class="p-2 bg-purple-500 hover:bg-purple-600 text-white rounded-md transition-colors" title="Voir les plats">
                                     <i class="fas fa-list"></i>
                                 </button>
-                                <button type="button" class="p-2 bg-red-500 hover:bg-red-600 text-white rounded-md transition-colors" title="Supprimer">
+                                <button type="button" class="p-2 bg-red-500 hover:bg-red-600 text-white rounded-md transition-colors" title="Supprimer" onclick="deleteItem(this, 'menu')">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </div>
@@ -132,7 +131,6 @@
                 <i class="fas fa-hamburger text-blue-500 mr-2"></i>
                 Plats disponibles
             </h3>
-
             <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
                 {{-- Recherche --}}
                 <div class="relative flex-grow md:flex-grow-0">
@@ -152,11 +150,11 @@
                 </button>
             </div>
         </div>
-
+        
         {{-- Affichage des plats sous forme de cartes --}}
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {{-- Les données réelles viendraient d'une boucle @foreach($plats as $plat) --}}
-            <div class="bg-white dark:bg-gray-700 rounded-lg shadow overflow-hidden border border-gray-200 dark:border-gray-600 hover:shadow-md transition-shadow">
+        <div id="dishes-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {{-- Exemple de plats --}}
+            <div data-id="1" class="bg-white dark:bg-gray-700 rounded-lg shadow overflow-hidden border border-gray-200 dark:border-gray-600 hover:shadow-md transition-shadow">
                 <div class="h-48 overflow-hidden">
                     <img src="https://images.pexels.com/photos/376464/pexels-photo-376464.jpeg" alt="Couscous royal" class="w-full h-full object-cover">
                 </div>
@@ -171,18 +169,17 @@
                     <div class="flex justify-between items-center">
                         <span class="font-bold text-gray-800 dark:text-gray-200">18,00 DH</span>
                         <div class="flex space-x-1">
-                            <button type="button" class="p-1.5 text-xs bg-blue-500 hover:bg-blue-600 text-white rounded" title="Modifier">
+                            <button type="button" class="p-1.5 text-xs bg-blue-500 hover:bg-blue-600 text-white rounded" title="Modifier" onclick="editDish(this)">
                                 <i class="fas fa-edit"></i>
                             </button>
-                            <button type="button" class="p-1.5 text-xs bg-red-500 hover:bg-red-600 text-white rounded" title="Supprimer">
+                            <button type="button" class="p-1.5 text-xs bg-red-500 hover:bg-red-600 text-white rounded" title="Supprimer" onclick="deleteItem(this, 'dish')">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </div>
                     </div>
                 </div>
             </div>
-
-            <div class="bg-white dark:bg-gray-700 rounded-lg shadow overflow-hidden border border-gray-200 dark:border-gray-600 hover:shadow-md transition-shadow">
+            <div data-id="2" class="bg-white dark:bg-gray-700 rounded-lg shadow overflow-hidden border border-gray-200 dark:border-gray-600 hover:shadow-md transition-shadow">
                 <div class="h-48 overflow-hidden">
                     <img src="https://images.pexels.com/photos/1256931/pexels-photo-1256931.jpeg" alt="Tajine poulet citron" class="w-full h-full object-cover">
                 </div>
@@ -197,18 +194,17 @@
                     <div class="flex justify-between items-center">
                         <span class="font-bold text-gray-800 dark:text-gray-200">16,00 DH</span>
                         <div class="flex space-x-1">
-                            <button type="button" class="p-1.5 text-xs bg-blue-500 hover:bg-blue-600 text-white rounded" title="Modifier">
+                            <button type="button" class="p-1.5 text-xs bg-blue-500 hover:bg-blue-600 text-white rounded" title="Modifier" onclick="editDish(this)">
                                 <i class="fas fa-edit"></i>
                             </button>
-                            <button type="button" class="p-1.5 text-xs bg-red-500 hover:bg-red-600 text-white rounded" title="Supprimer">
+                            <button type="button" class="p-1.5 text-xs bg-red-500 hover:bg-red-600 text-white rounded" title="Supprimer" onclick="deleteItem(this, 'dish')">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </div>
                     </div>
                 </div>
             </div>
-
-            <div class="bg-white dark:bg-gray-700 rounded-lg shadow overflow-hidden border border-gray-200 dark:border-gray-600 hover:shadow-md transition-shadow">
+            <div data-id="3" class="bg-white dark:bg-gray-700 rounded-lg shadow overflow-hidden border border-gray-200 dark:border-gray-600 hover:shadow-md transition-shadow">
                 <div class="h-48 overflow-hidden">
                     <img src="https://images.pexels.com/photos/2092507/pexels-photo-2092507.jpeg" alt="Pastilla au poulet" class="w-full h-full object-cover">
                 </div>
@@ -223,18 +219,17 @@
                     <div class="flex justify-between items-center">
                         <span class="font-bold text-gray-800 dark:text-gray-200">12,00 DH</span>
                         <div class="flex space-x-1">
-                            <button type="button" class="p-1.5 text-xs bg-blue-500 hover:bg-blue-600 text-white rounded" title="Modifier">
+                            <button type="button" class="p-1.5 text-xs bg-blue-500 hover:bg-blue-600 text-white rounded" title="Modifier" onclick="editDish(this)">
                                 <i class="fas fa-edit"></i>
                             </button>
-                            <button type="button" class="p-1.5 text-xs bg-red-500 hover:bg-red-600 text-white rounded" title="Supprimer">
+                            <button type="button" class="p-1.5 text-xs bg-red-500 hover:bg-red-600 text-white rounded" title="Supprimer" onclick="deleteItem(this, 'dish')">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </div>
                     </div>
                 </div>
             </div>
-
-            <div class="bg-white dark:bg-gray-700 rounded-lg shadow overflow-hidden border border-gray-200 dark:border-gray-600 hover:shadow-md transition-shadow">
+            <div data-id="4" class="bg-white dark:bg-gray-700 rounded-lg shadow overflow-hidden border border-gray-200 dark:border-gray-600 hover:shadow-md transition-shadow">
                 <div class="h-48 overflow-hidden">
                     <img src="https://images.pexels.com/photos/1070850/pexels-photo-1070850.jpeg" alt="Crème Brûlée" class="w-full h-full object-cover">
                 </div>
@@ -249,10 +244,10 @@
                     <div class="flex justify-between items-center">
                         <span class="font-bold text-gray-800 dark:text-gray-200">8,00 DH</span>
                         <div class="flex space-x-1">
-                            <button type="button" class="p-1.5 text-xs bg-blue-500 hover:bg-blue-600 text-white rounded" title="Modifier">
+                            <button type="button" class="p-1.5 text-xs bg-blue-500 hover:bg-blue-600 text-white rounded" title="Modifier" onclick="editDish(this)">
                                 <i class="fas fa-edit"></i>
                             </button>
-                            <button type="button" class="p-1.5 text-xs bg-red-500 hover:bg-red-600 text-white rounded" title="Supprimer">
+                            <button type="button" class="p-1.5 text-xs bg-red-500 hover:bg-red-600 text-white rounded" title="Supprimer" onclick="deleteItem(this, 'dish')">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </div>
@@ -267,11 +262,12 @@
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-5 sm:p-6 max-w-md w-full mx-auto max-h-[90vh] overflow-y-auto" role="dialog" aria-modal="true">
             <div class="flex justify-between items-center pb-3 border-b dark:border-gray-600">
                 <h3 id="menu-modal-title" class="text-lg font-medium text-gray-900 dark:text-gray-100">Ajouter un menu</h3>
-                <button type="button" id="close-menu-modal-x" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200" aria-label="Fermer">
+                <button type="button" data-close class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200" aria-label="Fermer">
                     <i class="fas fa-times text-xl"></i>
                 </button>
             </div>
             <div class="mt-4 space-y-4">
+                <input type="hidden" id="menu-id">
                 <div>
                     <label for="menu-name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nom du menu</label>
                     <input type="text" id="menu-name" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
@@ -298,7 +294,7 @@
                 </div>
             </div>
             <div class="mt-6 pt-4 border-t dark:border-gray-600 flex justify-end gap-3">
-                <button id="cancel-menu" type="button" class="px-4 py-2 bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-gray-200 rounded-md hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-400">
+                <button id="cancel-menu" data-close type="button" class="px-4 py-2 bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-gray-200 rounded-md hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-400">
                     Annuler
                 </button>
                 <button id="save-menu" type="button" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800">
@@ -313,26 +309,17 @@
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-5 sm:p-6 max-w-md w-full mx-auto max-h-[90vh] overflow-y-auto" role="dialog" aria-modal="true">
             <div class="flex justify-between items-center pb-3 border-b dark:border-gray-600">
                 <h3 id="dish-modal-title" class="text-lg font-medium text-gray-900 dark:text-gray-100">Ajouter un plat</h3>
-                <button type="button" id="close-dish-modal-x" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200" aria-label="Fermer">
+                <button type="button" data-close class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200" aria-label="Fermer">
                     <i class="fas fa-times text-xl"></i>
                 </button>
             </div>
             <div class="mt-4 space-y-4">
+                <input type="hidden" id="dish-id">
                 <div>
-                    <label for="dish-image" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Image du plat</label>
-                    <div class="flex items-center">
-                        <div class="w-20 h-20 mr-3 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center overflow-hidden">
-                            <img id="dish-image-preview" src="" alt="Aperçu" class="h-full w-full object-cover hidden">
-                            <i id="dish-image-placeholder" class="fas fa-image text-gray-400 text-3xl"></i>
-                        </div>
-                        <div class="flex-1">
-                            <input type="file" id="dish-image-upload" accept="image/*" class="sr-only">
-                            <label for="dish-image-upload" class="px-3 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-800 dark:text-gray-200 rounded-md inline-block cursor-pointer text-sm">
-                                Choisir une image
-                            </label>
-                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">JPG, PNG, GIF jusqu'à 2MB</p>
-                        </div>
-                    </div>
+                    <label for="dish-image-url" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">URL de l'image</label>
+                    <input type="url" id="dish-image-url" placeholder="https://exemple.com/image.jpg" 
+                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Collez l'URL de l'image ici</p>
                 </div>
                 <div>
                     <label for="dish-name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nom du plat</label>
@@ -361,6 +348,7 @@
                         <option value="">À la carte</option>
                         <option value="1">Menu du jour</option>
                         <option value="2">Menu enfant</option>
+                        <option value="3">Menu Découverte</option>
                     </select>
                 </div>
                 <div class="flex items-center">
@@ -369,7 +357,7 @@
                 </div>
             </div>
             <div class="mt-6 pt-4 border-t dark:border-gray-600 flex justify-end gap-3">
-                <button id="cancel-dish" type="button" class="px-4 py-2 bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-gray-200 rounded-md hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-400">
+                <button id="cancel-dish" data-close type="button" class="px-4 py-2 bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-gray-200 rounded-md hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-400">
                     Annuler
                 </button>
                 <button id="save-dish" type="button" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800">
@@ -391,7 +379,7 @@
                     Êtes-vous sûr de vouloir supprimer cet élément ? Cette action est irréversible.
                 </p>
                 <div class="mt-6 flex justify-center gap-3">
-                    <button id="cancel-delete" type="button" class="px-4 py-2 bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-gray-200 rounded-md hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-400">
+                    <button id="cancel-delete" data-close type="button" class="px-4 py-2 bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-gray-200 rounded-md hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-400">
                         Annuler
                     </button>
                     <button id="confirm-delete" type="button" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800">
@@ -402,3 +390,262 @@
         </div>
     </div>
 </div>
+
+{{-- Script JavaScript --}}
+
+<script>
+    // Variables globales
+    let currentEditId = null;
+    let currentEditType = null;
+
+    // Événements pour ouvrir les modaux
+    document.querySelector('.add-menu-button')?.addEventListener('click', () => {
+        openModal('menu', null);
+    });
+
+    document.querySelector('.add-dish-button')?.addEventListener('click', () => {
+        openModal('dish', null);
+    });
+
+    // Fonction pour ouvrir les modaux
+    function openModal(type, data = null) {
+        currentEditType = type;
+        
+        if (type === 'menu') {
+            document.getElementById('menu-modal').classList.remove('hidden');
+            
+            if (data) {
+                // Mode édition
+                document.getElementById('menu-id').value = data.id;
+                document.getElementById('menu-name').value = data.name;
+                document.getElementById('menu-description').value = data.description;
+                document.getElementById('menu-category').value = data.category;
+                document.getElementById('menu-price').value = data.price;
+                document.getElementById('menu-available').checked = data.available;
+            } else {
+                // Mode création
+                document.getElementById('menu-id').value = '';
+                document.getElementById('menu-name').value = '';
+                document.getElementById('menu-description').value = '';
+                document.getElementById('menu-category').value = 'formule';
+                document.getElementById('menu-price').value = '';
+                document.getElementById('menu-available').checked = false;
+            }
+        } else {
+            document.getElementById('dish-modal').classList.remove('hidden');
+            
+            if (data) {
+                // Mode édition
+                document.getElementById('dish-id').value = data.id;
+                document.getElementById('dish-name').value = data.name;
+                document.getElementById('dish-description').value = data.description;
+                document.getElementById('dish-category').value = data.category;
+                document.getElementById('dish-price').value = data.price;
+                document.getElementById('dish-menu').value = data.menuId;
+                document.getElementById('dish-available').checked = data.available;
+                document.getElementById('dish-image-url').value = data.image || '';
+            } else {
+                // Mode création
+                document.getElementById('dish-id').value = '';
+                document.getElementById('dish-name').value = '';
+                document.getElementById('dish-description').value = '';
+                document.getElementById('dish-category').value = 'entrée';
+                document.getElementById('dish-price').value = '';
+                document.getElementById('dish-menu').value = '';
+                document.getElementById('dish-available').checked = false;
+                document.getElementById('dish-image-url').value = '';
+            }
+        }
+    }
+
+    // Fermer tous les modaux
+    document.querySelectorAll('[id*="-modal"]').forEach(modal => {
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal || e.target.closest('[data-close]') || e.target.closest('[aria-label="Fermer"]')) {
+                modal.classList.add('hidden');
+                currentEditId = null;
+                currentEditType = null;
+            }
+        });
+    });
+
+    // Gestionnaire de soumission des formulaires
+    document.getElementById('save-menu')?.addEventListener('click', () => {
+        const formData = {
+            id: document.getElementById('menu-id').value || Date.now(),
+            name: document.getElementById('menu-name').value,
+            description: document.getElementById('menu-description').value,
+            category: document.getElementById('menu-category').value,
+            price: document.getElementById('menu-price').value,
+            available: document.getElementById('menu-available').checked
+        };
+        
+        // Ajouter ou mettre à jour dans le DOM
+        if (document.getElementById('menu-id').value) {
+            updateMenuInDOM(formData);
+        } else {
+            addMenuToDOM(formData);
+        }
+        
+        document.getElementById('menu-modal').classList.add('hidden');
+    });
+
+    document.getElementById('save-dish')?.addEventListener('click', () => {
+        const formData = {
+            id: document.getElementById('dish-id').value || Date.now(),
+            name: document.getElementById('dish-name').value,
+            description: document.getElementById('dish-description').value,
+            category: document.getElementById('dish-category').value,
+            price: document.getElementById('dish-price').value,
+            menuId: document.getElementById('dish-menu').value,
+            available: document.getElementById('dish-available').checked,
+            image: document.getElementById('dish-image-url').value || ''
+        };
+        
+        // Ajouter ou mettre à jour dans le DOM
+        if (document.getElementById('dish-id').value) {
+            updateDishInDOM(formData);
+        } else {
+            addDishToDOM(formData);
+        }
+        
+        document.getElementById('dish-modal').classList.add('hidden');
+    });
+
+    // Fonctions d'ajout/mise à jour du DOM
+    function addMenuToDOM(data) {
+        const tbody = document.querySelector('#section-menu table tbody');
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors';
+        tr.dataset.id = data.id;
+        tr.innerHTML = `
+            <td class="px-5 py-4">
+                <div class="font-medium text-gray-900 dark:text-gray-100">${data.name}</div>
+            </td>
+            <td class="px-5 py-4">
+                <div class="flex space-x-2">
+                    <button type="button" class="p-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md transition-colors" title="Modifier" onclick="editMenu(this)">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button type="button" class="p-2 bg-purple-500 hover:bg-purple-600 text-white rounded-md transition-colors" title="Voir les plats">
+                        <i class="fas fa-list"></i>
+                    </button>
+                    <button type="button" class="p-2 bg-red-500 hover:bg-red-600 text-white rounded-md transition-colors" title="Supprimer" onclick="deleteItem(this, 'menu')">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    }
+
+    function updateMenuInDOM(data) {
+        const tr = document.querySelector(`#section-menu table tbody tr[data-id="${data.id}"]`);
+        if (tr) {
+            tr.querySelector('.font-medium').textContent = data.name;
+        }
+    }
+
+    function addDishToDOM(data) {
+        const container = document.querySelector('.grid.grid-cols-1');
+        const card = document.createElement('div');
+        card.className = 'bg-white dark:bg-gray-700 rounded-lg shadow overflow-hidden border border-gray-200 dark:border-gray-600 hover:shadow-md transition-shadow';
+        card.dataset.id = data.id;
+        card.innerHTML = `
+            <div class="h-48 overflow-hidden">
+                ${data.image ? `<img src="${data.image}" alt="${data.name}" class="w-full h-full object-cover">` : ''}
+            </div>
+            <div class="p-4">
+                <div class="flex justify-between items-start mb-2">
+                    <h4 class="font-medium text-gray-900 dark:text-gray-100">${data.name}</h4>
+                    <span class="inline-block px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-700 dark:bg-yellow-900/50 dark:text-yellow-300">
+                        ${data.category}
+                    </span>
+                </div>
+                <p class="text-sm text-gray-600 dark:text-gray-300 mb-3 line-clamp-2">${data.description}</p>
+                <div class="flex justify-between items-center">
+                    <span class="font-bold text-gray-800 dark:text-gray-200">${data.price} DH</span>
+                    <div class="flex space-x-1">
+                        <button type="button" class="p-1.5 text-xs bg-blue-500 hover:bg-blue-600 text-white rounded" title="Modifier" onclick="editDish(this)">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button type="button" class="p-1.5 text-xs bg-red-500 hover:bg-red-600 text-white rounded" title="Supprimer" onclick="deleteItem(this, 'dish')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+        container.appendChild(card);
+    }
+
+    function updateDishInDOM(data) {
+        const card = document.querySelector(`.grid.grid-cols-1 > div[data-id="${data.id}"]`);
+        if (card) {
+            card.querySelector('h4').textContent = data.name;
+            card.querySelector('span').textContent = data.category;
+            card.querySelector('.line-clamp-2').textContent = data.description;
+            card.querySelector('.font-bold').textContent = `${data.price} DH`;
+            
+            // Mettre à jour l'image
+            const imgContainer = card.querySelector('.h-48');
+            imgContainer.innerHTML = '';
+            
+            if (data.image) {
+                const img = document.createElement('img');
+                img.src = data.image;
+                img.alt = data.name;
+                img.className = 'w-full h-full object-cover';
+                imgContainer.appendChild(img);
+            }
+        }
+    }
+
+    // Fonction de suppression
+    function deleteItem(button, type) {
+        currentEditId = button.closest('tr, div').dataset.id;
+        currentEditType = type;
+        document.getElementById('delete-confirmation-modal').classList.remove('hidden');
+    }
+
+    document.getElementById('confirm-delete')?.addEventListener('click', () => {
+        if (currentEditId && currentEditType) {
+            const element = document.querySelector(`[data-id="${currentEditId}"]`);
+            if (element) {
+                element.remove();
+            }
+        }
+        document.getElementById('delete-confirmation-modal').classList.add('hidden');
+        currentEditId = null;
+        currentEditType = null;
+    });
+
+    // Fonctions d'édition
+    window.editMenu = function(button) {
+        const tr = button.closest('tr');
+        const data = {
+            id: tr.dataset.id,
+            name: tr.querySelector('td:first-child .font-medium').textContent,
+            description: tr.querySelector('td:first-child + td .text-sm')?.textContent || '',
+            category: tr.querySelector('td:first-child + td span')?.textContent || '',
+            price: tr.querySelector('td:last-child .font-bold')?.textContent.replace(' DH', '') || '',
+            available: true // À adapter selon votre structure
+        };
+        openModal('menu', data);
+    };
+
+    window.editDish = function(button) {
+        const card = button.closest('.grid > div');
+        const data = {
+            id: card.dataset.id,
+            name: card.querySelector('h4').textContent,
+            description: card.querySelector('.line-clamp-2')?.textContent || '',
+            category: card.querySelector('span')?.textContent || '',
+            price: card.querySelector('.font-bold')?.textContent.replace(' DH', '') || '',
+            menuId: card.querySelector('.menu-select')?.value || '',
+            available: true, // À adapter selon votre structure
+            image: card.querySelector('img')?.src || ''
+        };
+        openModal('dish', data);
+    };
+</script>
