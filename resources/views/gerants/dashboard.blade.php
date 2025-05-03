@@ -8,7 +8,7 @@
     {{-- Le JS se chargera de masquer/afficher la bonne section --}}
     @include('gerants.sections.reservations')
     @include('gerants.sections.caisse')
-    @include('gerants.sections.commandes')
+    @include('gerants.sections.menu')
     @include('gerants.sections.tables')
     @include('gerants.sections.personnel')
     @include('gerants.sections.rapports')

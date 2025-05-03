@@ -27,9 +27,9 @@
                     <i class="fas fa-cash-register w-6 text-xl mr-3 text-center"></i>
                     <span class="menu-text">Caisse & Paiements</span>
                 </a>
-                <a href="#" class="sidebar-link flex items-center py-3 px-4 rounded-md text-gray-600 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600 dark:hover:text-blue-400 transition-colors" data-section="commandes">
+                <a href="#" class="sidebar-link flex items-center py-3 px-4 rounded-md text-gray-600 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600 dark:hover:text-blue-400 transition-colors" data-section="menu">
                     <i class="fas fa-utensils w-6 text-xl mr-3 text-center"></i>
-                    <span class="menu-text">Commandes</span>
+                    <span class="menu-text">Menu & plat</span>
                 </a>
                 <a href="#" class="sidebar-link flex items-center py-3 px-4 rounded-md text-gray-600 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600 dark:hover:text-blue-400 transition-colors" data-section="tables">
                     <i class="fas fa-chair w-6 text-xl mr-3 text-center"></i>

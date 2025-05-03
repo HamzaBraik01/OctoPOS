@@ -151,7 +151,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 sidebar.classList.add('-translate-x-full'); // Caché par défaut
                 sidebar.classList.remove('translate-x-0');
             } else {
-                mobileMenuToggle.classList.add('lg:hidden'); // Cache sur grand écran
+                mobileMenuToggle.classList.add('lg-hidden'); // Cache sur grand écran
                 sidebar.classList.remove('-translate-x-full'); // Visible par défaut sur grand écran
                 sidebar.classList.add('translate-x-0');
                  // Assure que la sidebar n'est pas en mode réduit si on agrandit l'écran
@@ -423,6 +423,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 switch(sectionId) {
                     case 'caisse':
                         initSalesChart();
+                        break;
+                    case 'menu':
+                        if (typeof initMenuManager === 'function') initMenuManager();
+                        else console.log("La fonction initMenuManager n'est pas définie, ce qui est normal si vous n'avez pas encore implémenté cette fonctionnalité.");
                         break;
                     case 'tables':
                         if (typeof initTableManager === 'function') initTableManager();
