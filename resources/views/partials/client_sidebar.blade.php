@@ -36,14 +36,14 @@
          <!-- Footer Links -->
         <div class="mt-auto pt-8">
             <p class="text-xs uppercase font-medium mb-2 menu-text px-4" style="color: var(--text-secondary);">Compte</p>
-            {{-- Example Logout Form (adjust action as needed) --}}
-            <form method="POST" action="{{ route('logout') }}" x-data>
+            <form method="POST" action="{{ route('logout') }}" id="logout-form">
                 @csrf
-                 <a href="{{ route('logout') }}"
-                    @click.prevent="$root.submit();"
+                <a href="#" 
+                    onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
                     class="sidebar-link"
                     style="color: var(--danger);"
-                    onmouseover="this.style.backgroundColor='rgba(var(--danger-rgb), 0.1)'" onmouseout="this.style.backgroundColor='transparent'">
+                    onmouseover="this.style.backgroundColor='rgba(var(--danger-rgb), 0.1)'"
+                    onmouseout="this.style.backgroundColor='transparent'">
                     <i class="fas fa-sign-out-alt"></i>
                     <span class="menu-text">{{ __('Déconnexion') }}</span>
                 </a>

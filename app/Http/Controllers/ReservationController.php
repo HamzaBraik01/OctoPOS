@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use id;
 use PDF;
 use Carbon\Carbon;
 use App\Models\User;
@@ -10,7 +11,9 @@ use App\Models\Restaurant;
 use App\Models\Reservation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
-use Tymon\JWTAuth\Contracts\Providers\Auth;
+// use Tymon\JWTAuth\Contracts\Providers\Auth;
+use Illuminate\Support\Facades\Auth;
+
 
 class ReservationController extends Controller
 {
@@ -65,20 +68,32 @@ class ReservationController extends Controller
         //
     }
 
-    public function cancel(Reservation $reservation)
+    public function delete(Reservation $reservation)
     {
         if (Auth::id() !== $reservation->users_id) {
             return response()->json(['message' => 'Non autorisé'], 403);
         }
-   
+    
         $reservation->delete();
     
-        return response()->json([
-            'success' => true,
-            'message' => 'Réservation supprimée avec succès.'
-        ]);
+        return redirect()->back()->with('success', 'Réservation supprimée avec succès.');
+
+
     }
-    
+    public function cancel(Request $request, $id)
+{
+    $reservation = Reservation::findOrFail($id);
+
+    if (Auth::id() !== $reservation->users_id) {
+        return response()->json(['message' => 'Non autorisé'], 403);
+    }
+
+    $reservation->status = 'canceled';
+    $reservation->save();
+
+    return redirect()->back()->with('success', 'Réservation supprimée avec succès.');
+
+}
     
     public function getAvailableTimeSlots(Request $request)
 {

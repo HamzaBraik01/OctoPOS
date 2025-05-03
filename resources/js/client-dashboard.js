@@ -709,641 +709,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
-document.addEventListener('DOMContentLoaded', function() {
-    // Éléments du formulaire
-    const tableButtons = document.querySelectorAll('.table-select-btn:not([disabled])');
-    const dateInput = document.getElementById('reservation-date');
-    const timeSelect = document.getElementById('reservation-time');
-    const durationSelect = document.getElementById('reservation-duration');
-    const guestCountSelect = document.getElementById('guest-count');
-    const selectedTableInput = document.getElementById('selected-table');
-    const selectedTableIdInput = document.getElementById('selected-table-id');
-    const reservationForm = document.getElementById('reservation-form');
-    const reservationSummary = document.getElementById('reservation-summary');
-    
-    // Éléments du récapitulatif
-    const summaryTable = document.getElementById('summary-table');
-    const summaryDate = document.getElementById('summary-date');
-    const summaryTime = document.getElementById('summary-time');
-    const summaryDuration = document.getElementById('summary-duration');
-    const summaryGuests = document.getElementById('summary-guests');
-    
-    // Constantes
-    const OPENING_HOUR = 10;
-    const CLOSING_HOUR = 22;
-    
-    // Fonction pour formater la date en français
-    function formatDateFr(dateString) {
-        const date = new Date(dateString);
-        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-        return date.toLocaleDateString('fr-FR', options);
-    }
-    
-    // Fonction pour générer tous les créneaux horaires possibles
-    function generateAllTimeSlots() {
-        const slots = [];
-        for (let hour = OPENING_HOUR; hour < CLOSING_HOUR; hour++) {
-            slots.push(`${hour.toString().padStart(2, '0')}:00`);
-            slots.push(`${hour.toString().padStart(2, '0')}:30`);
-        }
-        return slots;
-    }
-    
-    // Fonction pour charger les créneaux horaires disponibles
-    function loadAvailableTimeSlots() {
-        // Réinitialiser le select avec un message d'attente
-        timeSelect.innerHTML = '<option value="">Chargement des horaires...</option>';
-        durationSelect.innerHTML = '<option value="">Sélectionnez une heure d\'abord</option>';
-        
-        const tableId = selectedTableIdInput.value;
-        const date = dateInput.value;
-        
-        // Si pas de table ou de date sélectionnée, afficher un message d'invite
-        if (!tableId || !date) {
-            timeSelect.innerHTML = '<option value="">Sélectionnez une table et une date d\'abord</option>';
-            return;
-        }
-        
-        // Dans un vrai projet, on ferait une requête AJAX à ce stade
-        // Pour cet exemple, on va simuler une réponse avec des données fictives
-        
-        // Simuler un délai de chargement pour un effet plus réaliste
-        setTimeout(() => {
-            const allSlots = generateAllTimeSlots();
-            
-            // Simuler des créneaux déjà réservés (pour l'exemple)
-            // Dans un vrai projet, ces données viendraient de la base de données
-            const bookedSlots = [
-                '12:00', '12:30', '13:00',  // Déjeuner
-                '19:00', '19:30', '20:00'   // Dîner
-            ];
-            
-            // Filtrer pour ne garder que les créneaux disponibles
-            const availableSlots = allSlots.filter(slot => !bookedSlots.includes(slot));
-            
-            // Mettre à jour le select des heures
-            timeSelect.innerHTML = '';
-            
-            if (availableSlots.length === 0) {
-                const option = document.createElement('option');
-                option.value = '';
-                option.textContent = 'Aucun créneau disponible ce jour';
-                timeSelect.appendChild(option);
-            } else {
-                const defaultOption = document.createElement('option');
-                defaultOption.value = '';
-                defaultOption.textContent = 'Sélectionnez une heure';
-                timeSelect.appendChild(defaultOption);
-                
-                availableSlots.forEach(slot => {
-                    const option = document.createElement('option');
-                    option.value = slot;
-                    option.textContent = slot;
-                    timeSelect.appendChild(option);
-                });
-            }
-            
-            // Mettre à jour le récapitulatif
-            updateReservationSummary();
-        }, 500);
-    }
-    
-    // Fonction pour mettre à jour les options de durée
-    function updateDurationOptions() {
-        // Effacer les options actuelles
-        durationSelect.innerHTML = '';
-        
-        // Vérifier si une heure est sélectionnée
-        if (!timeSelect.value) {
-            const option = document.createElement('option');
-            option.value = '';
-            option.textContent = 'Sélectionnez une heure d\'abord';
-            durationSelect.appendChild(option);
-            return;
-        }
-        
-        // Convertir la date en objet Date
-        const selectedDate = new Date(dateInput.value);
-        const dayOfWeek = selectedDate.getDay(); // 0 = dimanche, 6 = samedi
-        const isWeekend = (dayOfWeek === 0 || dayOfWeek === 6);
-        
-        // Déterminer s'il s'agit du déjeuner ou du dîner
-        const selectedTime = timeSelect.value;
-        const hour = parseInt(selectedTime.split(':')[0]);
-        const isLunch = (hour < 15); // Avant 15h = déjeuner
-        
-        // Simuler la vérification des créneaux disponibles
-        // Dans un vrai projet, on vérifierait les réservations suivantes dans la BD
-        const nextSlotsAvailable = Math.floor(Math.random() * 5) + 1; // Entre 1 et 5 créneaux
-        const maxMinutes = nextSlotsAvailable * 30;
-        
-        // Déterminer les durées disponibles en fonction des règles et disponibilités
-        let durations = [];
-        
-        if (isLunch && !isWeekend) {
-            // Déjeuner en semaine: 1 heure
-            if (maxMinutes >= 60) durations.push({ value: 60, label: '1 heure' });
-        } else if (!isLunch && !isWeekend) {
-            // Dîner en semaine: 2 heures
-            if (maxMinutes >= 120) durations.push({ value: 120, label: '2 heures' });
-            if (maxMinutes >= 90) durations.push({ value: 90, label: '1 heure 30' });
-        } else if (!isLunch && isWeekend) {
-            // Dîner le weekend: 3 heures
-            if (maxMinutes >= 180) durations.push({ value: 180, label: '3 heures' });
-            if (maxMinutes >= 120) durations.push({ value: 120, label: '2 heures' });
-        } else {
-            // Déjeuner le weekend: proposons 1h30
-            if (maxMinutes >= 90) durations.push({ value: 90, label: '1 heure 30' });
-        }
-        
-        // Toujours proposer 30 minutes si rien d'autre n'est disponible
-        if (durations.length === 0) {
-            durations.push({ value: 30, label: '30 minutes' });
-        }
-        
-        // Ajouter les options au sélecteur
-        durations.forEach(duration => {
-            const option = document.createElement('option');
-            option.value = duration.value;
-            option.textContent = duration.label;
-            durationSelect.appendChild(option);
-        });
-        
-        // Sélectionner la première option
-        if (durations.length > 0) {
-            durationSelect.value = durations[0].value;
-        }
-        
-        // Mettre à jour le récapitulatif
-        updateReservationSummary();
-    }
-    
-    // Fonction pour mettre à jour le récapitulatif de réservation
-    function updateReservationSummary() {
-        const tableSelected = selectedTableInput.value !== 'Aucune table sélectionnée';
-        const dateSelected = dateInput.value;
-        const timeSelected = timeSelect.value;
-        const durationSelected = durationSelect.value;
-        const guestsSelected = guestCountSelect.value;
-        
-        // Mettre à jour les valeurs dans le récapitulatif
-        summaryTable.textContent = tableSelected ? selectedTableInput.value : '-';
-        summaryDate.textContent = dateSelected ? formatDateFr(dateSelected) : '-';
-        summaryTime.textContent = timeSelected || '-';
-        
-        // Formatter la durée
-        if (durationSelected) {
-            const durationMinutes = parseInt(durationSelected);
-            if (durationMinutes >= 60) {
-                const hours = Math.floor(durationMinutes / 60);
-                const minutes = durationMinutes % 60;
-                summaryDuration.textContent = hours + ' heure' + (hours > 1 ? 's' : '') + (minutes ? ' ' + minutes + ' min' : '');
-            } else {
-                summaryDuration.textContent = durationMinutes + ' minutes';
-            }
-        } else {
-            summaryDuration.textContent = '-';
-        }
-        
-        summaryGuests.textContent = guestsSelected ? (guestsSelected + ' personne' + (guestsSelected > 1 ? 's' : '')) : '-';
-        
-        // Afficher le récapitulatif si tous les champs obligatoires sont remplis
-        if (tableSelected && dateSelected && timeSelected && durationSelected && guestsSelected) {
-            reservationSummary.classList.remove('hidden');
-        } else {
-            reservationSummary.classList.add('hidden');
-        }
-    }
-    
-    // Événements pour les boutons de table
-    tableButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            // Retirer la sélection précédente
-            tableButtons.forEach(btn => {
-                btn.classList.remove('ring-2', 'ring-[#0288D1]');
-            });
-            
-            // Sélectionner cette table
-            this.classList.add('ring-2', 'ring-[#0288D1]');
-            
-            // Mettre à jour les champs du formulaire
-            const tableId = this.getAttribute('data-table-id');
-            const tableName = this.getAttribute('data-table-name');
-            const tableCapacity = parseInt(this.getAttribute('data-table-capacity'));
-            
-            selectedTableIdInput.value = tableId;
-            selectedTableInput.value = tableName;
-            
-            // Mettre à jour les options de nombre d'invités
-            guestCountSelect.innerHTML = '';
-            for (let i = 1; i <= tableCapacity; i++) {
-                const option = document.createElement('option');
-                option.value = i;
-                option.textContent = i + (i === 1 ? ' personne' : ' personnes');
-                guestCountSelect.appendChild(option);
-            }
-            
-            // Charger les créneaux horaires disponibles
-            loadAvailableTimeSlots();
-        });
-    });
-    
-    // Événements pour les champs du formulaire
-    dateInput.addEventListener('change', loadAvailableTimeSlots);
-    timeSelect.addEventListener('change', updateDurationOptions);
-    
-    // Événements pour mettre à jour le récapitulatif
-    guestCountSelect.addEventListener('change', updateReservationSummary);
-    durationSelect.addEventListener('change', updateReservationSummary);
-    
-    // Validation du formulaire
-    reservationForm.addEventListener('submit', function(event) {
-        if (!selectedTableIdInput.value) {
-            event.preventDefault();
-            alert('Veuillez sélectionner une table avant de confirmer la réservation.');
-            return;
-        }
-        
-        if (!timeSelect.value) {
-            event.preventDefault();
-            alert('Veuillez sélectionner une heure de réservation.');
-            return;
-        }
-        
-        if (!durationSelect.value) {
-            event.preventDefault();
-            alert('Veuillez sélectionner une durée pour votre réservation.');
-            return;
-        }
-        
-        if (!guestCountSelect.value) {
-            event.preventDefault();
-            alert('Veuillez indiquer le nombre d\'invités.');
-            return;
-        }
-        
-        // Confirmation avant envoi (peut être retiré si non désirée)
-        if (!confirm('Confirmez-vous cette réservation ?')) {
-            event.preventDefault();
-        }
-    });
-    
-    if (!dateInput.value) {
-        dateInput.value = '2025-04-18'; // Date actuelle formatée
-    }
-});
 
-document.addEventListener('DOMContentLoaded', function() {
-    // Éléments du formulaire
-    const tableButtons = document.querySelectorAll('.table-select-btn:not([disabled])');
-    const dateInput = document.getElementById('reservation-date');
-    const timeSelect = document.getElementById('reservation-time');
-    const durationSelect = document.getElementById('reservation-duration');
-    const guestCountSelect = document.getElementById('guest-count');
-    const selectedTableInput = document.getElementById('selected-table');
-    const selectedTableIdInput = document.getElementById('selected-table-id');
-    const reservationForm = document.getElementById('reservation-form');
-    const reservationSummary = document.getElementById('reservation-summary');
-    const closingTimeWarning = document.getElementById('closing-time-warning');
-    
-    // Éléments du récapitulatif
-    const summaryTable = document.getElementById('summary-table');
-    const summaryDate = document.getElementById('summary-date');
-    const summaryTime = document.getElementById('summary-time');
-    const summaryDuration = document.getElementById('summary-duration');
-    const summaryEndTime = document.getElementById('summary-end-time');
-    const summaryGuests = document.getElementById('summary-guests');
-    
-    // Constantes
-    const OPENING_HOUR = 10;
-    const CLOSING_HOUR = 22;
-    
-    // Fonction pour formater la date en français
-    function formatDateFr(dateString) {
-        const date = new Date(dateString);
-        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-        return date.toLocaleDateString('fr-FR', options);
-    }
-    
-    // Fonction pour générer tous les créneaux horaires possibles
-    function generateAllTimeSlots() {
-        const slots = [];
-        for (let hour = OPENING_HOUR; hour < CLOSING_HOUR; hour++) {
-            slots.push(`${hour.toString().padStart(2, '0')}:00`);
-            slots.push(`${hour.toString().padStart(2, '0')}:30`);
-        }
-        return slots;
-    }
-    
-    // Fonction pour calculer l'heure de fin d'une réservation
-    function calculateEndTime(startTime, durationMinutes) {
-        const [hours, minutes] = startTime.split(':').map(Number);
-        
-        // Calculer les minutes totales
-        let totalMinutes = hours * 60 + minutes + durationMinutes;
-        
-        // Convertir en heures et minutes
-        const endHour = Math.floor(totalMinutes / 60);
-        const endMinute = totalMinutes % 60;
-        
-        // Formater l'heure de fin
-        return `${endHour.toString().padStart(2, '0')}:${endMinute.toString().padStart(2, '0')}`;
-    }
-    
-    // Fonction pour vérifier si une heure dépasse l'heure de fermeture
-    function exceedsClosingTime(time) {
-        const [hours, minutes] = time.split(':').map(Number);
-        return (hours > CLOSING_HOUR) || (hours === CLOSING_HOUR && minutes > 0);
-    }
-    
-    // Fonction pour calculer les minutes restantes avant la fermeture
-    function minutesUntilClosing(startTime) {
-        const [hours, minutes] = startTime.split(':').map(Number);
-        const startMinutes = hours * 60 + minutes;
-        const closingMinutes = CLOSING_HOUR * 60;
-        
-        return closingMinutes - startMinutes;
-    }
-    
-    // Fonction pour charger les créneaux horaires disponibles
-    function loadAvailableTimeSlots() {
-        // Réinitialiser le select avec un message d'attente
-        timeSelect.innerHTML = '<option value="">Chargement des horaires...</option>';
-        durationSelect.innerHTML = '<option value="">Sélectionnez une heure d\'abord</option>';
-        
-        const tableId = selectedTableIdInput.value;
-        const date = dateInput.value;
-        
-        // Si pas de table ou de date sélectionnée, afficher un message d'invite
-        if (!tableId || !date) {
-            timeSelect.innerHTML = '<option value="">Sélectionnez une table et une date d\'abord</option>';
-            return;
-        }
-        
-        // Simuler un délai de chargement pour un effet plus réaliste
-        setTimeout(() => {
-            const allSlots = generateAllTimeSlots();
-            
-            // Simuler des créneaux déjà réservés (pour l'exemple)
-            // Dans un vrai projet, ces données viendraient de la base de données
-            const bookedSlots = [
-                '12:00', '12:30', '13:00',  // Déjeuner
-                '19:00', '19:30', '20:00'   // Dîner
-            ];
-            
-            // Filtrer pour ne garder que les créneaux disponibles
-            const availableSlots = allSlots.filter(slot => !bookedSlots.includes(slot));
-            
-            // Mettre à jour le select des heures
-            timeSelect.innerHTML = '';
-            
-            if (availableSlots.length === 0) {
-                const option = document.createElement('option');
-                option.value = '';
-                option.textContent = 'Aucun créneau disponible ce jour';
-                timeSelect.appendChild(option);
-            } else {
-                const defaultOption = document.createElement('option');
-                defaultOption.value = '';
-                defaultOption.textContent = 'Sélectionnez une heure';
-                timeSelect.appendChild(defaultOption);
-                
-                availableSlots.forEach(slot => {
-                    const option = document.createElement('option');
-                    option.value = slot;
-                    option.textContent = slot;
-                    timeSelect.appendChild(option);
-                });
-            }
-            
-            // Mettre à jour le récapitulatif
-            updateReservationSummary();
-        }, 300);
-    }
-    
-    // Fonction pour mettre à jour les options de durée
-    function updateDurationOptions() {
-        // Effacer les options actuelles
-        durationSelect.innerHTML = '';
-        closingTimeWarning.classList.add('hidden');
-        
-        // Vérifier si une heure est sélectionnée
-        if (!timeSelect.value) {
-            const option = document.createElement('option');
-            option.value = '';
-            option.textContent = 'Sélectionnez une heure d\'abord';
-            durationSelect.appendChild(option);
-            return;
-        }
-        
-        // Calculer le temps restant jusqu'à la fermeture
-        const selectedTime = timeSelect.value;
-        const remainingMinutes = minutesUntilClosing(selectedTime);
-        
-        // Vérifier si le temps est proche de la fermeture
-        const limitedByClosingTime = remainingMinutes < 180; // Moins de 3 heures
-        
-        // Convertir la date en objet Date
-        const selectedDate = new Date(dateInput.value);
-        const dayOfWeek = selectedDate.getDay(); // 0 = dimanche, 6 = samedi
-        const isWeekend = (dayOfWeek === 0 || dayOfWeek === 6);
-        
-        // Déterminer s'il s'agit du déjeuner ou du dîner
-        const hour = parseInt(selectedTime.split(':')[0]);
-        const isLunch = (hour < 15); // Avant 15h = déjeuner
-        
-        // Déterminer les durées disponibles en fonction des règles et disponibilités
-        let durations = [];
-        
-        if (limitedByClosingTime) {
-            // Afficher l'avertissement
-            closingTimeWarning.classList.remove('hidden');
-            
-            // Proposer des durées adaptées au temps restant
-            if (remainingMinutes >= 30) durations.push({ value: 30, label: '30 minutes' });
-            if (remainingMinutes >= 60) durations.push({ value: 60, label: '1 heure' });
-            if (remainingMinutes >= 90) durations.push({ value: 90, label: '1 heure 30' });
-            if (remainingMinutes >= 120) durations.push({ value: 120, label: '2 heures' });
-            // N'offrez pas plus que le temps restant
-        } else {
-            // Durées standards selon les règles
-            if (isLunch && !isWeekend) {
-                // Déjeuner en semaine: 1 heure
-                durations.push({ value: 60, label: '1 heure' });
-            } else if (!isLunch && !isWeekend) {
-                // Dîner en semaine: 2 heures
-                durations.push({ value: 120, label: '2 heures' });
-                durations.push({ value: 90, label: '1 heure 30' });
-            } else if (!isLunch && isWeekend) {
-                // Dîner le weekend: 3 heures
-                durations.push({ value: 180, label: '3 heures' });
-                durations.push({ value: 120, label: '2 heures' });
-            } else {
-                // Déjeuner le weekend: proposons 1h30
-                durations.push({ value: 90, label: '1 heure 30' });
-            }
-        }
-        
-        // Toujours proposer 30 minutes si rien d'autre n'est disponible
-        if (durations.length === 0) {
-            durations.push({ value: 30, label: '30 minutes' });
-        }
-        
-        // Ajouter les options au sélecteur
-        durations.forEach(duration => {
-            const option = document.createElement('option');
-            option.value = duration.value;
-            option.textContent = duration.label;
-            durationSelect.appendChild(option);
-        });
-        
-        // Sélectionner la première option
-        if (durations.length > 0) {
-            durationSelect.value = durations[0].value;
-        }
-        
-        // Mettre à jour le récapitulatif
-        updateReservationSummary();
-    }
-    
-    // Fonction pour mettre à jour le récapitulatif de réservation
-    function updateReservationSummary() {
-        const tableSelected = selectedTableInput.value !== 'Aucune table sélectionnée';
-        const dateSelected = dateInput.value;
-        const timeSelected = timeSelect.value;
-        const durationSelected = durationSelect.value;
-        const guestsSelected = guestCountSelect.value;
-        
-        // Mettre à jour les valeurs dans le récapitulatif
-        summaryTable.textContent = tableSelected ? selectedTableInput.value : '-';
-        summaryDate.textContent = dateSelected ? formatDateFr(dateSelected) : '-';
-        summaryTime.textContent = timeSelected || '-';
-        
-        // Formatter la durée
-        if (durationSelected) {
-            const durationMinutes = parseInt(durationSelected);
-            if (durationMinutes >= 60) {
-                const hours = Math.floor(durationMinutes / 60);
-                const minutes = durationMinutes % 60;
-                summaryDuration.textContent = hours + ' heure' + (hours > 1 ? 's' : '') + (minutes ? ' ' + minutes + ' min' : '');
-            } else {
-                summaryDuration.textContent = durationMinutes + ' minutes';
-            }
-            
-            // Calculer et afficher l'heure de fin
-            if (timeSelected) {
-                const endTime = calculateEndTime(timeSelected, durationMinutes);
-                summaryEndTime.textContent = endTime;
-                
-                // Vérifier si l'heure de fin dépasse l'heure de fermeture
-                if (exceedsClosingTime(endTime)) {
-                    summaryEndTime.innerHTML = `<span class="text-amber-600">${endTime}</span> <i class="fas fa-exclamation-circle text-amber-600" title="Dépasse l'heure de fermeture"></i>`;
-                }
-            } else {
-                summaryEndTime.textContent = '-';
-            }
-        } else {
-            summaryDuration.textContent = '-';
-            summaryEndTime.textContent = '-';
-        }
-        
-        summaryGuests.textContent = guestsSelected ? (guestsSelected + ' personne' + (guestsSelected > 1 ? 's' : '')) : '-';
-        
-        // Afficher le récapitulatif si tous les champs obligatoires sont remplis
-        if (tableSelected && dateSelected && timeSelected && durationSelected && guestsSelected) {
-            reservationSummary.classList.remove('hidden');
-        } else {
-            reservationSummary.classList.add('hidden');
-        }
-    }
-    
-    // Événements pour les boutons de table
-    tableButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            // Retirer la sélection précédente
-            tableButtons.forEach(btn => {
-                btn.classList.remove('ring-2', 'ring-[#0288D1]');
-            });
-            
-            // Sélectionner cette table
-            this.classList.add('ring-2', 'ring-[#0288D1]');
-            
-            // Mettre à jour les champs du formulaire
-            const tableId = this.getAttribute('data-table-id');
-            const tableName = this.getAttribute('data-table-name');
-            const tableCapacity = parseInt(this.getAttribute('data-table-capacity'));
-            
-            selectedTableIdInput.value = tableId;
-            selectedTableInput.value = tableName;
-            
-            // Mettre à jour les options de nombre d'invités
-            guestCountSelect.innerHTML = '';
-            for (let i = 1; i <= tableCapacity; i++) {
-                const option = document.createElement('option');
-                option.value = i;
-                option.textContent = i + (i === 1 ? ' personne' : ' personnes');
-                guestCountSelect.appendChild(option);
-            }
-            
-            // Charger les créneaux horaires disponibles
-            loadAvailableTimeSlots();
-        });
-    });
-    
-    // Événements pour les champs du formulaire
-    dateInput.addEventListener('change', loadAvailableTimeSlots);
-    timeSelect.addEventListener('change', updateDurationOptions);
-    
-    // Événements pour mettre à jour le récapitulatif
-    guestCountSelect.addEventListener('change', updateReservationSummary);
-    durationSelect.addEventListener('change', updateReservationSummary);
-    
-    // Validation du formulaire
-    reservationForm.addEventListener('submit', function(event) {
-        if (!selectedTableIdInput.value) {
-            event.preventDefault();
-            alert('Veuillez sélectionner une table avant de confirmer la réservation.');
-            return;
-        }
-        
-        if (!timeSelect.value) {
-            event.preventDefault();
-            alert('Veuillez sélectionner une heure de réservation.');
-            return;
-        }
-        
-        if (!durationSelect.value) {
-            event.preventDefault();
-            alert('Veuillez sélectionner une durée pour votre réservation.');
-            return;
-        }
-        
-        if (!guestCountSelect.value) {
-            event.preventDefault();
-            alert('Veuillez indiquer le nombre d\'invités.');
-            return;
-        }
-        
-        // Vérifier si la réservation dépasse l'heure de fermeture
-        const endTime = calculateEndTime(timeSelect.value, parseInt(durationSelect.value));
-        if (exceedsClosingTime(endTime)) {
-            if (!confirm('Attention: votre réservation se termine après l\'heure de fermeture (22h). Les clients doivent quitter l\'établissement à 22h. Souhaitez-vous continuer ?')) {
-                event.preventDefault();
-                return;
-            }
-        }
-        
-        // Confirmation avant envoi (peut être retiré si non désirée)
-        if (!confirm('Confirmez-vous cette réservation ?')) {
-            event.preventDefault();
-        }
-    });
-    
-    // Initialiser avec la date du jour
-    if (!dateInput.value) {
-        dateInput.value = '2025-04-18'; // Date actuelle formatée
-    }
-});
 
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -1554,5 +920,104 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('modal-overlay').addEventListener('click', function() {
         closeModal('password-modal');
         closeModal('delete-modal');
+    });
+});
+
+
+document.querySelectorAll('.cancel-reservation').forEach(button => {
+    button.addEventListener('click', function () {
+        const reservationId = this.getAttribute('data-id');
+        fetch(`/reservations/${reservationId}/cancel`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'Content-Type': 'application/json',
+            },
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    location.reload(); // Reload the page or remove the row from the table
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    });
+});
+// JavaScript to handle the "Annuler" button click
+function cancelReservation(reservationId) {
+    if (!confirm("Êtes-vous sûr de vouloir annuler cette réservation ?")) {
+        return;
+    }
+
+    fetch(`/reservations/${reservationId}/cancel`, {
+        method: 'POST', // Use POST for simplicity
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content // CSRF Token
+        },
+        body: JSON.stringify({
+            status: 'canceled'
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.message);
+            // Optionally reload the page or update the UI dynamically
+            document.querySelector(`#reservation-${reservationId} .badge`).textContent = 'Annuler';
+            document.querySelector(`#reservation-${reservationId} .badge`).classList.replace('badge-green', 'badge-gray');
+        } else {
+            alert("Échec de l'annulation de la réservation.");
+        }
+    })
+    .catch(error => {
+        console.error("Erreur :", error);
+        alert("Une erreur s'est produite. Veuillez réessayer.");
+    });
+}
+
+
+
+document.addEventListener('DOMContentLoaded', function () {
+    const searchInput = document.getElementById('reservation-search');
+    if (!searchInput) return;
+
+    searchInput.addEventListener('input', function () {
+        const query = this.value.toLowerCase();
+        document.querySelectorAll('.reservation-card').forEach(card => {
+            // Tu peux filtrer sur plusieurs champs, par exemple le titre, la date, le numéro de table, etc.
+            const text = card.innerText.toLowerCase();
+            if (text.includes(query)) {
+                card.style.display = '';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+
+        // Optionnel : Masquer le message "Vous n'avez pas encore de réservations" si filtre actif
+        const emptyMsg = document.querySelector('.dashboard-card.text-center');
+        if (emptyMsg) {
+            emptyMsg.style.display = document.querySelectorAll('.reservation-card:not([style*="display: none"])').length === 0 ? '' : 'none';
+        }
+    });
+});
+document.addEventListener('DOMContentLoaded', function () {
+    const searchInput = document.getElementById('invoice-search');
+    if (!searchInput) return;
+
+    searchInput.addEventListener('input', function () {
+        const query = this.value.toLowerCase();
+        document.querySelectorAll('.invoice-row').forEach(row => {
+            const text = row.innerText.toLowerCase();
+            if (text.includes(query)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+        const visibleRows = Array.from(document.querySelectorAll('.invoice-row')).some(row => row.style.display !== 'none');
     });
 });
