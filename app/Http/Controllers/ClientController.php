@@ -96,18 +96,18 @@ class ClientController extends Controller
         $userId = $currentUser->id;
         
         // 1. Total Reservations Count
-        $totalReservationsCount = Reservation::where('id', $userId)->count();
+        $totalReservationsCount = Reservation::where('users_id', $userId)->count();
         
         // 2. Calculate reservation growth compared to last month
         $lastMonth = Carbon::now()->subMonth();
         $twoMonthsAgo = Carbon::now()->subMonths(2);
         
-        $currentMonthReservations = Reservation::where('id', $userId)
+        $currentMonthReservations = Reservation::where('users_id', $userId)
             ->whereMonth('date', Carbon::now()->month)
             ->whereYear('date', Carbon::now()->year)
             ->count();
             
-        $lastMonthReservations = Reservation::where('id', $userId)
+        $lastMonthReservations = Reservation::where('users_id', $userId)
             ->whereMonth('date', $lastMonth->month)
             ->whereYear('date', $lastMonth->year)
             ->count();
@@ -117,21 +117,19 @@ class ClientController extends Controller
             : 0;
         
         // 3. Upcoming Reservations
-        $upcomingReservations = Reservation::where('id', $userId)
-            ->where('date', '>=', Carbon::now()->format('Y-m-d'))
+        $upcomingReservations = Reservation::where('users_id', $userId)
             ->orderBy('date')
             ->orderBy('heure_debut')
-            ->take(3)
             ->get();
             
         $upcomingReservationsCount = $upcomingReservations->count();
         
         // 4. Weekly growth
-        $thisWeekReservations = Reservation::where('id', $userId)
+        $thisWeekReservations = Reservation::where('users_id', $userId)
             ->whereBetween('date', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])
             ->count();
             
-        $lastWeekReservations = Reservation::where('id', $userId)
+        $lastWeekReservations = Reservation::where('users_id', $userId)
             ->whereBetween('date', [Carbon::now()->subWeek()->startOfWeek(), Carbon::now()->subWeek()->endOfWeek()])
             ->count();
         
@@ -140,7 +138,7 @@ class ClientController extends Controller
             : 0;
         
         // 5. Favorite Table
-        $favoriteTableData = Reservation::where('id', $userId)
+        $favoriteTableData = Reservation::where('users_id', $userId)
             ->select('table_id', DB::raw('count(*) as count'))
             ->groupBy('table_id')
             ->orderBy('count', 'desc')

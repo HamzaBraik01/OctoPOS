@@ -58,10 +58,9 @@ Route::middleware([JWTAuthentication::class])->group(function () {
         ->middleware('role:client')
         ->name('clients.dashboard');
 
-        Route::post('/reservations/{reservation}/cancel', [ReservationController::class, 'cancel'])
-        ->name('profile.cancel');
-    Route::delete('/reservations/{reservation}/cancel', [ReservationController::class, 'cancel'])->name('reservations.cancel');
+        Route::delete('/reservations/{reservation}/cancel', [ReservationController::class, 'cancel'])->name('reservations.cancel');
       
+
         Route::put('/profile', [UtilisateurController::class, 'update'])->name('profile.update');    // Password update
 // In your routes/web.php file
 Route::put('/profile/password', [UtilisateurController::class, 'updatePassword'])->name('profile.password.update');

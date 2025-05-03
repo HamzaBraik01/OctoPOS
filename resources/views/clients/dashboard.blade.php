@@ -121,15 +121,20 @@
                                     @endif
                                 </td>
                                 <td>
-                                    <!-- IMPORTANT: Changed from onclick to data attributes -->
                                     <button class="btn btn-sm btn-icon btn-outline mr-1 edit-reservation" 
                                             data-id="{{ $reservation->id }}" title="Modifier">
                                         <i class="fas fa-edit"></i>
                                     </button>
-                                    <button class="btn btn-sm btn-icon btn-outline-danger cancel-reservation"
-                                    data-id="{{ $reservation->id }}" title="Annuler">
-                                <i class="fas fa-trash"></i>
-                            </button>
+                                   @if($reservation->status !== 'canceled')
+                                    <form action="{{ route('reservations.cancel', $reservation->id) }}" method="POST" style="display:inline;">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button class="btn btn-outline-danger btn-sm w-full md:w-auto" 
+                                        onclick="cancelReservation('{{ $reservation->id }}')">Annuler</button>
+
+                                    </form>
+                                   @endif
+
                                 </td>
                             </tr>
                         @empty
@@ -175,7 +180,7 @@
                 </button>
             </div>
             <div class="relative w-full sm:w-auto">
-                <input type="text" placeholder="Rechercher..." class="form-input !py-1.5 pl-10 w-full sm:w-64">
+                <input id="reservation-search" type="text" placeholder="Rechercher..." class="form-input !py-1.5 pl-10 w-full sm:w-64">
                 <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-[var(--text-secondary)]"></i>
             </div>
         </div>
@@ -670,7 +675,7 @@
                     </thead>
                     <tbody>
                          {{-- Example Row: Loop through $invoices in real app --}}
-                        <tr>
+                        <tr class="invoice-row">
                             <td>
                                  <div class="flex items-center">
                                     <div class="flex-shrink-0 h-9 w-9 flex items-center justify-center rounded-md" style="background-color: rgba(var(--primary-rgb), 0.05);">
@@ -686,7 +691,7 @@
                                 <button class="btn btn-sm btn-icon btn-outline" title="Télécharger"><i class="fas fa-download"></i></button>
                             </td>
                         </tr>
-                        <tr>
+                        <tr class="invoice-row">
                             <td>
                                  <div class="flex items-center">
                                     <div class="flex-shrink-0 h-9 w-9 flex items-center justify-center rounded-md" style="background-color: rgba(var(--primary-rgb), 0.05);">
@@ -702,7 +707,7 @@
                                 <button class="btn btn-sm btn-icon btn-outline" title="Télécharger"><i class="fas fa-download"></i></button>
                             </td>
                         </tr>
-                        <tr>
+                        <tr class="invoice-row">
                             <td>
                                  <div class="flex items-center">
                                     <div class="flex-shrink-0 h-9 w-9 flex items-center justify-center rounded-md" style="background-color: rgba(var(--primary-rgb), 0.05);">
@@ -718,7 +723,7 @@
                                 <button class="btn btn-sm btn-icon btn-outline" title="Télécharger"><i class="fas fa-download"></i></button>
                             </td>
                         </tr>
-                        <tr>
+                        <tr class="invoice-row">
                             <td>
                                  <div class="flex items-center">
                                     <div class="flex-shrink-0 h-9 w-9 flex items-center justify-center rounded-md" style="background-color: rgba(var(--primary-rgb), 0.05);">
