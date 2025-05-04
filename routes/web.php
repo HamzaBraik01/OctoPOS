@@ -59,6 +59,7 @@ Route::middleware([JWTAuthentication::class])->group(function () {
         Route::get('/users', [GerantController::class, 'getUsers'])->name('gerant.users');
         Route::post('/users/update-role', [GerantController::class, 'updateUserRole'])->name('gerant.users.updateRole');
         Route::delete('/users/{id}', [GerantController::class, 'deleteUser'])->name('gerant.users.delete');
+        Route::get('/users/delete-redirect/{id}', [GerantController::class, 'deleteUserRedirect'])->name('gerant.users.delete-redirect');
         
         Route::post('/horaires', [GerantController::class, 'storeHoraire'])->name('gerant.horaires.store');
         

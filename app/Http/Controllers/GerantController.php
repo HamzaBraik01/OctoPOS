@@ -503,23 +503,58 @@ class GerantController extends Controller
     
     public function deleteUser($id)
     {
-        $user = User::findOrFail($id);
-        
-        $hasReservations = Reservation::where('user_id', $id)->exists();
-        $hasOrders = Commande::where('user_id', $id)->exists();
-        
-        if ($hasReservations || $hasOrders) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Impossible de supprimer cet utilisateur car il possède des réservations ou des commandes.'
-            ], 422);
+        try {
+            $user = User::findOrFail($id);
+            
+            Reservation::where('users_id', $id)->delete();
+            
+            Commande::where('user_id', $id)->delete();
+            
+            $user->delete();
+            
+            $message = [
+                'type' => 'success',
+                'title' => 'Succès',
+                'message' => 'Utilisateur supprimé avec succès'
+            ];
+            
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Utilisateur supprimé avec succès',
+                    'redirectTo' => route('gerants.dashboard'),
+                    'flashMessage' => $message
+                ]);
+            }
+            
+            return redirect()->route('gerants.dashboard')->with('success', 'Utilisateur supprimé avec succès');
+        } catch (\Exception $e) {
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Erreur lors de la suppression: ' . $e->getMessage()
+                ], 500);
+            }
+            
+            return redirect()->back()->with('error', 'Erreur lors de la suppression: ' . $e->getMessage());
         }
-        
-        $user->delete();
-        
-        return response()->json([
-            'success' => true,
-            'message' => 'Utilisateur supprimé avec succès'
-        ]);
+    }
+    
+   
+    public function deleteUserRedirect($id)
+    {
+        try {
+            $user = User::findOrFail($id);
+            
+            Reservation::where('users_id', $id)->delete();
+            
+            Commande::where('user_id', $id)->delete();
+            
+            $user->delete();
+            
+            return redirect()->back()->with('success', 'Utilisateur supprimé avec succès');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Erreur lors de la suppression: ' . $e->getMessage());
+        }
     }
 }

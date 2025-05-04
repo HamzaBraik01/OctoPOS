@@ -2,6 +2,22 @@
 <div id="section-personnel" class="section-content p-6 hidden">
     <h2 class="text-2xl font-bold mb-6 text-gray-800 dark:text-gray-200">Gestion du Personnel</h2>
 
+    {{-- Message flash pour les opérations réussies --}}
+    @if(session('success'))
+    <div id="success-alert" class="mb-4 p-4 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-gray-200 rounded-lg flex items-start">
+        <div class="mr-3 flex-shrink-0">
+            <i class="fas fa-check-circle text-2xl text-green-500 dark:text-green-400"></i>
+        </div>
+        <div class="flex-1">
+            <h4 class="text-sm font-medium">Succès</h4>
+            <p class="text-xs mt-1">{{ session('success') }}</p>
+        </div>
+        <button type="button" class="ml-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" onclick="this.parentElement.remove()">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    @endif
+
     {{-- Liste du personnel --}}
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 mb-6">
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
@@ -243,12 +259,16 @@
                     Êtes-vous sûr ? Cette action est irréversible et toutes les données associées (horaires, etc.) pourraient être perdues. <span id="employee-name-placeholder" class="font-semibold"></span>
                 </p>
                 <div class="mt-6 flex justify-center gap-3">
-                    <button id="cancel-delete" type="button" class="px-4 py-2 bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-gray-200 rounded-md hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-400">
+                    <button id="cancel-delete-btn" type="button" class="px-4 py-2 bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-gray-200 rounded-md hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-400">
                         Annuler
                     </button>
-                    <button id="confirm-delete" type="button" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800">
-                        Supprimer Employé
-                    </button>
+                    <form id="delete-user-form" method="POST" action="" class="inline">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800">
+                            Supprimer Employé
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>
@@ -329,16 +349,16 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Gestionnaires pour le modal de suppression
-    document.getElementById('cancel-delete').addEventListener('click', function() {
+    // Gestionnaires pour le modal de suppression - Réécriture pour s'assurer qu'ils fonctionnent
+    document.getElementById('cancel-delete-btn').addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        console.log("Bouton Annuler cliqué");
         hideDeleteModal();
     });
 
-    document.getElementById('confirm-delete').addEventListener('click', function() {
-        if (userToDelete) {
-            deleteUser(userToDelete);
-        }
-    });
+    // Vérifier si un message flash existe dans le localStorage
+    checkFlashMessage();
 
     // Fonction pour charger le personnel avec filtres et pagination
     function loadPersonnel() {
@@ -403,9 +423,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 </td>
                 <td class="px-4 py-3">
                     <div class="flex space-x-1">
-                        <button type="button" class="edit-user-btn p-1.5 text-xs bg-blue-500 hover:bg-blue-600 text-white rounded" title="Modifier">
-                            <i class="fas fa-edit"></i>
-                        </button>
                         <button type="button" class="delete-user-btn p-1.5 text-xs bg-red-500 hover:bg-red-600 text-white rounded" title="Supprimer">
                             <i class="fas fa-trash"></i>
                         </button>
@@ -494,46 +511,31 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Fonction pour supprimer un utilisateur
-    function deleteUser(userId) {
-        fetch(`/gerant/users/${userId}`, {
-            method: 'DELETE',
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                'Accept': 'application/json'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            hideDeleteModal();
-            
-            if (data.success) {
-                showAlert('success', 'Utilisateur supprimé', data.message);
-                loadPersonnel(); // Recharger la liste
-            } else {
-                showAlert('error', 'Erreur', data.message || 'Une erreur est survenue');
-            }
-        })
-        .catch(error => {
-            console.error('Erreur:', error);
-            hideDeleteModal();
-            showAlert('error', 'Erreur réseau', 'Impossible de supprimer l\'utilisateur');
-        });
-    }
-
     // Afficher le modal de suppression
     function showDeleteModal(userId, userName) {
         userToDelete = userId;
         document.getElementById('employee-name-placeholder').textContent = userName;
+        const deleteForm = document.getElementById('delete-user-form');
+        deleteForm.action = `/gerant/users/${userId}`;
+        
+        // Bloquer le défilement de la page pendant que le modal est affiché
+        document.body.style.overflow = 'hidden';
+        
+        // Afficher le modal
         document.getElementById('delete-modal').classList.remove('hidden');
         document.getElementById('delete-modal').classList.add('flex');
     }
 
-    // Cacher le modal de suppression
+    // Cacher le modal de suppression et restaurer le défilement de la page
     function hideDeleteModal() {
         userToDelete = null;
-        document.getElementById('delete-modal').classList.add('hidden');
-        document.getElementById('delete-modal').classList.remove('flex');
+        const modal = document.getElementById('delete-modal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        
+        // Restaurer le défilement de la page
+        document.body.style.overflow = 'auto';
+        document.body.style.paddingRight = '0';
     }
 
     // Vérifier si un restaurant est déjà sélectionné lors du chargement initial
@@ -542,5 +544,135 @@ document.addEventListener('DOMContentLoaded', function() {
         selectedRestaurantId = restaurantSelector.value;
         loadPersonnel();
     }
+
+    // Configuration du formulaire de suppression pour utiliser AJAX au lieu de soumettre directement
+    const deleteForm = document.getElementById('delete-user-form');
+    if (deleteForm) {
+        deleteForm.addEventListener('submit', function(e) {
+            e.preventDefault(); // Empêcher la soumission normale du formulaire
+            
+            const form = this;
+            const userId = userToDelete;
+            const userRow = document.querySelector(`tr[data-employee-id="${userId}"]`);
+            
+            // Envoyer une requête AJAX au lieu d'une soumission de formulaire standard
+            fetch(form.action, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({
+                    _method: 'DELETE'
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Cacher le modal
+                hideDeleteModal();
+                
+                if (data.success) {
+                    // Afficher l'alerte de succès
+                    showAlert('success', 'Succès', data.message);
+                    
+                    // Supprimer visuellement la ligne de l'utilisateur sans recharger toute la liste
+                    if (userRow) {
+                        userRow.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+                        setTimeout(() => {
+                            userRow.remove();
+                            
+                            // Vérifier si la table est vide
+                            if (document.querySelectorAll('#personnel-table-body tr').length === 0) {
+                                document.getElementById('personnel-table-body').innerHTML = 
+                                    '<tr><td colspan="4" class="text-center py-4">Aucun utilisateur trouvé</td></tr>';
+                            }
+                        }, 500);
+                    }
+                } else {
+                    // Afficher l'alerte d'erreur
+                    showAlert('error', 'Erreur', data.message || 'Une erreur est survenue');
+                }
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                hideDeleteModal();
+                showAlert('error', 'Erreur réseau', 'Impossible de supprimer l\'utilisateur');
+            });
+        });
+    }
 });
+
+// Fonction pour vérifier et afficher les messages flash stockés dans localStorage
+function checkFlashMessage() {
+    const flashMessage = localStorage.getItem('flashMessage');
+    if (flashMessage) {
+        const messageData = JSON.parse(flashMessage);
+        showAlert(messageData.type, messageData.title, messageData.message);
+        localStorage.removeItem('flashMessage'); // Supprimer après affichage
+    }
+}
+
+// Fonction pour afficher les alertes avec une animation moderne
+function showAlert(type, title, message) {
+    // Supprimer les alertes existantes
+    const existingAlerts = document.querySelectorAll('.custom-alert');
+    existingAlerts.forEach(alert => alert.remove());
+    
+    // Créer une nouvelle alerte
+    const alertElement = document.createElement('div');
+    
+    // Déterminer les couleurs et l'icône en fonction du type
+    let bgColor, textColor, icon, borderColor;
+    
+    switch(type) {
+        case 'success':
+            bgColor = 'bg-green-50 dark:bg-green-900/20';
+            textColor = 'text-green-800 dark:text-green-200';
+            borderColor = 'border-green-500';
+            icon = '<i class="fas fa-check-circle text-2xl text-green-500 dark:text-green-400"></i>';
+            break;
+        case 'error':
+            bgColor = 'bg-red-50 dark:bg-red-900/20';
+            textColor = 'text-red-800 dark:text-red-200';
+            borderColor = 'border-red-500';
+            icon = '<i class="fas fa-exclamation-circle text-2xl text-red-500 dark:text-red-400"></i>';
+            break;
+        default:
+            bgColor = 'bg-blue-50 dark:bg-blue-900/20';
+            textColor = 'text-blue-800 dark:text-blue-200';
+            borderColor = 'border-blue-500';
+            icon = '<i class="fas fa-info-circle text-2xl text-blue-500 dark:text-blue-400"></i>';
+    }
+    
+    // Définir les classes et le contenu de l'alerte
+    alertElement.className = `custom-alert fixed top-4 right-4 flex items-start p-4 ${bgColor} border-l-4 ${borderColor} rounded-md shadow-lg z-[9999] transform transition-all duration-500 ease-in-out translate-x-full`;
+    alertElement.innerHTML = `
+        <div class="mr-3 flex-shrink-0">
+            ${icon}
+        </div>
+        <div class="flex-1">
+            <h4 class="text-sm font-semibold ${textColor}">${title}</h4>
+            <p class="text-xs mt-1 ${textColor}">${message}</p>
+        </div>
+        <button type="button" class="ml-4 ${textColor} hover:text-gray-600 dark:hover:text-gray-300 self-start" onclick="this.parentElement.classList.add('translate-x-full'); setTimeout(() => this.parentElement.remove(), 500);">
+            <i class="fas fa-times"></i>
+        </button>
+    `;
+    
+    // Ajouter l'alerte au document
+    document.body.appendChild(alertElement);
+    
+    // Afficher l'alerte avec animation
+    setTimeout(() => {
+        alertElement.classList.remove('translate-x-full');
+    }, 10);
+    
+    // Supprimer automatiquement après 5 secondes
+    setTimeout(() => {
+        alertElement.classList.add('translate-x-full');
+        setTimeout(() => alertElement.remove(), 500);
+    }, 5000);
+}
 </script>
