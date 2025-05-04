@@ -7,7 +7,7 @@
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
             <h3 class="text-lg font-semibold flex items-center text-gray-800 dark:text-gray-200 flex-shrink-0">
                 <i class="fas fa-users text-blue-500 mr-2"></i>
-                Équipe du restaurant
+                Membres du restaurant
             </h3>
 
             <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
@@ -21,8 +21,7 @@
                     <option value="">Tous les rôles</option>
                     <option value="serveur">Serveur</option>
                     <option value="cuisinier">Cuisinier</option>
-                    <option value="barman">Barman</option>
-                    <option value="manager">Manager</option>
+                    <option value="client">Client</option>
                 </select>
                 {{-- Bouton Ajouter --}}
                 <button type="button" class="add-employee-button bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg flex items-center transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800">
@@ -66,7 +65,7 @@
                             <select class="employee-role-select text-sm px-2 py-1 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-1 focus:ring-blue-500 w-full max-w-[120px]">
                                 <option value="serveur" selected>Serveur</option>
                                 <option value="cuisinier">Cuisinier</option>
-                                <option value="barman">Barman</option>
+                                <option value="client">Client</option>
                             </select>
                         </td>
                         <td class="px-4 py-3">
@@ -92,7 +91,7 @@
                      <tr data-employee-id="1078" class="hover:bg-gray-50 dark:hover:bg-gray-700/30">
                         <td class="px-4 py-3"> <div class="flex items-center"> <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Marie Strauss" class="w-10 h-10 rounded-full mr-3 object-cover"> <div> <div class="font-medium text-sm text-gray-900 dark:text-gray-100">Marie Strauss</div> <div class="text-xs text-gray-500 dark:text-gray-400">ID: #1078</div> </div> </div> </td>
                         <td class="px-4 py-3"> <div class="text-sm text-gray-700 dark:text-gray-300">marie.strauss@bistro.fr</div> <div class="text-xs text-gray-500 dark:text-gray-400">+33 6 98 76 54 32</div> </td>
-                        <td class="px-4 py-3"> <select class="employee-role-select text-sm px-2 py-1 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-1 focus:ring-blue-500 w-full max-w-[120px]"> <option value="serveur" selected>Serveur</option> <option value="cuisinier">Cuisinier</option> <option value="barman">Barman</option> </select> </td>
+                        <td class="px-4 py-3"> <select class="employee-role-select text-sm px-2 py-1 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-1 focus:ring-blue-500 w-full max-w-[120px]"> <option value="serveur" selected>Serveur</option> <option value="cuisinier">Cuisinier</option> <option value="client">Client</option> </select> </td>
                         <td class="px-4 py-3"> <span class="inline-block px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300">En service</span> </td>
                         <td class="px-4 py-3"> <button type="button" class="bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 px-2 py-1 rounded text-xs flex items-center"> <i class="fas fa-calendar-alt mr-1"></i> Aujourd'hui 18h-00h </button> </td>
                         <td class="px-4 py-3"> <div class="flex space-x-1"> <button type="button" class="p-1.5 text-xs bg-blue-500 hover:bg-blue-600 text-white rounded" title="Modifier"> <i class="fas fa-edit"></i> </button> <button type="button" class="p-1.5 text-xs bg-red-500 hover:bg-red-600 text-white rounded" title="Supprimer"> <i class="fas fa-trash"></i> </button> </div> </td>
@@ -100,7 +99,7 @@
                      <tr data-employee-id="1109" class="hover:bg-gray-50 dark:hover:bg-gray-700/30">
                          <td class="px-4 py-3"> <div class="flex items-center"> <img src="https://randomuser.me/api/portraits/women/65.jpg" alt="Sophie Renaud" class="w-10 h-10 rounded-full mr-3 object-cover"> <div> <div class="font-medium text-sm text-gray-900 dark:text-gray-100">Sophie Renaud</div> <div class="text-xs text-gray-500 dark:text-gray-400">ID: #1109</div> </div> </div> </td>
                          <td class="px-4 py-3"> <div class="text-sm text-gray-700 dark:text-gray-300">sophie.renaud@bistro.fr</div> <div class="text-xs text-gray-500 dark:text-gray-400">+33 6 45 67 89 01</div> </td>
-                         <td class="px-4 py-3"> <select class="employee-role-select text-sm px-2 py-1 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-1 focus:ring-blue-500 w-full max-w-[120px]"> <option value="serveur" selected>Serveur</option> <option value="cuisinier">Cuisinier</option> <option value="barman">Barman</option> </select> </td>
+                         <td class="px-4 py-3"> <select class="employee-role-select text-sm px-2 py-1 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-1 focus:ring-blue-500 w-full max-w-[120px]"> <option value="serveur" selected>Serveur</option> <option value="cuisinier">Cuisinier</option> <option value="client">Client</option> </select> </td>
                          <td class="px-4 py-3"> <span class="inline-block px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300">Absente</span> </td>
                          <td class="px-4 py-3"> <button type="button" class="bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 px-2 py-1 rounded text-xs flex items-center"> <i class="fas fa-calendar-alt mr-1"></i> Demain 19h-00h </button> </td>
                          <td class="px-4 py-3"> <div class="flex space-x-1"> <button type="button" class="p-1.5 text-xs bg-blue-500 hover:bg-blue-600 text-white rounded" title="Modifier"> <i class="fas fa-edit"></i> </button> <button type="button" class="p-1.5 text-xs bg-red-500 hover:bg-red-600 text-white rounded" title="Supprimer"> <i class="fas fa-trash"></i> </button> </div> </td>
@@ -279,10 +278,8 @@
                  <div>
                     <label for="schedule-role" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Rôle (optionnel)</label>
                     <select id="schedule-role" class="modal-input">
-                        <option value="">Rôle habituel</option>
-                        <option value="chef-rang">Chef de rang</option>
                         <option value="serveur">Serveur</option>
-                        <option value="barman">Barman</option>
+                        <option value="client">Client</option>
                         {{-- etc. --}}
                     </select>
                 </div>

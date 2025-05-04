@@ -159,7 +159,7 @@
                 <div>
                     <label for="dish-menu" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Menu associé</label>
                     <select id="dish-menu" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
-                        <option value="">À la carte</option>
+                        <option value="">Sélectionnez un menu</option>
                     </select>
                 </div>
             </div>
@@ -211,9 +211,67 @@
     let currentRestaurantId = null;
     let menus = [];
     let plats = [];
+    
+    // Variables de pagination pour les menus
+    let currentMenuPage = 1;
+    let menusPerPage = 5; // Nombre de menus par page
+    let totalMenuPages = 1;
 
-    // Initialisation : récupérer l'ID du restaurant sélectionné au chargement
+    // Ajouter des gestionnaires d'événements pour les boutons de pagination
     document.addEventListener('DOMContentLoaded', function() {
+        // Précédent
+        const prevButton = document.querySelector('.flex.justify-between.items-center.mt-5 .flex.space-x-1 button:first-child');
+        if (prevButton) {
+            prevButton.addEventListener('click', function() {
+                if (currentMenuPage > 1) {
+                    currentMenuPage--;
+                    updateMenuTable(menus);
+                }
+            });
+        }
+        
+        // Suivant
+        const nextButton = document.querySelector('.flex.justify-between.items-center.mt-5 .flex.space-x-1 button:last-child');
+        if (nextButton) {
+            nextButton.addEventListener('click', function() {
+                if (currentMenuPage < totalMenuPages) {
+                    currentMenuPage++;
+                    updateMenuTable(menus);
+                }
+            });
+        }
+        
+        // Autres initializations...
+        // Recherche de menu
+        const menuSearchInput = document.querySelector('input[placeholder="Rechercher un menu..."]');
+        if (menuSearchInput) {
+            menuSearchInput.addEventListener('input', function() {
+                searchMenus(this.value.toLowerCase());
+            });
+        }
+        
+        // Recherche de plat
+        const platSearchInput = document.querySelector('input[placeholder="Rechercher un plat..."]');
+        if (platSearchInput) {
+            platSearchInput.addEventListener('input', function() {
+                searchPlats(this.value.toLowerCase());
+            });
+        }
+        
+        // Filtre par menu pour les plats
+        const menuFilterSelect = document.querySelector('select[aria-label="Filtrer par menu"]');
+        if (menuFilterSelect) {
+            menuFilterSelect.addEventListener('change', function() {
+                const menuId = this.value;
+                if (menuId) {
+                    filterPlatsByMenu(menuId);
+                } else {
+                    updatePlatDisplay(plats); // Afficher tous les plats
+                }
+            });
+        }
+        
+        // Restaurer les autres initialisations...
         const restaurantSelector = document.getElementById('header-restaurant-selector');
         
         // Ajouter un écouteur d'événements sur le changement de restaurant
@@ -221,6 +279,8 @@
             const restaurantId = this.value;
             if (restaurantId) {
                 currentRestaurantId = restaurantId;
+                // Réinitialiser la pagination lors du changement de restaurant
+                currentMenuPage = 1;
                 loadMenusByRestaurant(restaurantId);
                 loadPlatsByRestaurant(restaurantId);
             } else {
@@ -270,6 +330,7 @@
                 menus = data.menus;
                 updateMenuTable(menus);
                 updateMenuDropdown(menus);
+                updateMenuFilterDropdown(menus);
             })
             .catch(error => {
                 console.error('Erreur lors du chargement des menus:', error);
@@ -294,12 +355,12 @@
             });
     }
 
-    // Fonction pour mettre à jour l'affichage des menus
-    function updateMenuTable(menus) {
+    // Fonction pour mettre à jour l'affichage des menus avec pagination
+    function updateMenuTable(allMenus) {
         const tbody = document.querySelector('#menu-table-body');
         tbody.innerHTML = '';
         
-        if (menus.length === 0) {
+        if (allMenus.length === 0) {
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td colspan="3" class="px-5 py-4 text-center text-gray-500 dark:text-gray-400">
@@ -307,10 +368,29 @@
                 </td>
             `;
             tbody.appendChild(tr);
+            
+            // Mettre à jour la pagination
+            updateMenuPagination(0, 0, 0);
             return;
         }
         
-        menus.forEach(menu => {
+        // Calculer le nombre total de pages
+        totalMenuPages = Math.ceil(allMenus.length / menusPerPage);
+        
+        // S'assurer que la page actuelle est valide
+        if (currentMenuPage > totalMenuPages) {
+            currentMenuPage = 1;
+        }
+        
+        // Calculer les indices de début et de fin pour la page actuelle
+        const startIndex = (currentMenuPage - 1) * menusPerPage;
+        const endIndex = Math.min(startIndex + menusPerPage, allMenus.length);
+        
+        // Récupérer les menus pour la page actuelle
+        const menusToDisplay = allMenus.slice(startIndex, endIndex);
+        
+        // Ajouter les menus au tableau
+        menusToDisplay.forEach(menu => {
             const tr = document.createElement('tr');
             tr.className = 'hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors';
             tr.dataset.id = menu.id;
@@ -326,9 +406,6 @@
                         <button type="button" class="p-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md transition-colors" title="Modifier" onclick="editMenu(this)">
                             <i class="fas fa-edit"></i>
                         </button>
-                        <button type="button" class="p-2 bg-purple-500 hover:bg-purple-600 text-white rounded-md transition-colors" title="Voir les plats" onclick="filterPlatsByMenu(${menu.id})">
-                            <i class="fas fa-list"></i>
-                        </button>
                         <button type="button" class="p-2 bg-red-500 hover:bg-red-600 text-white rounded-md transition-colors" title="Supprimer" onclick="deleteItem(this, 'menu')">
                             <i class="fas fa-trash"></i>
                         </button>
@@ -337,6 +414,50 @@
             `;
             tbody.appendChild(tr);
         });
+        
+        // Mettre à jour la pagination
+        updateMenuPagination(startIndex + 1, endIndex, allMenus.length);
+    }
+    
+    // Fonction pour mettre à jour les informations de pagination et les boutons
+    function updateMenuPagination(startCount, endCount, totalCount) {
+        // Mettre à jour le texte d'information
+        const paginationInfo = document.querySelector('.flex.justify-between.items-center.mt-5 .text-sm');
+        if (paginationInfo) {
+            if (totalCount === 0) {
+                paginationInfo.textContent = 'Aucun menu à afficher';
+            } else {
+                paginationInfo.innerHTML = `Affichage de <span class="font-medium">${startCount}</span> à <span class="font-medium">${endCount}</span> sur <span class="font-medium">${totalCount}</span> menus`;
+            }
+        }
+        
+        // Mettre à jour les boutons de pagination
+        const prevButton = document.querySelector('.flex.justify-between.items-center.mt-5 .flex.space-x-1 button:first-child');
+        const nextButton = document.querySelector('.flex.justify-between.items-center.mt-5 .flex.space-x-1 button:last-child');
+        
+        if (prevButton && nextButton) {
+            // Bouton précédent
+            if (currentMenuPage > 1) {
+                prevButton.disabled = false;
+                prevButton.classList.remove('text-gray-400', 'dark:text-gray-500', 'bg-gray-100', 'dark:bg-gray-800', 'cursor-not-allowed');
+                prevButton.classList.add('text-gray-700', 'dark:text-gray-200', 'bg-white', 'dark:bg-gray-700', 'hover:bg-gray-50', 'dark:hover:bg-gray-600', 'cursor-pointer');
+            } else {
+                prevButton.disabled = true;
+                prevButton.classList.add('text-gray-400', 'dark:text-gray-500', 'bg-gray-100', 'dark:bg-gray-800', 'cursor-not-allowed');
+                prevButton.classList.remove('text-gray-700', 'dark:text-gray-200', 'bg-white', 'dark:bg-gray-700', 'hover:bg-gray-50', 'dark:hover:bg-gray-600', 'cursor-pointer');
+            }
+            
+            // Bouton suivant
+            if (currentMenuPage < totalMenuPages) {
+                nextButton.disabled = false;
+                nextButton.classList.remove('text-gray-400', 'dark:text-gray-500', 'bg-gray-100', 'dark:bg-gray-800', 'cursor-not-allowed');
+                nextButton.classList.add('text-gray-700', 'dark:text-gray-200', 'bg-white', 'dark:bg-gray-700', 'hover:bg-gray-50', 'dark:hover:bg-gray-600', 'cursor-pointer');
+            } else {
+                nextButton.disabled = true;
+                nextButton.classList.add('text-gray-400', 'dark:text-gray-500', 'bg-gray-100', 'dark:bg-gray-800', 'cursor-not-allowed');
+                nextButton.classList.remove('text-gray-700', 'dark:text-gray-200', 'bg-white', 'dark:bg-gray-700', 'hover:bg-gray-50', 'dark:hover:bg-gray-600', 'cursor-pointer');
+            }
+        }
     }
 
     // Fonction pour mettre à jour le dropdown de menus dans le formulaire de plat
@@ -347,7 +468,7 @@
         // Option par défaut
         const defaultOption = document.createElement('option');
         defaultOption.value = '';
-        defaultOption.textContent = 'À la carte';
+        defaultOption.textContent = 'Sélectionnez un menu';
         dropdown.appendChild(defaultOption);
         
         // Ajouter les menus
@@ -357,6 +478,28 @@
             option.textContent = menu.nom;
             dropdown.appendChild(option);
         });
+    }
+
+    // Fonction pour mettre à jour le dropdown de filtrage des plats par menu
+    function updateMenuFilterDropdown(menus) {
+        const filterDropdown = document.querySelector('select[aria-label="Filtrer par menu"]');
+        if (filterDropdown) {
+            filterDropdown.innerHTML = '';
+            
+            // Option par défaut pour afficher tous les plats
+            const defaultOption = document.createElement('option');
+            defaultOption.value = '';
+            defaultOption.textContent = 'Tous les menus';
+            filterDropdown.appendChild(defaultOption);
+            
+            // Ajouter chaque menu comme option
+            menus.forEach(menu => {
+                const option = document.createElement('option');
+                option.value = menu.id;
+                option.textContent = menu.nom;
+                filterDropdown.appendChild(option);
+            });
+        }
     }
 
     // Fonction pour mettre à jour l'affichage des plats
@@ -673,15 +816,22 @@
                     document.getElementById('delete-confirmation-modal').classList.add('hidden');
                     document.getElementById('delete-confirmation-modal').classList.remove('flex');
                     
-                    // Rafraîchir la page complète
-                    window.location.reload();
+                    // Afficher un message de succès
+                    showAlert('success', 'Succès', data.message);
+                    
+                    // Rafraîchir les données au lieu de recharger toute la page
+                    if (currentEditType === 'menu') {
+                        loadMenusByRestaurant(currentRestaurantId);
+                    } else {
+                        loadPlatsByRestaurant(currentRestaurantId);
+                    }
                 } else {
-                    alert('Erreur: ' + (data.message || 'Une erreur est survenue.'));
+                    showAlert('error', 'Erreur', data.message || 'Une erreur est survenue.');
                 }
             })
             .catch(error => {
                 console.error('Erreur:', error);
-                alert('Une erreur est survenue lors de la suppression.');
+                showAlert('error', 'Erreur', 'Une erreur est survenue lors de la suppression.');
             });
         }
     });
@@ -713,4 +863,41 @@
 
     // La fonction pour filtrer les plats par menu est disponible globalement
     window.filterPlatsByMenu = filterPlatsByMenu;
+
+    // Fonction pour rechercher des menus
+    function searchMenus(query) {
+        if (!query || query === '') {
+            // Si la recherche est vide, afficher tous les menus
+            updateMenuTable(menus);
+            return;
+        }
+        
+        // Filtrer les menus dont le nom ou la description contient la chaîne de recherche
+        const filteredMenus = menus.filter(menu => 
+            (menu.nom && menu.nom.toLowerCase().includes(query)) || 
+            (menu.description && menu.description.toLowerCase().includes(query))
+        );
+        
+        // Mettre à jour l'affichage avec les menus filtrés
+        updateMenuTable(filteredMenus);
+    }
+    
+    // Fonction pour rechercher des plats
+    function searchPlats(query) {
+        if (!query || query === '') {
+            // Si la recherche est vide, afficher tous les plats
+            updatePlatDisplay(plats);
+            return;
+        }
+        
+        // Filtrer les plats dont le nom, la description ou la catégorie contient la chaîne de recherche
+        const filteredPlats = plats.filter(plat => 
+            (plat.nom && plat.nom.toLowerCase().includes(query)) || 
+            (plat.description && plat.description.toLowerCase().includes(query)) ||
+            (plat.categorie && plat.categorie.toLowerCase().includes(query))
+        );
+        
+        // Mettre à jour l'affichage avec les plats filtrés
+        updatePlatDisplay(filteredPlats);
+    }
 </script>
