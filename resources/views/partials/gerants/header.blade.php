@@ -1,5 +1,10 @@
 {{-- resources/views/partials/gerants/header.blade.php --}}
 <header id="header" class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 fixed right-0 top-0 z-40 py-3 px-6 w-[calc(100%-16rem)] transition-all">
+    {{-- Système d'alerte stylisé --}}
+    <div id="alert-container" class="fixed top-5 right-5 z-50 max-w-md w-full flex flex-col gap-3 transition-all">
+        {{-- Les alertes seront ajoutées ici dynamiquement --}}
+    </div>
+    
     <div class="flex items-center justify-between">
         {{-- Titre et Menu Mobile Toggle --}}
         <div class="flex items-center">
@@ -71,3 +76,92 @@
         </div>
     </div>
 </template>
+
+{{-- Template pour les alertes --}}
+<template id="alert-template">
+    <div class="alert-item flex items-start p-4 rounded-lg shadow-lg transform transition-all duration-300 ease-in-out translate-x-full opacity-0">
+        <div class="flex-shrink-0 mr-3">
+            <i class="alert-icon fas fa-check-circle text-xl"></i>
+        </div>
+        <div class="flex-grow">
+            <h4 class="alert-title text-sm font-semibold mb-1"></h4>
+            <p class="alert-message text-sm"></p>
+        </div>
+        <button class="alert-close ml-3 text-gray-400 hover:text-gray-600 dark:text-gray-300 dark:hover:text-gray-100 focus:outline-none">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+</template>
+
+<script>
+    // Fonction pour afficher une alerte stylisée
+    function showAlert(type, title, message, duration = 5000) {
+        const container = document.getElementById('alert-container');
+        const template = document.getElementById('alert-template');
+        const alert = template.content.cloneNode(true).querySelector('.alert-item');
+        
+        // Définir le type d'alerte
+        switch (type) {
+            case 'success':
+                alert.classList.add('bg-green-100', 'dark:bg-green-900/30', 'text-green-800', 'dark:text-green-200');
+                alert.querySelector('.alert-icon').classList.add('text-green-500', 'dark:text-green-400');
+                break;
+            case 'error':
+                alert.classList.add('bg-red-100', 'dark:bg-red-900/30', 'text-red-800', 'dark:text-red-200');
+                alert.querySelector('.alert-icon').classList.add('text-red-500', 'dark:text-red-400');
+                alert.querySelector('.alert-icon').classList.remove('fa-check-circle');
+                alert.querySelector('.alert-icon').classList.add('fa-exclamation-circle');
+                break;
+            case 'warning':
+                alert.classList.add('bg-yellow-100', 'dark:bg-yellow-900/30', 'text-yellow-800', 'dark:text-yellow-200');
+                alert.querySelector('.alert-icon').classList.add('text-yellow-500', 'dark:text-yellow-400');
+                alert.querySelector('.alert-icon').classList.remove('fa-check-circle');
+                alert.querySelector('.alert-icon').classList.add('fa-exclamation-triangle');
+                break;
+            case 'info':
+                alert.classList.add('bg-blue-100', 'dark:bg-blue-900/30', 'text-blue-800', 'dark:text-blue-200');
+                alert.querySelector('.alert-icon').classList.add('text-blue-500', 'dark:text-blue-400');
+                alert.querySelector('.alert-icon').classList.remove('fa-check-circle');
+                alert.querySelector('.alert-icon').classList.add('fa-info-circle');
+                break;
+        }
+        
+        // Définir le contenu
+        alert.querySelector('.alert-title').textContent = title;
+        alert.querySelector('.alert-message').textContent = message;
+        
+        // Ajouter l'alerte au conteneur
+        container.appendChild(alert);
+        
+        // Animation d'entrée
+        setTimeout(() => {
+            alert.classList.remove('translate-x-full', 'opacity-0');
+        }, 10);
+        
+        // Fermeture de l'alerte lors du clic sur le bouton fermer
+        alert.querySelector('.alert-close').addEventListener('click', () => {
+            closeAlert(alert);
+        });
+        
+        // Fermeture automatique après la durée spécifiée
+        if (duration > 0) {
+            setTimeout(() => {
+                closeAlert(alert);
+            }, duration);
+        }
+        
+        return alert;
+    }
+    
+    // Fonction pour fermer une alerte avec animation
+    function closeAlert(alert) {
+        alert.classList.add('translate-x-full', 'opacity-0');
+        setTimeout(() => {
+            alert.remove();
+        }, 300);
+    }
+    
+    // Rendre les fonctions disponibles globalement
+    window.showAlert = showAlert;
+    window.closeAlert = closeAlert;
+</script>

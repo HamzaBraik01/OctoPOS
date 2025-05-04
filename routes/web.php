@@ -25,7 +25,6 @@ use App\Http\Controllers\ProprietaireController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
-
 // Routes publiques
 Route::get('/login', function () {
     return view('auth.login');
@@ -34,12 +33,11 @@ Route::get('/login', function () {
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-
 Route::middleware([JWTAuthentication::class])->group(function () {
     Route::get('/proprietaires/dashboard', [ProprietaireController::class, 'index'])
         ->middleware('role:propriétaire')
         ->name('proprietaires.dashboard'); 
-        Route::get('/available-time-slots', 'ReservationController@getAvailableTimeSlots')->middleware('role:propriétaire')
+    Route::get('/available-time-slots', 'ReservationController@getAvailableTimeSlots')->middleware('role:propriétaire')
         ->name('reservations.available-times');
     
     // Gérant routes
@@ -75,6 +73,21 @@ Route::middleware([JWTAuthentication::class])->group(function () {
         
         // Routes pour les horaires
         Route::post('/horaires', [GerantController::class, 'storeHoraire'])->name('gerant.horaires.store');
+        
+        // Routes pour les menus
+        Route::get('/menus/by-restaurant/{restaurantId}', [GerantController::class, 'getMenusByRestaurant'])->name('gerant.menus.byRestaurant');
+        Route::post('/menus/store', [GerantController::class, 'storeMenu'])->name('gerant.menus.store');
+        Route::put('/menus/update/{id}', [GerantController::class, 'updateMenu'])->name('gerant.menus.update');
+        Route::delete('/menus/delete/{id}', [GerantController::class, 'deleteMenu'])->name('gerant.menus.delete');
+        Route::post('/menus/supprimer/{id}', [GerantController::class, 'supprimerMenu'])->name('gerant.menus.supprimer');
+        
+        // Routes pour les plats
+        Route::get('/plats/by-menu/{menuId}', [GerantController::class, 'getPlatsByMenu'])->name('gerant.plats.byMenu');
+        Route::get('/plats/by-restaurant/{restaurantId}', [GerantController::class, 'getPlatsByRestaurant'])->name('gerant.plats.byRestaurant');
+        Route::post('/plats/store', [GerantController::class, 'storePlat'])->name('gerant.plats.store');
+        Route::put('/plats/update/{id}', [GerantController::class, 'updatePlat'])->name('gerant.plats.update');
+        Route::delete('/plats/delete/{id}', [GerantController::class, 'deletePlat'])->name('gerant.plats.delete');
+        Route::post('/plats/supprimer/{id}', [GerantController::class, 'supprimerPlat'])->name('gerant.plats.supprimer');
     });
 
     Route::get('/serveurs/dashboard', [ServeurController::class, 'index'])

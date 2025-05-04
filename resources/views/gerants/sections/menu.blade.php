@@ -23,15 +23,6 @@
                     <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"></i>
                 </div>
                 
-                {{-- Filtres --}}
-                <select class="px-3 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-1 focus:ring-blue-500 shadow-sm" aria-label="Filtrer par catégorie">
-                    <option value="">Toutes les catégories</option>
-                    <option value="entrée">Entrées</option>
-                    <option value="plat">Plats principaux</option>
-                    <option value="dessert">Desserts</option>
-                    <option value="boisson">Boissons</option>
-                </select>
-                
                 {{-- Bouton Ajouter --}}
                 <button type="button" class="add-menu-button bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-4 rounded-lg flex items-center transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 shadow-sm">
                     <i class="fas fa-plus mr-2"></i> Ajouter
@@ -45,65 +36,12 @@
                 <thead>
                     <tr class="bg-gray-50 dark:bg-gray-700/50">
                         <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700">Nom</th>
+                        <th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700">Description</th>
                         <th width="120" class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700">Actions</th>
                     </tr>
                 </thead>
                 <tbody id="menu-table-body" class="divide-y divide-gray-100 dark:divide-gray-700/50">
                     {{-- Exemples de menus --}}
-                    <tr data-id="1" class="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
-                        <td class="px-5 py-4">
-                            <div class="font-medium text-gray-900 dark:text-gray-100">Menu du jour</div>
-                        </td>
-                        <td class="px-5 py-4">
-                            <div class="flex space-x-2">
-                                <button type="button" class="p-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md transition-colors" title="Modifier" onclick="editMenu(this)">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button type="button" class="p-2 bg-purple-500 hover:bg-purple-600 text-white rounded-md transition-colors" title="Voir les plats">
-                                    <i class="fas fa-list"></i>
-                                </button>
-                                <button type="button" class="p-2 bg-red-500 hover:bg-red-600 text-white rounded-md transition-colors" title="Supprimer" onclick="deleteItem(this, 'menu')">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr data-id="2" class="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
-                        <td class="px-5 py-4">
-                            <div class="font-medium text-gray-900 dark:text-gray-100">Menu enfant</div>
-                        </td>
-                        <td class="px-5 py-4">
-                            <div class="flex space-x-2">
-                                <button type="button" class="p-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md transition-colors" title="Modifier" onclick="editMenu(this)">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button type="button" class="p-2 bg-purple-500 hover:bg-purple-600 text-white rounded-md transition-colors" title="Voir les plats">
-                                    <i class="fas fa-list"></i>
-                                </button>
-                                <button type="button" class="p-2 bg-red-500 hover:bg-red-600 text-white rounded-md transition-colors" title="Supprimer" onclick="deleteItem(this, 'menu')">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr data-id="3" class="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
-                        <td class="px-5 py-4">
-                            <div class="font-medium text-gray-900 dark:text-gray-100">Menu Découverte</div>
-                        </td>
-                        <td class="px-5 py-4">
-                            <div class="flex space-x-2">
-                                <button type="button" class="p-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md transition-colors" title="Modifier" onclick="editMenu(this)">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button type="button" class="p-2 bg-purple-500 hover:bg-purple-600 text-white rounded-md transition-colors" title="Voir les plats">
-                                    <i class="fas fa-list"></i>
-                                </button>
-                                <button type="button" class="p-2 bg-red-500 hover:bg-red-600 text-white rounded-md transition-colors" title="Supprimer" onclick="deleteItem(this, 'menu')">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
                 </tbody>
             </table>
         </div>
@@ -140,9 +78,6 @@
                 {{-- Filtres --}}
                 <select class="px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-1 focus:ring-blue-500" aria-label="Filtrer par menu">
                     <option value="">Tous les menus</option>
-                    <option value="menu-jour">Menu du jour</option>
-                    <option value="menu-enfant">Menu enfant</option>
-                    <option value="carte">À la carte</option>
                 </select>
                 {{-- Bouton Ajouter --}}
                 <button type="button" class="add-dish-button bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg flex items-center transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800">
@@ -154,106 +89,6 @@
         {{-- Affichage des plats sous forme de cartes --}}
         <div id="dishes-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {{-- Exemple de plats --}}
-            <div data-id="1" class="bg-white dark:bg-gray-700 rounded-lg shadow overflow-hidden border border-gray-200 dark:border-gray-600 hover:shadow-md transition-shadow">
-                <div class="h-48 overflow-hidden">
-                    <img src="https://images.pexels.com/photos/376464/pexels-photo-376464.jpeg" alt="Couscous royal" class="w-full h-full object-cover">
-                </div>
-                <div class="p-4">
-                    <div class="flex justify-between items-start mb-2">
-                        <h4 class="font-medium text-gray-900 dark:text-gray-100">Couscous royal</h4>
-                        <span class="inline-block px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-700 dark:bg-yellow-900/50 dark:text-yellow-300">
-                            Plat principal
-                        </span>
-                    </div>
-                    <p class="text-sm text-gray-600 dark:text-gray-300 mb-3 line-clamp-2">Couscous avec agneau, poulet et merguez</p>
-                    <div class="flex justify-between items-center">
-                        <span class="font-bold text-gray-800 dark:text-gray-200">18,00 DH</span>
-                        <div class="flex space-x-1">
-                            <button type="button" class="p-1.5 text-xs bg-blue-500 hover:bg-blue-600 text-white rounded" title="Modifier" onclick="editDish(this)">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button type="button" class="p-1.5 text-xs bg-red-500 hover:bg-red-600 text-white rounded" title="Supprimer" onclick="deleteItem(this, 'dish')">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div data-id="2" class="bg-white dark:bg-gray-700 rounded-lg shadow overflow-hidden border border-gray-200 dark:border-gray-600 hover:shadow-md transition-shadow">
-                <div class="h-48 overflow-hidden">
-                    <img src="https://images.pexels.com/photos/1256931/pexels-photo-1256931.jpeg" alt="Tajine poulet citron" class="w-full h-full object-cover">
-                </div>
-                <div class="p-4">
-                    <div class="flex justify-between items-start mb-2">
-                        <h4 class="font-medium text-gray-900 dark:text-gray-100">Tajine poulet citron</h4>
-                        <span class="inline-block px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-700 dark:bg-yellow-900/50 dark:text-yellow-300">
-                            Plat principal
-                        </span>
-                    </div>
-                    <p class="text-sm text-gray-600 dark:text-gray-300 mb-3 line-clamp-2">Tajine de poulet aux olives et citron confit</p>
-                    <div class="flex justify-between items-center">
-                        <span class="font-bold text-gray-800 dark:text-gray-200">16,00 DH</span>
-                        <div class="flex space-x-1">
-                            <button type="button" class="p-1.5 text-xs bg-blue-500 hover:bg-blue-600 text-white rounded" title="Modifier" onclick="editDish(this)">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button type="button" class="p-1.5 text-xs bg-red-500 hover:bg-red-600 text-white rounded" title="Supprimer" onclick="deleteItem(this, 'dish')">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div data-id="3" class="bg-white dark:bg-gray-700 rounded-lg shadow overflow-hidden border border-gray-200 dark:border-gray-600 hover:shadow-md transition-shadow">
-                <div class="h-48 overflow-hidden">
-                    <img src="https://images.pexels.com/photos/2092507/pexels-photo-2092507.jpeg" alt="Pastilla au poulet" class="w-full h-full object-cover">
-                </div>
-                <div class="p-4">
-                    <div class="flex justify-between items-start mb-2">
-                        <h4 class="font-medium text-gray-900 dark:text-gray-100">Pastilla au poulet</h4>
-                        <span class="inline-block px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300">
-                            Entrée
-                        </span>
-                    </div>
-                    <p class="text-sm text-gray-600 dark:text-gray-300 mb-3 line-clamp-2">Pastilla traditionnelle au poulet et amandes</p>
-                    <div class="flex justify-between items-center">
-                        <span class="font-bold text-gray-800 dark:text-gray-200">12,00 DH</span>
-                        <div class="flex space-x-1">
-                            <button type="button" class="p-1.5 text-xs bg-blue-500 hover:bg-blue-600 text-white rounded" title="Modifier" onclick="editDish(this)">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button type="button" class="p-1.5 text-xs bg-red-500 hover:bg-red-600 text-white rounded" title="Supprimer" onclick="deleteItem(this, 'dish')">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div data-id="4" class="bg-white dark:bg-gray-700 rounded-lg shadow overflow-hidden border border-gray-200 dark:border-gray-600 hover:shadow-md transition-shadow">
-                <div class="h-48 overflow-hidden">
-                    <img src="https://images.pexels.com/photos/1070850/pexels-photo-1070850.jpeg" alt="Crème Brûlée" class="w-full h-full object-cover">
-                </div>
-                <div class="p-4">
-                    <div class="flex justify-between items-start mb-2">
-                        <h4 class="font-medium text-gray-900 dark:text-gray-100">Crème Brûlée</h4>
-                        <span class="inline-block px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300">
-                            Dessert
-                        </span>
-                    </div>
-                    <p class="text-sm text-gray-600 dark:text-gray-300 mb-3 line-clamp-2">Dessert crémeux avec croûte caramélisée</p>
-                    <div class="flex justify-between items-center">
-                        <span class="font-bold text-gray-800 dark:text-gray-200">8,00 DH</span>
-                        <div class="flex space-x-1">
-                            <button type="button" class="p-1.5 text-xs bg-blue-500 hover:bg-blue-600 text-white rounded" title="Modifier" onclick="editDish(this)">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button type="button" class="p-1.5 text-xs bg-red-500 hover:bg-red-600 text-white rounded" title="Supprimer" onclick="deleteItem(this, 'dish')">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 
@@ -273,24 +108,8 @@
                     <input type="text" id="menu-name" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
                 </div>
                 <div>
-                    <label for="menu-description" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
+                    <label for="menu-description" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description du menu</label>
                     <textarea id="menu-description" rows="3" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"></textarea>
-                </div>
-                <div>
-                    <label for="menu-category" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Catégorie</label>
-                    <select id="menu-category" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
-                        <option value="formule">Formule</option>
-                        <option value="carte">À la carte</option>
-                        <option value="special">Menu spécial</option>
-                    </select>
-                </div>
-                <div>
-                    <label for="menu-price" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Prix (DH)</label>
-                    <input type="number" step="0.01" id="menu-price" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
-                </div>
-                <div class="flex items-center">
-                    <input type="checkbox" id="menu-available" class="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                    <label for="menu-available" class="text-sm font-medium text-gray-700 dark:text-gray-300">Disponible</label>
                 </div>
             </div>
             <div class="mt-6 pt-4 border-t dark:border-gray-600 flex justify-end gap-3">
@@ -331,12 +150,7 @@
                 </div>
                 <div>
                     <label for="dish-category" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Catégorie</label>
-                    <select id="dish-category" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
-                        <option value="entrée">Entrée</option>
-                        <option value="plat">Plat principal</option>
-                        <option value="dessert">Dessert</option>
-                        <option value="boisson">Boisson</option>
-                    </select>
+                    <input type="text" id="dish-category" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" placeholder="Entrée, Plat principal, Dessert, etc.">
                 </div>
                 <div>
                     <label for="dish-price" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Prix (DH)</label>
@@ -346,14 +160,7 @@
                     <label for="dish-menu" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Menu associé</label>
                     <select id="dish-menu" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
                         <option value="">À la carte</option>
-                        <option value="1">Menu du jour</option>
-                        <option value="2">Menu enfant</option>
-                        <option value="3">Menu Découverte</option>
                     </select>
-                </div>
-                <div class="flex items-center">
-                    <input type="checkbox" id="dish-available" class="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                    <label for="dish-available" class="text-sm font-medium text-gray-700 dark:text-gray-300">Disponible</label>
                 </div>
             </div>
             <div class="mt-6 pt-4 border-t dark:border-gray-600 flex justify-end gap-3">
@@ -378,14 +185,18 @@
                 <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
                     Êtes-vous sûr de vouloir supprimer cet élément ? Cette action est irréversible.
                 </p>
-                <div class="mt-6 flex justify-center gap-3">
-                    <button id="cancel-delete" data-close type="button" class="px-4 py-2 bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-gray-200 rounded-md hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-400">
-                        Annuler
-                    </button>
-                    <button id="confirm-delete" type="button" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800">
-                        Supprimer
-                    </button>
-                </div>
+                
+                <form id="delete-form" method="POST" class="mt-6">
+                    @csrf
+                    <div class="flex justify-center gap-3">
+                        <button id="cancel-delete" type="button" data-close class="px-4 py-2 bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-gray-200 rounded-md hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-400">
+                            Annuler
+                        </button>
+                        <button id="confirm-delete" type="submit" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800">
+                            Supprimer
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -397,15 +208,256 @@
     // Variables globales
     let currentEditId = null;
     let currentEditType = null;
+    let currentRestaurantId = null;
+    let menus = [];
+    let plats = [];
+
+    // Initialisation : récupérer l'ID du restaurant sélectionné au chargement
+    document.addEventListener('DOMContentLoaded', function() {
+        const restaurantSelector = document.getElementById('header-restaurant-selector');
+        
+        // Ajouter un écouteur d'événements sur le changement de restaurant
+        restaurantSelector.addEventListener('change', function() {
+            const restaurantId = this.value;
+            if (restaurantId) {
+                currentRestaurantId = restaurantId;
+                loadMenusByRestaurant(restaurantId);
+                loadPlatsByRestaurant(restaurantId);
+            } else {
+                // Réinitialiser l'affichage si aucun restaurant n'est sélectionné
+                resetMenuDisplay();
+                resetPlatDisplay();
+            }
+        });
+        
+        // Charger les données du restaurant actuellement sélectionné
+        if (restaurantSelector.value) {
+            currentRestaurantId = restaurantSelector.value;
+            loadMenusByRestaurant(currentRestaurantId);
+            loadPlatsByRestaurant(currentRestaurantId);
+        }
+    });
 
     // Événements pour ouvrir les modaux
     document.querySelector('.add-menu-button')?.addEventListener('click', () => {
+        if (!currentRestaurantId) {
+            alert('Veuillez d\'abord sélectionner un restaurant.');
+            return;
+        }
         openModal('menu', null);
     });
 
     document.querySelector('.add-dish-button')?.addEventListener('click', () => {
+        if (!currentRestaurantId) {
+            alert('Veuillez d\'abord sélectionner un restaurant.');
+            return;
+        }
+        
+        // Vérifier si des menus existent
+        if (menus.length === 0) {
+            alert('Veuillez d\'abord créer un menu avant d\'ajouter des plats.');
+            return;
+        }
+        
         openModal('dish', null);
     });
+
+    // Fonction pour charger les menus par restaurant
+    function loadMenusByRestaurant(restaurantId) {
+        fetch(`/gerant/menus/by-restaurant/${restaurantId}`)
+            .then(response => response.json())
+            .then(data => {
+                menus = data.menus;
+                updateMenuTable(menus);
+                updateMenuDropdown(menus);
+            })
+            .catch(error => {
+                console.error('Erreur lors du chargement des menus:', error);
+            });
+    }
+
+    // Fonction pour charger les plats par restaurant
+    function loadPlatsByRestaurant(restaurantId) {
+        console.log('Chargement des plats pour le restaurant:', restaurantId);
+        fetch(`/gerant/plats/by-restaurant/${restaurantId}`)
+            .then(response => {
+                console.log('Réponse reçue:', response);
+                return response.json();
+            })
+            .then(data => {
+                console.log('Données de plats reçues:', data);
+                plats = data.plats || [];
+                updatePlatDisplay(plats);
+            })
+            .catch(error => {
+                console.error('Erreur lors du chargement des plats:', error);
+            });
+    }
+
+    // Fonction pour mettre à jour l'affichage des menus
+    function updateMenuTable(menus) {
+        const tbody = document.querySelector('#menu-table-body');
+        tbody.innerHTML = '';
+        
+        if (menus.length === 0) {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td colspan="3" class="px-5 py-4 text-center text-gray-500 dark:text-gray-400">
+                    Aucun menu disponible pour ce restaurant.
+                </td>
+            `;
+            tbody.appendChild(tr);
+            return;
+        }
+        
+        menus.forEach(menu => {
+            const tr = document.createElement('tr');
+            tr.className = 'hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors';
+            tr.dataset.id = menu.id;
+            tr.innerHTML = `
+                <td class="px-5 py-4">
+                    <div class="font-medium text-gray-900 dark:text-gray-100">${menu.nom}</div>
+                </td>
+                <td class="px-5 py-4">
+                    <div class="text-sm text-gray-600 dark:text-gray-300">${menu.description || ''}</div>
+                </td>
+                <td class="px-5 py-4">
+                    <div class="flex space-x-2">
+                        <button type="button" class="p-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md transition-colors" title="Modifier" onclick="editMenu(this)">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button type="button" class="p-2 bg-purple-500 hover:bg-purple-600 text-white rounded-md transition-colors" title="Voir les plats" onclick="filterPlatsByMenu(${menu.id})">
+                            <i class="fas fa-list"></i>
+                        </button>
+                        <button type="button" class="p-2 bg-red-500 hover:bg-red-600 text-white rounded-md transition-colors" title="Supprimer" onclick="deleteItem(this, 'menu')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    // Fonction pour mettre à jour le dropdown de menus dans le formulaire de plat
+    function updateMenuDropdown(menus) {
+        const dropdown = document.getElementById('dish-menu');
+        dropdown.innerHTML = '';
+        
+        // Option par défaut
+        const defaultOption = document.createElement('option');
+        defaultOption.value = '';
+        defaultOption.textContent = 'À la carte';
+        dropdown.appendChild(defaultOption);
+        
+        // Ajouter les menus
+        menus.forEach(menu => {
+            const option = document.createElement('option');
+            option.value = menu.id;
+            option.textContent = menu.nom;
+            dropdown.appendChild(option);
+        });
+    }
+
+    // Fonction pour mettre à jour l'affichage des plats
+    function updatePlatDisplay(plats) {
+        console.log('Mise à jour de l\'affichage avec plats:', plats);
+        const container = document.querySelector('#dishes-container');
+        container.innerHTML = '';
+        
+        if (!plats || plats.length === 0) {
+            const emptyMessage = document.createElement('div');
+            emptyMessage.className = 'col-span-full text-center py-8 text-gray-500 dark:text-gray-400';
+            emptyMessage.innerHTML = 'Aucun plat disponible pour ce restaurant.';
+            container.appendChild(emptyMessage);
+            return;
+        }
+        
+        plats.forEach(plat => {
+            console.log('Création de la carte pour le plat:', plat);
+            const card = document.createElement('div');
+            card.className = 'bg-white dark:bg-gray-700 rounded-lg shadow overflow-hidden border border-gray-200 dark:border-gray-600 hover:shadow-md transition-shadow';
+            card.dataset.id = plat.id;
+            card.dataset.menuId = plat.menu_id;
+            card.innerHTML = `
+                <div class="h-48 overflow-hidden">
+                    ${plat.image ? `<img src="${plat.image}" alt="${plat.nom}" class="w-full h-full object-cover">` : 
+                     '<div class="w-full h-full flex items-center justify-center bg-gray-200 dark:bg-gray-600"><i class="fas fa-image text-4xl text-gray-400 dark:text-gray-500"></i></div>'}
+                </div>
+                <div class="p-4">
+                    <div class="flex justify-between items-start mb-2">
+                        <h4 class="font-medium text-gray-900 dark:text-gray-100">${plat.nom}</h4>
+                        <span class="inline-block px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-700 dark:bg-yellow-900/50 dark:text-yellow-300">
+                            ${plat.categorie || 'Non catégorisé'}
+                        </span>
+                    </div>
+                    <p class="text-sm text-gray-600 dark:text-gray-300 mb-3 line-clamp-2">${plat.description || ''}</p>
+                    <div class="flex justify-between items-center">
+                        <span class="font-bold text-gray-800 dark:text-gray-200">${plat.prix} DH</span>
+                        <div class="flex space-x-1">
+                            <button type="button" class="p-1.5 text-xs bg-blue-500 hover:bg-blue-600 text-white rounded" title="Modifier" onclick="editDish(this)">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button type="button" class="p-1.5 text-xs bg-red-500 hover:bg-red-600 text-white rounded" title="Supprimer" onclick="deleteItem(this, 'dish')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+    }
+
+    // Fonction pour filtrer les plats par menu
+    function filterPlatsByMenu(menuId) {
+        if (menuId) {
+            const filteredPlats = plats.filter(plat => plat.menu_id == menuId);
+            updatePlatDisplay(filteredPlats);
+            
+            // Mettre en évidence le menu sélectionné dans la liste des menus
+            const menuRows = document.querySelectorAll('#menu-table-body tr');
+            menuRows.forEach(row => {
+                if (row.dataset.id == menuId) {
+                    row.classList.add('bg-blue-50', 'dark:bg-blue-900/20');
+                } else {
+                    row.classList.remove('bg-blue-50', 'dark:bg-blue-900/20');
+                }
+            });
+        } else {
+            updatePlatDisplay(plats);
+            
+            // Désélectionner tous les menus
+            const menuRows = document.querySelectorAll('#menu-table-body tr');
+            menuRows.forEach(row => {
+                row.classList.remove('bg-blue-50', 'dark:bg-blue-900/20');
+            });
+        }
+    }
+
+    // Fonction pour réinitialiser l'affichage des menus
+    function resetMenuDisplay() {
+        const tbody = document.querySelector('#menu-table-body');
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="3" class="px-5 py-4 text-center text-gray-500 dark:text-gray-400">
+                    Veuillez sélectionner un restaurant pour voir les menus.
+                </td>
+            </tr>
+        `;
+        menus = [];
+    }
+
+    // Fonction pour réinitialiser l'affichage des plats
+    function resetPlatDisplay() {
+        const container = document.querySelector('#dishes-container');
+        container.innerHTML = `
+            <div class="col-span-full text-center py-8 text-gray-500 dark:text-gray-400">
+                Veuillez sélectionner un restaurant pour voir les plats.
+            </div>
+        `;
+        plats = [];
+    }
 
     // Fonction pour ouvrir les modaux
     function openModal(type, data = null) {
@@ -413,46 +465,44 @@
         
         if (type === 'menu') {
             document.getElementById('menu-modal').classList.remove('hidden');
+            document.getElementById('menu-modal').classList.add('flex');
             
             if (data) {
                 // Mode édition
+                document.getElementById('menu-modal-title').textContent = 'Modifier un menu';
                 document.getElementById('menu-id').value = data.id;
                 document.getElementById('menu-name').value = data.name;
-                document.getElementById('menu-description').value = data.description;
-                document.getElementById('menu-category').value = data.category;
-                document.getElementById('menu-price').value = data.price;
-                document.getElementById('menu-available').checked = data.available;
+                document.getElementById('menu-description').value = data.description || '';
             } else {
                 // Mode création
+                document.getElementById('menu-modal-title').textContent = 'Ajouter un menu';
                 document.getElementById('menu-id').value = '';
                 document.getElementById('menu-name').value = '';
                 document.getElementById('menu-description').value = '';
-                document.getElementById('menu-category').value = 'formule';
-                document.getElementById('menu-price').value = '';
-                document.getElementById('menu-available').checked = false;
             }
         } else {
             document.getElementById('dish-modal').classList.remove('hidden');
+            document.getElementById('dish-modal').classList.add('flex');
             
             if (data) {
                 // Mode édition
+                document.getElementById('dish-modal-title').textContent = 'Modifier un plat';
                 document.getElementById('dish-id').value = data.id;
                 document.getElementById('dish-name').value = data.name;
-                document.getElementById('dish-description').value = data.description;
-                document.getElementById('dish-category').value = data.category;
+                document.getElementById('dish-description').value = data.description || '';
+                document.getElementById('dish-category').value = data.category || '';
                 document.getElementById('dish-price').value = data.price;
                 document.getElementById('dish-menu').value = data.menuId;
-                document.getElementById('dish-available').checked = data.available;
                 document.getElementById('dish-image-url').value = data.image || '';
             } else {
                 // Mode création
+                document.getElementById('dish-modal-title').textContent = 'Ajouter un plat';
                 document.getElementById('dish-id').value = '';
                 document.getElementById('dish-name').value = '';
                 document.getElementById('dish-description').value = '';
-                document.getElementById('dish-category').value = 'entrée';
+                document.getElementById('dish-category').value = '';
                 document.getElementById('dish-price').value = '';
                 document.getElementById('dish-menu').value = '';
-                document.getElementById('dish-available').checked = false;
                 document.getElementById('dish-image-url').value = '';
             }
         }
@@ -463,6 +513,7 @@
         modal.addEventListener('click', (e) => {
             if (e.target === modal || e.target.closest('[data-close]') || e.target.closest('[aria-label="Fermer"]')) {
                 modal.classList.add('hidden');
+                modal.classList.remove('flex');
                 currentEditId = null;
                 currentEditType = null;
             }
@@ -471,153 +522,168 @@
 
     // Gestionnaire de soumission des formulaires
     document.getElementById('save-menu')?.addEventListener('click', () => {
+        const id = document.getElementById('menu-id').value;
         const formData = {
-            id: document.getElementById('menu-id').value || Date.now(),
-            name: document.getElementById('menu-name').value,
+            nom: document.getElementById('menu-name').value,
             description: document.getElementById('menu-description').value,
-            category: document.getElementById('menu-category').value,
-            price: document.getElementById('menu-price').value,
-            available: document.getElementById('menu-available').checked
+            restaurant_id: currentRestaurantId
         };
         
-        // Ajouter ou mettre à jour dans le DOM
-        if (document.getElementById('menu-id').value) {
-            updateMenuInDOM(formData);
-        } else {
-            addMenuToDOM(formData);
-        }
+        // URL et méthode en fonction de l'édition ou création
+        const url = id ? `/gerant/menus/update/${id}` : '/gerant/menus/store';
+        const method = id ? 'PUT' : 'POST';
         
-        document.getElementById('menu-modal').classList.add('hidden');
+        // Envoyer la requête
+        fetch(url, {
+            method: method,
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify(formData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Rafraîchir les données
+                loadMenusByRestaurant(currentRestaurantId);
+                
+                // Fermer le modal
+                document.getElementById('menu-modal').classList.add('hidden');
+                document.getElementById('menu-modal').classList.remove('flex');
+                
+                // Afficher un message de succès avec notre nouvelle fonction
+                showAlert('success', 'Succès', data.message);
+            } else {
+                showAlert('error', 'Erreur', data.message || 'Une erreur est survenue.');
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            showAlert('error', 'Erreur', 'Une erreur est survenue lors de la communication avec le serveur.');
+        });
     });
 
     document.getElementById('save-dish')?.addEventListener('click', () => {
+        const id = document.getElementById('dish-id').value;
         const formData = {
-            id: document.getElementById('dish-id').value || Date.now(),
-            name: document.getElementById('dish-name').value,
+            nom: document.getElementById('dish-name').value,
             description: document.getElementById('dish-description').value,
-            category: document.getElementById('dish-category').value,
-            price: document.getElementById('dish-price').value,
-            menuId: document.getElementById('dish-menu').value,
-            available: document.getElementById('dish-available').checked,
+            prix: document.getElementById('dish-price').value,
+            menu_id: document.getElementById('dish-menu').value,
+            categorie: document.getElementById('dish-category').value,
             image: document.getElementById('dish-image-url').value || ''
         };
         
-        // Ajouter ou mettre à jour dans le DOM
-        if (document.getElementById('dish-id').value) {
-            updateDishInDOM(formData);
-        } else {
-            addDishToDOM(formData);
-        }
+        // URL et méthode en fonction de l'édition ou création
+        const url = id ? `/gerant/plats/update/${id}` : '/gerant/plats/store';
+        const method = id ? 'PUT' : 'POST';
         
-        document.getElementById('dish-modal').classList.add('hidden');
-    });
-
-    // Fonctions d'ajout/mise à jour du DOM
-    function addMenuToDOM(data) {
-        const tbody = document.querySelector('#section-menu table tbody');
-        const tr = document.createElement('tr');
-        tr.className = 'hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors';
-        tr.dataset.id = data.id;
-        tr.innerHTML = `
-            <td class="px-5 py-4">
-                <div class="font-medium text-gray-900 dark:text-gray-100">${data.name}</div>
-            </td>
-            <td class="px-5 py-4">
-                <div class="flex space-x-2">
-                    <button type="button" class="p-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md transition-colors" title="Modifier" onclick="editMenu(this)">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <button type="button" class="p-2 bg-purple-500 hover:bg-purple-600 text-white rounded-md transition-colors" title="Voir les plats">
-                        <i class="fas fa-list"></i>
-                    </button>
-                    <button type="button" class="p-2 bg-red-500 hover:bg-red-600 text-white rounded-md transition-colors" title="Supprimer" onclick="deleteItem(this, 'menu')">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </div>
-            </td>
-        `;
-        tbody.appendChild(tr);
-    }
-
-    function updateMenuInDOM(data) {
-        const tr = document.querySelector(`#section-menu table tbody tr[data-id="${data.id}"]`);
-        if (tr) {
-            tr.querySelector('.font-medium').textContent = data.name;
-        }
-    }
-
-    function addDishToDOM(data) {
-        const container = document.querySelector('.grid.grid-cols-1');
-        const card = document.createElement('div');
-        card.className = 'bg-white dark:bg-gray-700 rounded-lg shadow overflow-hidden border border-gray-200 dark:border-gray-600 hover:shadow-md transition-shadow';
-        card.dataset.id = data.id;
-        card.innerHTML = `
-            <div class="h-48 overflow-hidden">
-                ${data.image ? `<img src="${data.image}" alt="${data.name}" class="w-full h-full object-cover">` : ''}
-            </div>
-            <div class="p-4">
-                <div class="flex justify-between items-start mb-2">
-                    <h4 class="font-medium text-gray-900 dark:text-gray-100">${data.name}</h4>
-                    <span class="inline-block px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-700 dark:bg-yellow-900/50 dark:text-yellow-300">
-                        ${data.category}
-                    </span>
-                </div>
-                <p class="text-sm text-gray-600 dark:text-gray-300 mb-3 line-clamp-2">${data.description}</p>
-                <div class="flex justify-between items-center">
-                    <span class="font-bold text-gray-800 dark:text-gray-200">${data.price} DH</span>
-                    <div class="flex space-x-1">
-                        <button type="button" class="p-1.5 text-xs bg-blue-500 hover:bg-blue-600 text-white rounded" title="Modifier" onclick="editDish(this)">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button type="button" class="p-1.5 text-xs bg-red-500 hover:bg-red-600 text-white rounded" title="Supprimer" onclick="deleteItem(this, 'dish')">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        `;
-        container.appendChild(card);
-    }
-
-    function updateDishInDOM(data) {
-        const card = document.querySelector(`.grid.grid-cols-1 > div[data-id="${data.id}"]`);
-        if (card) {
-            card.querySelector('h4').textContent = data.name;
-            card.querySelector('span').textContent = data.category;
-            card.querySelector('.line-clamp-2').textContent = data.description;
-            card.querySelector('.font-bold').textContent = `${data.price} DH`;
-            
-            // Mettre à jour l'image
-            const imgContainer = card.querySelector('.h-48');
-            imgContainer.innerHTML = '';
-            
-            if (data.image) {
-                const img = document.createElement('img');
-                img.src = data.image;
-                img.alt = data.name;
-                img.className = 'w-full h-full object-cover';
-                imgContainer.appendChild(img);
+        // Envoyer la requête
+        fetch(url, {
+            method: method,
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify(formData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Rafraîchir les données
+                loadPlatsByRestaurant(currentRestaurantId);
+                
+                // Fermer le modal
+                document.getElementById('dish-modal').classList.add('hidden');
+                document.getElementById('dish-modal').classList.remove('flex');
+                
+                // Afficher un message de succès avec notre système d'alerte
+                showAlert('success', 'Succès', data.message);
+            } else {
+                showAlert('error', 'Erreur', data.message || 'Une erreur est survenue.');
             }
-        }
-    }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            showAlert('error', 'Erreur', 'Une erreur est survenue lors de la communication avec le serveur.');
+        });
+    });
 
     // Fonction de suppression
     function deleteItem(button, type) {
-        currentEditId = button.closest('tr, div').dataset.id;
+        // Récupérer l'ID directement à partir du bouton parent
+        const parentElement = button.closest('tr, div[data-id]');
+        if (!parentElement) {
+            console.error("Élément parent non trouvé");
+            return;
+        }
+        
+        currentEditId = parentElement.dataset.id;
         currentEditType = type;
-        document.getElementById('delete-confirmation-modal').classList.remove('hidden');
+        
+        console.log("Suppression - Type:", type, "ID:", currentEditId);
+        
+        if (!currentEditId || currentEditId === 'undefined') {
+            alert("Impossible de trouver l'identifiant de l'élément à supprimer.");
+            return;
+        }
+        
+        // Ouvrir la modal de confirmation
+        const deleteModal = document.getElementById('delete-confirmation-modal');
+        deleteModal.classList.remove('hidden');
+        deleteModal.classList.add('flex');
+        
+        // Mettre à jour l'action du formulaire
+        const form = document.getElementById('delete-form');
+        const url = type === 'menu' ? 
+            `/gerant/menus/supprimer/${currentEditId}` : 
+            `/gerant/plats/supprimer/${currentEditId}`;
+        
+        console.log("URL de suppression:", url);
+        form.action = url;
     }
 
-    document.getElementById('confirm-delete')?.addEventListener('click', () => {
+    // Gestionnaire d'événement pour le bouton de confirmation de suppression
+    document.getElementById('confirm-delete')?.addEventListener('click', function(e) {
+        e.preventDefault(); // Empêcher la soumission normale du formulaire
+        
         if (currentEditId && currentEditType) {
-            const element = document.querySelector(`[data-id="${currentEditId}"]`);
-            if (element) {
-                element.remove();
-            }
+            // Récupérer le formulaire
+            const form = document.getElementById('delete-form');
+            const url = currentEditType === 'menu' ? 
+                `/gerant/menus/supprimer/${currentEditId}` : 
+                `/gerant/plats/supprimer/${currentEditId}`;
+            
+            form.action = url;
+            
+            // Utiliser fetch pour soumettre le formulaire de manière asynchrone
+            fetch(form.action, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: new FormData(form)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Fermer la modal
+                    document.getElementById('delete-confirmation-modal').classList.add('hidden');
+                    document.getElementById('delete-confirmation-modal').classList.remove('flex');
+                    
+                    // Rafraîchir la page complète
+                    window.location.reload();
+                } else {
+                    alert('Erreur: ' + (data.message || 'Une erreur est survenue.'));
+                }
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                alert('Une erreur est survenue lors de la suppression.');
+            });
         }
-        document.getElementById('delete-confirmation-modal').classList.add('hidden');
-        currentEditId = null;
-        currentEditType = null;
     });
 
     // Fonctions d'édition
@@ -626,10 +692,7 @@
         const data = {
             id: tr.dataset.id,
             name: tr.querySelector('td:first-child .font-medium').textContent,
-            description: tr.querySelector('td:first-child + td .text-sm')?.textContent || '',
-            category: tr.querySelector('td:first-child + td span')?.textContent || '',
-            price: tr.querySelector('td:last-child .font-bold')?.textContent.replace(' DH', '') || '',
-            available: true // À adapter selon votre structure
+            description: tr.querySelector('td:nth-child(2) .text-sm')?.textContent || ''
         };
         openModal('menu', data);
     };
@@ -640,12 +703,14 @@
             id: card.dataset.id,
             name: card.querySelector('h4').textContent,
             description: card.querySelector('.line-clamp-2')?.textContent || '',
-            category: card.querySelector('span')?.textContent || '',
+            category: card.querySelector('span')?.textContent.trim() || '',
             price: card.querySelector('.font-bold')?.textContent.replace(' DH', '') || '',
-            menuId: card.querySelector('.menu-select')?.value || '',
-            available: true, // À adapter selon votre structure
+            menuId: card.dataset.menuId || '',
             image: card.querySelector('img')?.src || ''
         };
         openModal('dish', data);
     };
+
+    // La fonction pour filtrer les plats par menu est disponible globalement
+    window.filterPlatsByMenu = filterPlatsByMenu;
 </script>

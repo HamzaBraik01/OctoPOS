@@ -7,8 +7,11 @@ use App\Models\Reservation;
 use App\Models\Table;
 use App\Models\User;
 use App\Models\Commande;
+use App\Models\Menu;
+use App\Models\Plat;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
 
 class GerantController extends Controller
@@ -175,5 +178,286 @@ class GerantController extends Controller
             });
             
         return response()->json(['transactions' => $transactions]);
+    }
+    
+    /**
+     * Get menus for a specific restaurant
+     */
+    public function getMenusByRestaurant($restaurantId)
+    {
+        $menus = Menu::where('restaurant_id', $restaurantId)
+            ->orderBy('nom')
+            ->get();
+            
+        return response()->json(['menus' => $menus]);
+    }
+    
+    /**
+     * Store a new menu
+     */
+    public function storeMenu(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'nom' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'restaurant_id' => 'required|exists:restaurants,id'
+        ]);
+        
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+        
+        $menu = Menu::create([
+            'nom' => $request->nom,
+            'description' => $request->description,
+            'restaurant_id' => $request->restaurant_id
+        ]);
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Menu créé avec succès',
+            'menu' => $menu
+        ]);
+    }
+    
+    /**
+     * Update an existing menu
+     */
+    public function updateMenu(Request $request, $id)
+    {
+        $validator = Validator::make($request->all(), [
+            'nom' => 'required|string|max:255',
+            'description' => 'nullable|string'
+        ]);
+        
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+        
+        $menu = Menu::findOrFail($id);
+        $menu->update([
+            'nom' => $request->nom,
+            'description' => $request->description
+        ]);
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Menu mis à jour avec succès',
+            'menu' => $menu
+        ]);
+    }
+    
+    /**
+     * Delete a menu
+     */
+    public function deleteMenu($id)
+    {
+        $menu = Menu::findOrFail($id);
+        
+        // Check if there are associated plats
+        $platsCount = Plat::where('menu_id', $id)->count();
+        
+        if ($platsCount > 0) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Impossible de supprimer ce menu car il contient des plats. Veuillez d\'abord supprimer ou réassigner les plats.'
+            ], 422);
+        }
+        
+        $menu->delete();
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Menu supprimé avec succès'
+        ]);
+    }
+    
+    /**
+     * Supprimer un menu (via POST) en cascade avec tous ses plats
+     */
+    public function supprimerMenu($id)
+    {
+        $menu = Menu::findOrFail($id);
+        
+        // Supprimer tous les plats associés à ce menu
+        // Nous désactivons les vérifications d'utilisation des plats dans les commandes 
+        // pour permettre la suppression en cascade
+        $menu->plats()->delete();
+        
+        // Supprimer le menu
+        $menu->delete();
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Menu et tous ses plats supprimés avec succès'
+        ]);
+    }
+    
+    /**
+     * Get plats for a specific menu
+     */
+    public function getPlatsByMenu($menuId)
+    {
+        $plats = Plat::where('menu_id', $menuId)
+            ->orderBy('nom')
+            ->get();
+            
+        return response()->json(['plats' => $plats]);
+    }
+    
+    /**
+     * Get all plats for a specific restaurant
+     */
+    public function getPlatsByRestaurant($restaurantId)
+    {
+        $menuIds = Menu::where('restaurant_id', $restaurantId)
+            ->pluck('id')
+            ->toArray();
+            
+        $plats = Plat::whereIn('menu_id', $menuIds)
+            ->with('menu')
+            ->orderBy('nom')
+            ->get();
+            
+        return response()->json(['plats' => $plats]);
+    }
+    
+    /**
+     * Store a new plat
+     */
+    public function storePlat(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'nom' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'prix' => 'required|numeric|min:0',
+            'menu_id' => 'required|exists:menus,id',
+            'categorie' => 'nullable|string|max:100',
+            'image' => 'nullable|url'
+        ]);
+        
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+        
+        $plat = Plat::create([
+            'nom' => $request->nom,
+            'description' => $request->description,
+            'prix' => $request->prix,
+            'menu_id' => $request->menu_id,
+            'categorie' => $request->categorie,
+            'image' => $request->image
+        ]);
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Plat créé avec succès',
+            'plat' => $plat
+        ]);
+    }
+    
+    /**
+     * Update an existing plat
+     */
+    public function updatePlat(Request $request, $id)
+    {
+        $validator = Validator::make($request->all(), [
+            'nom' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'prix' => 'required|numeric|min:0',
+            'menu_id' => 'required|exists:menus,id',
+            'categorie' => 'nullable|string|max:100',
+            'image' => 'nullable|url'
+        ]);
+        
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+        
+        $plat = Plat::findOrFail($id);
+        $plat->update([
+            'nom' => $request->nom,
+            'description' => $request->description,
+            'prix' => $request->prix,
+            'menu_id' => $request->menu_id,
+            'categorie' => $request->categorie,
+            'image' => $request->image
+        ]);
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Plat mis à jour avec succès',
+            'plat' => $plat
+        ]);
+    }
+    
+    /**
+     * Delete a plat
+     */
+    public function deletePlat($id)
+    {
+        $plat = Plat::findOrFail($id);
+        
+        // Check if this plat is used in any active orders
+        $hasOrders = DB::table('commande_plat')
+            ->where('plat_id', $id)
+            ->exists();
+            
+        if ($hasOrders) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Impossible de supprimer ce plat car il est utilisé dans des commandes existantes.'
+            ], 422);
+        }
+        
+        $plat->delete();
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Plat supprimé avec succès'
+        ]);
+    }
+    
+    /**
+     * Supprimer un plat (via POST)
+     */
+    public function supprimerPlat($id)
+    {
+        $plat = Plat::findOrFail($id);
+        
+        // Check if this plat is used in any active orders
+        $hasOrders = DB::table('commande_plat')
+            ->where('plat_id', $id)
+            ->exists();
+            
+        if ($hasOrders) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Impossible de supprimer ce plat car il est utilisé dans des commandes existantes.'
+            ], 422);
+        }
+        
+        $plat->delete();
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Plat supprimé avec succès'
+        ]);
     }
 }
