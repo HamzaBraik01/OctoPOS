@@ -13,20 +13,16 @@
             <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
                 {{-- Recherche --}}
                 <div class="relative flex-grow md:flex-grow-0">
-                    <input type="text" placeholder="Rechercher..." class="pl-10 pr-4 py-2 w-full md:w-48 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-1 focus:ring-blue-500" aria-label="Rechercher un employé">
+                    <input type="text" id="personnel-search" placeholder="Rechercher..." class="pl-10 pr-4 py-2 w-full md:w-48 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-1 focus:ring-blue-500" aria-label="Rechercher un employé">
                     <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"></i>
                 </div>
                 {{-- Filtre Rôle --}}
-                <select class="px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-1 focus:ring-blue-500" aria-label="Filtrer par rôle">
+                <select id="personnel-role-filter" class="px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-1 focus:ring-blue-500" aria-label="Filtrer par rôle">
                     <option value="">Tous les rôles</option>
                     <option value="serveur">Serveur</option>
                     <option value="cuisinier">Cuisinier</option>
                     <option value="client">Client</option>
                 </select>
-                {{-- Bouton Ajouter --}}
-                <button type="button" class="add-employee-button bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg flex items-center transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800">
-                    <i class="fas fa-plus mr-2"></i> Ajouter
-                </button>
             </div>
         </div>
 
@@ -38,87 +34,24 @@
                         <th class="px-4 py-3 text-gray-500 dark:text-gray-400">Employé</th>
                         <th class="px-4 py-3 text-gray-500 dark:text-gray-400">Contact</th>
                         <th class="px-4 py-3 text-gray-500 dark:text-gray-400">Rôle</th>
-                        <th class="px-4 py-3 text-gray-500 dark:text-gray-400">Statut Actuel</th>
-                        <th class="px-4 py-3 text-gray-500 dark:text-gray-400">Prochain Service</th>
                         <th class="px-4 py-3 text-gray-500 dark:text-gray-400">Actions</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-100 dark:divide-gray-700/50">
-                    {{-- Les données réelles viendraient d'une boucle @foreach($employees as $employee) --}}
-                    {{-- Données exemples (avec data-id pour JS et classe pour select) : --}}
-                    <tr data-employee-id="1052" class="hover:bg-gray-50 dark:hover:bg-gray-700/30">
-                        <td class="px-4 py-3">
-                            <div class="flex items-center">
-                                <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Thomas Dubois" class="w-10 h-10 rounded-full mr-3 object-cover">
-                                <div>
-                                    <div class="font-medium text-sm text-gray-900 dark:text-gray-100">Thomas Dubois</div>
-                                    <div class="text-xs text-gray-500 dark:text-gray-400">ID: #1052</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="px-4 py-3">
-                            <div class="text-sm text-gray-700 dark:text-gray-300">thomas.dubois@bistro.fr</div>
-                            <div class="text-xs text-gray-500 dark:text-gray-400">+33 6 12 34 56 78</div>
-                        </td>
-                        <td class="px-4 py-3">
-                            {{-- Classe employee-role-select pour le JS --}}
-                            <select class="employee-role-select text-sm px-2 py-1 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-1 focus:ring-blue-500 w-full max-w-[120px]">
-                                <option value="serveur" selected>Serveur</option>
-                                <option value="cuisinier">Cuisinier</option>
-                                <option value="client">Client</option>
-                            </select>
-                        </td>
-                        <td class="px-4 py-3">
-                            <span class="inline-block px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300">En service</span>
-                        </td>
-                        <td class="px-4 py-3">
-                            <button type="button" class="bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 px-2 py-1 rounded text-xs flex items-center">
-                                <i class="fas fa-calendar-alt mr-1"></i> Aujourd'hui 19h-00h
-                            </button>
-                        </td>
-                        <td class="px-4 py-3">
-                            <div class="flex space-x-1">
-                                <button type="button" class="p-1.5 text-xs bg-blue-500 hover:bg-blue-600 text-white rounded" title="Modifier">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button type="button" class="p-1.5 text-xs bg-red-500 hover:bg-red-600 text-white rounded" title="Supprimer">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                    {{-- Ajouter d'autres lignes exemples ou la boucle Blade --}}
-                     <tr data-employee-id="1078" class="hover:bg-gray-50 dark:hover:bg-gray-700/30">
-                        <td class="px-4 py-3"> <div class="flex items-center"> <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Marie Strauss" class="w-10 h-10 rounded-full mr-3 object-cover"> <div> <div class="font-medium text-sm text-gray-900 dark:text-gray-100">Marie Strauss</div> <div class="text-xs text-gray-500 dark:text-gray-400">ID: #1078</div> </div> </div> </td>
-                        <td class="px-4 py-3"> <div class="text-sm text-gray-700 dark:text-gray-300">marie.strauss@bistro.fr</div> <div class="text-xs text-gray-500 dark:text-gray-400">+33 6 98 76 54 32</div> </td>
-                        <td class="px-4 py-3"> <select class="employee-role-select text-sm px-2 py-1 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-1 focus:ring-blue-500 w-full max-w-[120px]"> <option value="serveur" selected>Serveur</option> <option value="cuisinier">Cuisinier</option> <option value="client">Client</option> </select> </td>
-                        <td class="px-4 py-3"> <span class="inline-block px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300">En service</span> </td>
-                        <td class="px-4 py-3"> <button type="button" class="bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 px-2 py-1 rounded text-xs flex items-center"> <i class="fas fa-calendar-alt mr-1"></i> Aujourd'hui 18h-00h </button> </td>
-                        <td class="px-4 py-3"> <div class="flex space-x-1"> <button type="button" class="p-1.5 text-xs bg-blue-500 hover:bg-blue-600 text-white rounded" title="Modifier"> <i class="fas fa-edit"></i> </button> <button type="button" class="p-1.5 text-xs bg-red-500 hover:bg-red-600 text-white rounded" title="Supprimer"> <i class="fas fa-trash"></i> </button> </div> </td>
-                    </tr>
-                     <tr data-employee-id="1109" class="hover:bg-gray-50 dark:hover:bg-gray-700/30">
-                         <td class="px-4 py-3"> <div class="flex items-center"> <img src="https://randomuser.me/api/portraits/women/65.jpg" alt="Sophie Renaud" class="w-10 h-10 rounded-full mr-3 object-cover"> <div> <div class="font-medium text-sm text-gray-900 dark:text-gray-100">Sophie Renaud</div> <div class="text-xs text-gray-500 dark:text-gray-400">ID: #1109</div> </div> </div> </td>
-                         <td class="px-4 py-3"> <div class="text-sm text-gray-700 dark:text-gray-300">sophie.renaud@bistro.fr</div> <div class="text-xs text-gray-500 dark:text-gray-400">+33 6 45 67 89 01</div> </td>
-                         <td class="px-4 py-3"> <select class="employee-role-select text-sm px-2 py-1 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-1 focus:ring-blue-500 w-full max-w-[120px]"> <option value="serveur" selected>Serveur</option> <option value="cuisinier">Cuisinier</option> <option value="client">Client</option> </select> </td>
-                         <td class="px-4 py-3"> <span class="inline-block px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300">Absente</span> </td>
-                         <td class="px-4 py-3"> <button type="button" class="bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 px-2 py-1 rounded text-xs flex items-center"> <i class="fas fa-calendar-alt mr-1"></i> Demain 19h-00h </button> </td>
-                         <td class="px-4 py-3"> <div class="flex space-x-1"> <button type="button" class="p-1.5 text-xs bg-blue-500 hover:bg-blue-600 text-white rounded" title="Modifier"> <i class="fas fa-edit"></i> </button> <button type="button" class="p-1.5 text-xs bg-red-500 hover:bg-red-600 text-white rounded" title="Supprimer"> <i class="fas fa-trash"></i> </button> </div> </td>
-                     </tr>
-
+                <tbody id="personnel-table-body" class="divide-y divide-gray-100 dark:divide-gray-700/50">
+                    {{-- Les données seront chargées dynamiquement ici --}}
                 </tbody>
             </table>
         </div>
 
         {{-- Pagination --}}
         <div class="mt-4 flex justify-between items-center text-sm text-gray-500 dark:text-gray-400">
-            <div>Affichage de 1-5 employés sur 12</div> {{-- Rendre dynamique --}}
-            <div class="flex items-center space-x-1">
-                <button class="px-3 py-1 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600 disabled:opacity-50" disabled>Préc.</button>
-                <button class="px-3 py-1 rounded border border-blue-500 bg-blue-500 text-white">1</button>
-                <button class="px-3 py-1 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600">2</button>
-                <button class="px-3 py-1 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600">3</button>
-                <button class="px-3 py-1 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600">Suiv.</button>
-                 {{-- Utiliser $employees->links() avec pagination Laravel --}}
+            <div id="pagination-info">Affichage de 1-5 employés sur 12</div>
+            <div id="pagination-controls" class="flex items-center space-x-1">
+                <button id="prev-page" class="px-3 py-1 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600 disabled:opacity-50" disabled>Préc.</button>
+                <div id="page-buttons" class="flex items-center space-x-1">
+                    {{-- Page buttons will be populated here --}}
+                </div>
+                <button id="next-page" class="px-3 py-1 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600">Suiv.</button>
             </div>
         </div>
     </div>
@@ -303,11 +236,11 @@
          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-5 sm:p-6 max-w-md w-full mx-auto" role="dialog" aria-modal="true">
             <div class="text-center">
                  <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 dark:bg-red-900/30 mb-4">
-                    <i class="fas fa-user-times text-red-600 dark:text-red-400 text-2xl"></i> {{-- Icone différente --}}
+                    <i class="fas fa-user-times text-red-600 dark:text-red-400 text-2xl"></i>
                 </div>
                 <h3 id="delete-modal-title" class="text-lg font-medium text-gray-900 dark:text-gray-100">Supprimer cet employé ?</h3>
                 <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                    Êtes-vous sûr ? Cette action est irréversible et toutes les données associées (horaires, etc.) pourraient être perdues. <span class="employee-name-placeholder font-semibold"></span>
+                    Êtes-vous sûr ? Cette action est irréversible et toutes les données associées (horaires, etc.) pourraient être perdues. <span id="employee-name-placeholder" class="font-semibold"></span>
                 </p>
                 <div class="mt-6 flex justify-center gap-3">
                     <button id="cancel-delete" type="button" class="px-4 py-2 bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-gray-200 rounded-md hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-400">
@@ -321,5 +254,293 @@
         </div>
     </div>
 
-
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Variables pour la pagination et le filtrage
+    let currentPage = 1;
+    let totalPages = 1;
+    let searchQuery = '';
+    let roleFilter = '';
+    let selectedRestaurantId = null;
+    let userToDelete = null;
+
+    // Initialiser le gestionnaire de personnel lorsque le restaurant est sélectionné
+    document.getElementById('header-restaurant-selector').addEventListener('change', function() {
+        selectedRestaurantId = this.value;
+        if (selectedRestaurantId) {
+            currentPage = 1;
+            loadPersonnel();
+        }
+    });
+
+    // Gestionnaire pour la recherche
+    document.getElementById('personnel-search').addEventListener('input', function() {
+        searchQuery = this.value.trim();
+        currentPage = 1; // Réinitialiser à la première page
+        loadPersonnel();
+    });
+
+    // Gestionnaire pour le filtre de rôle
+    document.getElementById('personnel-role-filter').addEventListener('change', function() {
+        roleFilter = this.value;
+        currentPage = 1; // Réinitialiser à la première page
+        loadPersonnel();
+    });
+
+    // Gestionnaire pour la pagination
+    document.getElementById('prev-page').addEventListener('click', function() {
+        if (currentPage > 1) {
+            currentPage--;
+            loadPersonnel();
+        }
+    });
+
+    document.getElementById('next-page').addEventListener('click', function() {
+        if (currentPage < totalPages) {
+            currentPage++;
+            loadPersonnel();
+        }
+    });
+
+    // Délégation d'événements pour les actions dynamiques
+    document.getElementById('personnel-table-body').addEventListener('click', function(e) {
+        // Gestion de la suppression
+        if (e.target.closest('.delete-user-btn')) {
+            const row = e.target.closest('tr');
+            const userId = row.dataset.employeeId;
+            const userName = row.querySelector('.employee-name').textContent;
+            showDeleteModal(userId, userName);
+        }
+        
+        // Gestion de l'édition (si nécessaire)
+        if (e.target.closest('.edit-user-btn')) {
+            // Logique d'édition si nécessaire
+        }
+    });
+    
+    // Gestionnaire de changement de rôle
+    document.getElementById('personnel-table-body').addEventListener('change', function(e) {
+        if (e.target.classList.contains('employee-role-select')) {
+            const userId = e.target.closest('tr').dataset.employeeId;
+            const newRole = e.target.value;
+            updateUserRole(userId, newRole);
+        }
+    });
+
+    // Gestionnaires pour le modal de suppression
+    document.getElementById('cancel-delete').addEventListener('click', function() {
+        hideDeleteModal();
+    });
+
+    document.getElementById('confirm-delete').addEventListener('click', function() {
+        if (userToDelete) {
+            deleteUser(userToDelete);
+        }
+    });
+
+    // Fonction pour charger le personnel avec filtres et pagination
+    function loadPersonnel() {
+        if (!selectedRestaurantId) return;
+
+        // Afficher un indicateur de chargement
+        const tableBody = document.getElementById('personnel-table-body');
+        tableBody.innerHTML = '<tr><td colspan="4" class="text-center py-4">Chargement...</td></tr>';
+
+        fetch(`/gerant/users?restaurant_id=${selectedRestaurantId}&role=${roleFilter}&search=${searchQuery}&page=${currentPage}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Erreur réseau');
+                }
+                return response.json();
+            })
+            .then(data => {
+                updatePersonnelTable(data.users);
+                updatePagination(data.pagination);
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                tableBody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-red-500">Erreur lors du chargement des données</td></tr>';
+            });
+    }
+
+    // Mettre à jour la table avec les données reçues
+    function updatePersonnelTable(users) {
+        const tableBody = document.getElementById('personnel-table-body');
+        tableBody.innerHTML = '';
+
+        if (users.length === 0) {
+            tableBody.innerHTML = '<tr><td colspan="4" class="text-center py-4">Aucun utilisateur trouvé</td></tr>';
+            return;
+        }
+
+        users.forEach(user => {
+            const row = document.createElement('tr');
+            row.dataset.employeeId = user.id;
+            row.className = 'hover:bg-gray-50 dark:hover:bg-gray-700/30';
+
+            row.innerHTML = `
+                <td class="px-4 py-3">
+                    <div class="flex items-center">
+                        <img src="${user.avatar}" alt="${user.name}" class="w-10 h-10 rounded-full mr-3 object-cover">
+                        <div>
+                            <div class="font-medium text-sm text-gray-900 dark:text-gray-100 employee-name">${user.name}</div>
+                            <div class="text-xs text-gray-500 dark:text-gray-400">ID: #${user.id}</div>
+                        </div>
+                    </div>
+                </td>
+                <td class="px-4 py-3">
+                    <div class="text-sm text-gray-700 dark:text-gray-300">${user.email}</div>
+                    <div class="text-xs text-gray-500 dark:text-gray-400">${user.phone || 'Non renseigné'}</div>
+                </td>
+                <td class="px-4 py-3">
+                    <select class="employee-role-select text-sm px-2 py-1 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-1 focus:ring-blue-500 w-full max-w-[120px]">
+                        <option value="client" ${user.role === 'client' ? 'selected' : ''}>Client</option>
+                        <option value="serveur" ${user.role === 'serveur' ? 'selected' : ''}>Serveur</option>
+                        <option value="cuisinier" ${user.role === 'cuisinier' ? 'selected' : ''}>Cuisinier</option>
+                    </select>
+                </td>
+                <td class="px-4 py-3">
+                    <div class="flex space-x-1">
+                        <button type="button" class="edit-user-btn p-1.5 text-xs bg-blue-500 hover:bg-blue-600 text-white rounded" title="Modifier">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button type="button" class="delete-user-btn p-1.5 text-xs bg-red-500 hover:bg-red-600 text-white rounded" title="Supprimer">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            `;
+
+            tableBody.appendChild(row);
+        });
+    }
+
+    // Mettre à jour les contrôles de pagination
+    function updatePagination(pagination) {
+        if (!pagination) return;
+
+        const paginationInfo = document.getElementById('pagination-info');
+        const prevButton = document.getElementById('prev-page');
+        const nextButton = document.getElementById('next-page');
+        const pageButtons = document.getElementById('page-buttons');
+
+        // Mettre à jour l'information sur la pagination
+        paginationInfo.textContent = `Affichage de ${pagination.from}-${pagination.to} employés sur ${pagination.total}`;
+
+        // Mettre à jour les boutons de page
+        totalPages = pagination.last_page;
+        currentPage = pagination.current_page;
+
+        // Activer/désactiver les boutons précédent/suivant
+        prevButton.disabled = currentPage === 1;
+        nextButton.disabled = currentPage === totalPages;
+
+        // Générer les boutons de page
+        pageButtons.innerHTML = '';
+        
+        // Déterminer les pages à afficher
+        let startPage = Math.max(1, currentPage - 1);
+        let endPage = Math.min(totalPages, startPage + 2);
+        
+        if (endPage - startPage < 2) {
+            startPage = Math.max(1, endPage - 2);
+        }
+
+        for (let i = startPage; i <= endPage; i++) {
+            const button = document.createElement('button');
+            button.className = i === currentPage 
+                ? 'px-3 py-1 rounded border border-blue-500 bg-blue-500 text-white' 
+                : 'px-3 py-1 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600';
+            button.textContent = i;
+            button.addEventListener('click', function() {
+                currentPage = i;
+                loadPersonnel();
+            });
+            pageButtons.appendChild(button);
+        }
+    }
+
+    // Fonction pour mettre à jour le rôle d'un utilisateur
+    function updateUserRole(userId, newRole) {
+        const formData = new FormData();
+        formData.append('user_id', userId);
+        formData.append('role', newRole);
+
+        fetch('/gerant/users/update-role', {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                user_id: userId,
+                role: newRole
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showAlert('success', 'Rôle mis à jour', `Le rôle a été changé en "${newRole}"`);
+            } else {
+                showAlert('error', 'Erreur', data.message || 'Une erreur est survenue');
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            showAlert('error', 'Erreur réseau', 'Impossible de mettre à jour le rôle');
+        });
+    }
+
+    // Fonction pour supprimer un utilisateur
+    function deleteUser(userId) {
+        fetch(`/gerant/users/${userId}`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            hideDeleteModal();
+            
+            if (data.success) {
+                showAlert('success', 'Utilisateur supprimé', data.message);
+                loadPersonnel(); // Recharger la liste
+            } else {
+                showAlert('error', 'Erreur', data.message || 'Une erreur est survenue');
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            hideDeleteModal();
+            showAlert('error', 'Erreur réseau', 'Impossible de supprimer l\'utilisateur');
+        });
+    }
+
+    // Afficher le modal de suppression
+    function showDeleteModal(userId, userName) {
+        userToDelete = userId;
+        document.getElementById('employee-name-placeholder').textContent = userName;
+        document.getElementById('delete-modal').classList.remove('hidden');
+        document.getElementById('delete-modal').classList.add('flex');
+    }
+
+    // Cacher le modal de suppression
+    function hideDeleteModal() {
+        userToDelete = null;
+        document.getElementById('delete-modal').classList.add('hidden');
+        document.getElementById('delete-modal').classList.remove('flex');
+    }
+
+    // Vérifier si un restaurant est déjà sélectionné lors du chargement initial
+    const restaurantSelector = document.getElementById('header-restaurant-selector');
+    if (restaurantSelector.value) {
+        selectedRestaurantId = restaurantSelector.value;
+        loadPersonnel();
+    }
+});
+</script>

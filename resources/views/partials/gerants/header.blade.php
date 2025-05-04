@@ -1,20 +1,14 @@
-{{-- resources/views/partials/gerants/header.blade.php --}}
 <header id="header" class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 fixed right-0 top-0 z-40 py-3 px-6 w-[calc(100%-16rem)] transition-all">
-    {{-- Système d'alerte stylisé --}}
     <div id="alert-container" class="fixed top-5 right-5 z-50 max-w-md w-full flex flex-col gap-3 transition-all">
-        {{-- Les alertes seront ajoutées ici dynamiquement --}}
     </div>
     
     <div class="flex items-center justify-between">
-        {{-- Titre et Menu Mobile Toggle --}}
         <div class="flex items-center">
-            <button id="mobile-menu-toggle" class="mr-4 text-gray-500 dark:text-gray-300 lg:hidden"> {{-- Caché sur grand écran --}}
+            <button id="mobile-menu-toggle" class="mr-4 text-gray-500 dark:text-gray-300 lg:hidden">
                 <i class="fas fa-bars"></i>
             </button>
-            {{-- Le titre pourrait être dynamique via @yield ou une variable --}}
             <h1 class="text-lg font-semibold text-blue-600 dark:text-blue-400">Supervision Opérationnelle</h1>
             
-            {{-- Restaurant Selector (déplacé ici) --}}
             <div class="ml-4">
                 <select id="header-restaurant-selector" class="text-sm px-3 py-1.5 pr-8 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-1 focus:ring-blue-500">
                     <option value="">Sélectionner un restaurant</option>
@@ -28,15 +22,12 @@
 
         <div class="flex items-center space-x-2 sm:space-x-4">
             
-            {{-- Theme Toggle --}}
             <div id="theme-toggle" class="theme-toggle mx-2">
                 <span class="sr-only">Basculer le thème jour/nuit</span>
             </div>
 
-            {{-- Date/Heure --}}
             <div id="current-date-time" class="text-sm text-gray-600 dark:text-gray-300 hidden sm:block"></div>
 
-            {{-- Profil --}}
             @auth
             <div class="flex items-center ml-4 relative">
                 <div class="w-9 h-9 rounded-full flex items-center justify-center bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400">
@@ -44,7 +35,7 @@
                 </div>
                 <div class="hidden md:block">
                     <p class="text-sm font-semibold">{{ Auth::user()->name }}</p>
-                    <p class="text-xs text-gray-500 dark:text-gray-400">Gérant</p> {{-- Rôle dynamique ? --}}
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Gérant</p>
                 </div>
             </div>
             @endauth
@@ -52,7 +43,6 @@
     </div>
 </header>
 
-{{-- Template pour les réservations (utilisé par JS) --}}
 <template id="reservation-item-template">
     <div class="reservation-item p-3 hover:bg-gray-50 dark:hover:bg-gray-700/30">
         <div class="flex justify-between items-start">
@@ -77,7 +67,6 @@
     </div>
 </template>
 
-{{-- Template pour les alertes --}}
 <template id="alert-template">
     <div class="alert-item flex items-start p-4 rounded-lg shadow-lg transform transition-all duration-300 ease-in-out translate-x-full opacity-0">
         <div class="flex-shrink-0 mr-3">
@@ -94,13 +83,11 @@
 </template>
 
 <script>
-    // Fonction pour afficher une alerte stylisée
     function showAlert(type, title, message, duration = 5000) {
         const container = document.getElementById('alert-container');
         const template = document.getElementById('alert-template');
         const alert = template.content.cloneNode(true).querySelector('.alert-item');
         
-        // Définir le type d'alerte
         switch (type) {
             case 'success':
                 alert.classList.add('bg-green-100', 'dark:bg-green-900/30', 'text-green-800', 'dark:text-green-200');
@@ -126,24 +113,19 @@
                 break;
         }
         
-        // Définir le contenu
         alert.querySelector('.alert-title').textContent = title;
         alert.querySelector('.alert-message').textContent = message;
         
-        // Ajouter l'alerte au conteneur
         container.appendChild(alert);
         
-        // Animation d'entrée
         setTimeout(() => {
             alert.classList.remove('translate-x-full', 'opacity-0');
         }, 10);
         
-        // Fermeture de l'alerte lors du clic sur le bouton fermer
         alert.querySelector('.alert-close').addEventListener('click', () => {
             closeAlert(alert);
         });
         
-        // Fermeture automatique après la durée spécifiée
         if (duration > 0) {
             setTimeout(() => {
                 closeAlert(alert);
@@ -153,7 +135,6 @@
         return alert;
     }
     
-    // Fonction pour fermer une alerte avec animation
     function closeAlert(alert) {
         alert.classList.add('translate-x-full', 'opacity-0');
         setTimeout(() => {
@@ -161,7 +142,6 @@
         }, 300);
     }
     
-    // Rendre les fonctions disponibles globalement
     window.showAlert = showAlert;
     window.closeAlert = closeAlert;
 </script>

@@ -11,8 +11,11 @@ class User extends Authenticatable implements JWTSubject
     use Notifiable;
 
     protected $fillable = [
-        'name',
+        'first_name',
+        'last_name',
         'email',
+        'phone',
+        'restaurant_id',
         'password',
         'role',
     ];
@@ -21,6 +24,12 @@ class User extends Authenticatable implements JWTSubject
         'password',
         'remember_token',
     ];
+
+    // Relation with Restaurant
+    public function restaurant()
+    {
+        return $this->belongsTo(Restaurant::class);
+    }
 
     // Méthodes requises par JWTSubject
     public function getJWTIdentifier()

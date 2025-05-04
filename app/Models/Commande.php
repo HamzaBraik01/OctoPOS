@@ -14,12 +14,12 @@ class Commande extends Model
         'statut', 
         'montant_total',
         'methode_paiement',
-        'utilisateur_id', 
+        'user_id', 
         'table_id', 
         'restaurant_id'
     ];
 
-    public function utilisateur()
+    public function user()
     {
         return $this->belongsTo(User::class);
     }

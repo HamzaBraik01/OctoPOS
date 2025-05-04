@@ -22,9 +22,6 @@ class GerantController extends Controller
          return view('gerants.dashboard', compact('restaurants'));
     }
     
-    /**
-     * Get sales summary data for chart visualization
-     */
     public function getSalesSummary(Request $request)
     {
         $restaurantId = $request->input('restaurant_id');
@@ -33,14 +30,12 @@ class GerantController extends Controller
             return response()->json(['error' => 'Restaurant ID is required'], 400);
         }
         
-        // Get tables belonging to the restaurant
         $tableIds = Table::where('restaurant_id', $restaurantId)->pluck('id')->toArray();
         
         if (empty($tableIds)) {
             return response()->json(['data' => []]);
         }
         
-        // Get sales data for the last 7 days
         $startDate = Carbon::now()->subDays(6)->startOfDay();
         $endDate = Carbon::now()->endOfDay();
         
@@ -55,7 +50,6 @@ class GerantController extends Controller
             ->orderBy('day')
             ->get();
         
-        // Format the data for the chart
         $formattedData = [];
         $currentDate = clone $startDate;
         
@@ -142,9 +136,6 @@ class GerantController extends Controller
         ]);
     }
     
-    /**
-     * Get recent transactions for the cash register section
-     */
     public function getRecentTransactions(Request $request)
     {
         $restaurantId = $request->input('restaurant_id');
@@ -153,14 +144,12 @@ class GerantController extends Controller
             return response()->json(['error' => 'Restaurant ID is required'], 400);
         }
         
-        // Get tables belonging to the restaurant
         $tableIds = Table::where('restaurant_id', $restaurantId)->pluck('id')->toArray();
         
         if (empty($tableIds)) {
             return response()->json(['transactions' => []]);
         }
         
-        // Get recent transactions (last 24 hours by default)
         $transactions = Commande::whereIn('table_id', $tableIds)
             ->where('date', '>=', Carbon::now()->subHours(24))
             ->orderBy('date', 'desc')
@@ -180,9 +169,6 @@ class GerantController extends Controller
         return response()->json(['transactions' => $transactions]);
     }
     
-    /**
-     * Get menus for a specific restaurant
-     */
     public function getMenusByRestaurant($restaurantId)
     {
         $menus = Menu::where('restaurant_id', $restaurantId)
@@ -192,9 +178,6 @@ class GerantController extends Controller
         return response()->json(['menus' => $menus]);
     }
     
-    /**
-     * Store a new menu
-     */
     public function storeMenu(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -224,9 +207,6 @@ class GerantController extends Controller
         ]);
     }
     
-    /**
-     * Update an existing menu
-     */
     public function updateMenu(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
@@ -255,14 +235,10 @@ class GerantController extends Controller
         ]);
     }
     
-    /**
-     * Delete a menu
-     */
     public function deleteMenu($id)
     {
         $menu = Menu::findOrFail($id);
         
-        // Check if there are associated plats
         $platsCount = Plat::where('menu_id', $id)->count();
         
         if ($platsCount > 0) {
@@ -280,19 +256,12 @@ class GerantController extends Controller
         ]);
     }
     
-    /**
-     * Supprimer un menu (via POST) en cascade avec tous ses plats
-     */
     public function supprimerMenu($id)
     {
         $menu = Menu::findOrFail($id);
         
-        // Supprimer tous les plats associés à ce menu
-        // Nous désactivons les vérifications d'utilisation des plats dans les commandes 
-        // pour permettre la suppression en cascade
         $menu->plats()->delete();
         
-        // Supprimer le menu
         $menu->delete();
         
         return response()->json([
@@ -301,9 +270,6 @@ class GerantController extends Controller
         ]);
     }
     
-    /**
-     * Get plats for a specific menu
-     */
     public function getPlatsByMenu($menuId)
     {
         $plats = Plat::where('menu_id', $menuId)
@@ -313,9 +279,6 @@ class GerantController extends Controller
         return response()->json(['plats' => $plats]);
     }
     
-    /**
-     * Get all plats for a specific restaurant
-     */
     public function getPlatsByRestaurant($restaurantId)
     {
         $menuIds = Menu::where('restaurant_id', $restaurantId)
@@ -330,9 +293,6 @@ class GerantController extends Controller
         return response()->json(['plats' => $plats]);
     }
     
-    /**
-     * Store a new plat
-     */
     public function storePlat(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -368,9 +328,6 @@ class GerantController extends Controller
         ]);
     }
     
-    /**
-     * Update an existing plat
-     */
     public function updatePlat(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
@@ -407,14 +364,10 @@ class GerantController extends Controller
         ]);
     }
     
-    /**
-     * Delete a plat
-     */
     public function deletePlat($id)
     {
         $plat = Plat::findOrFail($id);
         
-        // Check if this plat is used in any active orders
         $hasOrders = DB::table('commande_plat')
             ->where('plat_id', $id)
             ->exists();
@@ -434,14 +387,10 @@ class GerantController extends Controller
         ]);
     }
     
-    /**
-     * Supprimer un plat (via POST)
-     */
     public function supprimerPlat($id)
     {
         $plat = Plat::findOrFail($id);
         
-        // Check if this plat is used in any active orders
         $hasOrders = DB::table('commande_plat')
             ->where('plat_id', $id)
             ->exists();
@@ -458,6 +407,119 @@ class GerantController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Plat supprimé avec succès'
+        ]);
+    }
+    
+    public function getUsers(Request $request)
+    {
+        $restaurantId = $request->input('restaurant_id');
+        $role = $request->input('role', '');
+        $search = $request->input('search', '');
+        $page = $request->input('page', 1);
+        $perPage = 5;
+        
+        if (!$restaurantId) {
+            return response()->json(['error' => 'Restaurant ID is required'], 400);
+        }
+        
+        $query = User::where('restaurant_id', $restaurantId)
+                     ->whereIn('role', ['client', 'serveur', 'cuisinier']);
+        
+        if ($role) {
+            $query->where('role', $role);
+        }
+        
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('first_name', 'like', "%{$search}%")
+                  ->orWhere('last_name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('phone', 'like', "%{$search}%");
+            });
+        }
+        
+        $total = $query->count();
+        
+        $users = $query->orderBy('first_name')
+                      ->skip(($page - 1) * $perPage)
+                      ->take($perPage)
+                      ->get()
+                      ->map(function ($user) {
+                          return [
+                              'id' => $user->id,
+                              'name' => $user->first_name . ' ' . $user->last_name,
+                              'email' => $user->email,
+                              'phone' => $user->phone,
+                              'role' => $user->role,
+                              'avatar' => $user->avatar ?: "https://randomuser.me/api/portraits/" . ($user->gender == 'F' ? 'women' : 'men') . "/" . ($user->id % 70) . ".jpg"
+                          ];
+                      });
+        
+        return response()->json([
+            'users' => $users,
+            'pagination' => [
+                'total' => $total,
+                'current_page' => $page,
+                'per_page' => $perPage,
+                'last_page' => ceil($total / $perPage),
+                'from' => ($page - 1) * $perPage + 1,
+                'to' => min($page * $perPage, $total)
+            ]
+        ]);
+    }
+    
+    public function updateUserRole(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|exists:users,id',
+            'role' => 'required|in:client,serveur,cuisinier'
+        ]);
+        
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+        
+        $user = User::findOrFail($request->user_id);
+        
+        $user->role = $request->role;
+        $user->save();
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Rôle mis à jour avec succès',
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->first_name . ' ' . $user->last_name,
+                'email' => $user->email,
+                'phone' => $user->phone,
+                'role' => $user->role
+            ]
+        ]);
+    }
+    
+    public function deleteUser($id)
+    {
+        $user = User::findOrFail($id);
+        
+        $hasReservations = Reservation::where('user_id', $id)->exists();
+        $hasOrders = Commande::where('user_id', $id)->exists();
+        
+        if ($hasReservations || $hasOrders) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Impossible de supprimer cet utilisateur car il possède des réservations ou des commandes.'
+            ], 422);
+        }
+        
+        $user->delete();
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Utilisateur supprimé avec succès'
         ]);
     }
 }

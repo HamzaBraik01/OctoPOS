@@ -17,15 +17,8 @@ use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\CommandePlatController;
 use App\Http\Controllers\ProprietaireController;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-*/
-
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
-// Routes publiques
 Route::get('/login', function () {
     return view('auth.login');
 })->name('login');
@@ -40,48 +33,41 @@ Route::middleware([JWTAuthentication::class])->group(function () {
     Route::get('/available-time-slots', 'ReservationController@getAvailableTimeSlots')->middleware('role:propriétaire')
         ->name('reservations.available-times');
     
-    // Gérant routes
     Route::get('/gerants/dashboard', [GerantController::class, 'index'])
         ->middleware('role:gérant')
         ->name('gerants.dashboard');
 
-    // Gérant section routes - handled via AJAX or direct access
     Route::prefix('gerant')->middleware('role:gérant')->group(function () {
         Route::get('/dashboard', [GerantController::class, 'dashboard'])->name('gerant.dashboard');
         Route::get('/reservations', [GerantController::class, 'reservations'])->name('gerant.reservations');
         
-        // API endpoints for restaurant reservations
         Route::get('/get-reservations', [GerantController::class, 'getReservations'])->name('gerant.getReservations');
         Route::post('/reservations/update-status', [GerantController::class, 'updateStatus'])->name('gerant.reservations.updateStatus');
         
-        // API endpoint for recent transactions
         Route::get('/get-recent-transactions', [GerantController::class, 'getRecentTransactions'])->name('gerant.getRecentTransactions');
         
-        // API endpoint for sales summary chart data
         Route::get('/get-sales-summary', [GerantController::class, 'getSalesSummary'])->name('gerant.getSalesSummary');
 
-        // Routes pour les tables
         Route::post('/tables/update-status', [TableController::class, 'updateStatus'])->name('gerant.tables.updateStatus');
         
-        // Routes pour les commandes
         Route::post('/commandes/update-status', [CommandeController::class, 'updateStatus'])->name('gerant.commandes.updateStatus');
         
-        // Routes pour le personnel (via UtilisateurController)
         Route::delete('/personnel/{id}', [UtilisateurController::class, 'destroy'])->name('gerant.personnel.destroy');
         Route::get('/personnel/{id}/edit', [UtilisateurController::class, 'edit'])->name('gerant.personnel.edit');
         Route::post('/personnel/update-role', [UtilisateurController::class, 'updateRole'])->name('gerant.personnel.updateRole');
         
-        // Routes pour les horaires
+        Route::get('/users', [GerantController::class, 'getUsers'])->name('gerant.users');
+        Route::post('/users/update-role', [GerantController::class, 'updateUserRole'])->name('gerant.users.updateRole');
+        Route::delete('/users/{id}', [GerantController::class, 'deleteUser'])->name('gerant.users.delete');
+        
         Route::post('/horaires', [GerantController::class, 'storeHoraire'])->name('gerant.horaires.store');
         
-        // Routes pour les menus
         Route::get('/menus/by-restaurant/{restaurantId}', [GerantController::class, 'getMenusByRestaurant'])->name('gerant.menus.byRestaurant');
         Route::post('/menus/store', [GerantController::class, 'storeMenu'])->name('gerant.menus.store');
         Route::put('/menus/update/{id}', [GerantController::class, 'updateMenu'])->name('gerant.menus.update');
         Route::delete('/menus/delete/{id}', [GerantController::class, 'deleteMenu'])->name('gerant.menus.delete');
         Route::post('/menus/supprimer/{id}', [GerantController::class, 'supprimerMenu'])->name('gerant.menus.supprimer');
         
-        // Routes pour les plats
         Route::get('/plats/by-menu/{menuId}', [GerantController::class, 'getPlatsByMenu'])->name('gerant.plats.byMenu');
         Route::get('/plats/by-restaurant/{restaurantId}', [GerantController::class, 'getPlatsByRestaurant'])->name('gerant.plats.byRestaurant');
         Route::post('/plats/store', [GerantController::class, 'storePlat'])->name('gerant.plats.store');
@@ -102,19 +88,15 @@ Route::middleware([JWTAuthentication::class])->group(function () {
         ->middleware('role:client')
         ->name('clients.dashboard');
     
-    // Routes de réservation
     Route::post('/reservations', [ReservationController::class, 'store'])->name('reservations.store');
     Route::get('/clients/reservations-receipt/{id}', [ReservationController::class, 'receipt'])->name('clients.reservations-receipt');
     
-    // Routes de restaurant et tables
     Route::post('/restaurants/set-restaurant', [RestaurantController::class, 'setRestaurant']);
     Route::get('/restaurants/{restaurantId}/tables', [ServeurController::class, 'getRestaurantTables']);
     
-    // Routes de serveur
     Route::post('/serveur/select-restaurant', [ServeurController::class, 'selectRestaurant'])->name('serveur.select-restaurant');
     Route::get('/serveur/filtrer-plats', [ServeurController::class, 'filtrerPlats'])->name('serveur.filtrer-plats');
 });
 
-// Routes pour les commandes
 Route::post('/commandes', [CommandeController::class, 'store'])->name('commandes.store');
 Route::post('/commande-plats', [CommandePlatController::class, 'store'])->name('commande-plats.store');
