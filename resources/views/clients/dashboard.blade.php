@@ -903,20 +903,7 @@
                         </div>
                     
                         <!-- Include other fields as client-side preferences (stored in session) -->
-                        <h3 class="text-lg font-semibold mb-4 border-b pb-2" style="border-color: var(--border-color);">Préférences</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 mb-6">
-                            <div>
-                                <label class="form-label" for="profile-fav-cuisine">Cuisine Favorite</label>
-                                <select id="profile-fav-cuisine" name="favorite_cuisine" class="form-select">
-                                    <option value="italian" {{ (old('favorite_cuisine', session('favorite_cuisine')) == 'italian') ? 'selected' : '' }}>Italienne</option>
-                                    <option value="french" {{ (old('favorite_cuisine', session('favorite_cuisine')) == 'french') ? 'selected' : '' }}>Française</option>
-                                    <option value="mediterranean" {{ (old('favorite_cuisine', session('favorite_cuisine')) == 'mediterranean') ? 'selected' : '' }}>Méditerranéenne</option>
-                                    <option value="asian" {{ (old('favorite_cuisine', session('favorite_cuisine')) == 'asian') ? 'selected' : '' }}>Asiatique</option>
-                                    <option value="american" {{ (old('favorite_cuisine', session('favorite_cuisine')) == 'american') ? 'selected' : '' }}>Américaine</option>
-                                </select>
-                            </div>
-                            <!-- Other preference fields -->
-                        </div>
+                     
                         
                         <div class="flex justify-between mt-6 pt-6 border-t" style="border-color: var(--border-color);">
                             <button type="submit" class="btn btn-primary">
