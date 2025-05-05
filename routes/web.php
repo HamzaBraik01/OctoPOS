@@ -75,6 +75,13 @@ Route::middleware([JWTAuthentication::class])->group(function () {
         Route::put('/plats/update/{id}', [GerantController::class, 'updatePlat'])->name('gerant.plats.update');
         Route::delete('/plats/delete/{id}', [GerantController::class, 'deletePlat'])->name('gerant.plats.delete');
         Route::post('/plats/supprimer/{id}', [GerantController::class, 'supprimerPlat'])->name('gerant.plats.supprimer');
+
+        // Routes pour les tables
+        Route::get('/get-tables', [GerantController::class, 'getTables'])->name('gerant.getTables');
+        Route::post('/tables', [GerantController::class, 'storeTable'])->name('gerant.storeTable');
+        Route::put('/tables/{id}', [GerantController::class, 'updateTable'])->name('gerant.updateTable');
+        Route::delete('/tables/{id}', [GerantController::class, 'deleteTable'])->name('gerant.deleteTable');
+        Route::post('/tables/{id}/update-status', [GerantController::class, 'updateTableStatus'])->name('gerant.updateTableStatus');
     });
 
     Route::get('/serveurs/dashboard', [ServeurController::class, 'index'])

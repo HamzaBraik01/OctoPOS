@@ -540,7 +540,6 @@ class GerantController extends Controller
         }
     }
     
-   
     public function deleteUserRedirect($id)
     {
         try {
@@ -556,5 +555,214 @@ class GerantController extends Controller
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Erreur lors de la suppression: ' . $e->getMessage());
         }
+    }
+    
+    public function getTables(Request $request)
+    {
+        $restaurantId = $request->input('restaurant_id');
+        
+        if (!$restaurantId) {
+            return response()->json(['error' => 'Restaurant ID is required'], 400);
+        }
+        
+        $tables = Table::where('restaurant_id', $restaurantId)
+            ->orderBy('numero')
+            ->get()
+            ->map(function ($table) {
+                // Déterminer le statut de la table
+                $statut = $this->getTableStatus($table);
+                
+                return [
+                    'id' => $table->id,
+                    'numero' => $table->numero,
+                    'capacite' => $table->capacite,
+                    'typeTable' => $table->typeTable,
+                    'statut' => $statut,
+                    'zone' => $table->zone ?? 'ground' // Valeur par défaut si la zone n'est pas définie
+                ];
+            });
+            
+        return response()->json(['tables' => $tables]);
+    }
+    
+    private function getTableStatus($table)
+    {
+        // Vérifier les commandes en cours pour cette table
+        $commandeEnCours = $table->commandes()
+            ->whereIn('statut', ['en_cours', 'payee', 'servie'])
+            ->where('date', '>=', Carbon::now()->startOfDay())
+            ->first();
+            
+        if ($commandeEnCours) {
+            if ($commandeEnCours->statut === 'payee') {
+                return 'payment';
+            } elseif ($commandeEnCours->statut === 'servie') {
+                return 'ordered';
+            }
+            return 'occupied';
+        }
+        
+        // Vérifier les réservations pour aujourd'hui
+        $reservationAujourdhui = $table->reservations()
+            ->where('date', Carbon::now()->format('Y-m-d'))
+            ->where('statut', 'Confirmé')
+            ->where('heure_debut', '>=', Carbon::now()->subHours(1)->format('H:i:s'))
+            ->where('heure_debut', '<=', Carbon::now()->addHours(2)->format('H:i:s'))
+            ->first();
+            
+        if ($reservationAujourdhui) {
+            return 'reserved';
+        }
+        
+        // Si pas de commande ni de réservation
+        return 'available';
+    }
+    
+    public function storeTable(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'numero' => 'required|integer|min:1',
+            'capacite' => 'required|integer|min:1|max:20',
+            'typeTable' => 'required|string|in:SallePrincipale,Terrasse,Vip',
+            'restaurant_id' => 'required|exists:restaurants,id'
+        ]);
+        
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+        
+        // Vérifier si le numéro de table existe déjà pour ce restaurant
+        $existingTable = Table::where('restaurant_id', $request->restaurant_id)
+            ->where('numero', $request->numero)
+            ->first();
+            
+        if ($existingTable) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Le numéro de table existe déjà pour ce restaurant.'
+            ], 422);
+        }
+        
+        $table = Table::create([
+            'numero' => $request->numero,
+            'capacite' => $request->capacite,
+            'typeTable' => $request->typeTable,
+            'restaurant_id' => $request->restaurant_id
+        ]);
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Table ajoutée avec succès',
+            'table' => $table
+        ]);
+    }
+    
+    public function updateTable(Request $request, $id)
+    {
+        $validator = Validator::make($request->all(), [
+            'numero' => 'required|integer|min:1',
+            'capacite' => 'required|integer|min:1|max:20',
+            'typeTable' => 'required|string|in:SallePrincipale,Terrasse,Vip'
+        ]);
+        
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+        
+        $table = Table::findOrFail($id);
+        
+        // Vérifier si le numéro de table existe déjà pour ce restaurant (sauf la table actuelle)
+        $existingTable = Table::where('restaurant_id', $table->restaurant_id)
+            ->where('numero', $request->numero)
+            ->where('id', '<>', $id)
+            ->first();
+            
+        if ($existingTable) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Le numéro de table existe déjà pour ce restaurant.'
+            ], 422);
+        }
+        
+        $table->update([
+            'numero' => $request->numero,
+            'capacite' => $request->capacite,
+            'typeTable' => $request->typeTable
+        ]);
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Table mise à jour avec succès',
+            'table' => $table
+        ]);
+    }
+    
+    public function deleteTable($id)
+    {
+        $table = Table::findOrFail($id);
+        
+        // Vérifier uniquement les commandes et réservations actives/récentes
+        $hasActiveOrders = $table->commandes()
+            ->where('date', '>=', Carbon::now()->subDays(30)) // Commandes des 30 derniers jours
+            ->where('statut', '!=', 'annulee')
+            ->exists();
+        
+        $hasActiveReservations = $table->reservations()
+            ->where('date', '>=', Carbon::now()->format('Y-m-d')) // Réservations à venir
+            ->where('statut', 'Confirmé')
+            ->exists();
+        
+        if ($hasActiveOrders || $hasActiveReservations) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Impossible de supprimer cette table car elle a des commandes récentes ou des réservations à venir.'
+            ], 422);
+        }
+        
+        // Suppression des anciennes commandes et réservations
+        $table->commandes()->update(['table_id' => null]);
+        $table->reservations()->delete();
+        
+        $table->delete();
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Table supprimée avec succès'
+        ]);
+    }
+    
+    public function updateTableStatus(Request $request, $id)
+    {
+        $validator = Validator::make($request->all(), [
+            'statut' => 'required|string|in:available,occupied,reserved'
+        ]);
+        
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+        
+        $table = Table::findOrFail($id);
+        
+        $table->disponible = ($request->statut === 'available') ? 1 : 0;
+        
+        $table->save();
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Statut de la table mis à jour avec succès',
+            'table' => $table
+        ]);
     }
 }

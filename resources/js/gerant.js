@@ -380,8 +380,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Mettre à jour les tables si dans la section tables
             if (currentActiveSection === 'tables') {
-                if (typeof renderTables === 'function') renderTables();
-                if (typeof renderTablesList === 'function') renderTablesList();
+                fetchTables();
             }
         });
     }
@@ -754,109 +753,26 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // ----- Logique Section Tables -----
-    // Données exemple (à remplacer par des données dynamiques via Blade/AJAX)
-    let tablesData = [
-        { id: 1, number: 1, capacity: 4, zone: 'ground', type: 'round', status: 'available', x: 100, y: 150, since: null, server: null },
-        { id: 2, number: 2, capacity: 4, zone: 'ground', type: 'round', status: 'occupied', x: 200, y:150, since: '11:45', server: 'Thomas D.' },
-        { id: 3, number: 3, capacity: 4, zone: 'ground', type: 'round', status: 'ordered', x: 300, y: 150, since: '12:15', server: 'Marie S.' },
-        { id: 4, number: 4, capacity: 4, zone: 'ground', type: 'round', status: 'payment', x: 400, y: 150, since: '13:05', server: 'Thomas D.' },
-        { id: 5, number: 5, capacity: 2, zone: 'ground', type: 'round', status: 'available', x: 100, y: 250, since: null, server: null },
-        { id: 6, number: 6, capacity: 2, zone: 'ground', type: 'round', status: 'reserved', x: 200, y: 250, since: '13:30', server: 'Marie S.' },
-        { id: 7, number: 7, capacity: 6, zone: 'ground', type: 'rect', status: 'available', x: 350, y: 250, since: null, server: null },
-        { id: 8, number: 8, capacity: 8, zone: 'ground', type: 'rect', status: 'occupied', x: 150, y: 350, since: '12:30', server: 'Pierre L.' },
-        { id: 9, number: 9, capacity: 2, zone: 'terrace', type: 'round', status: 'available', x: 500, y: 150, since: null, server: null },
-        { id: 10, number: 10, capacity: 4, zone: 'terrace', type: 'round', status: 'available', x: 600, y: 150, since: null, server: null },
-        { id: 11, number: 11, capacity: 4, zone: 'terrace', type: 'round', status: 'occupied', x: 500, y: 250, since: '12:00', server: 'Sophie R.' },
-        { id: 12, number: 12, capacity: 8, zone: 'private', type: 'rect', status: 'reserved', x: 600, y: 350, since: '19:30', server: 'Thomas D.' }
-    ];
+    let tablesData = [];
     let selectedTableId = null;
-    let sortableMapInstance = null;
     let isTableManagerInitialized = false; // Pour éviter ré-initialisations multiples
 
     function initTableManager() {
         if (isTableManagerInitialized) {
-            renderTables(); // Re-render suffit si déjà initialisé
             renderTablesList();
             return;
         }
 
-        const tablesContainer = document.getElementById('tables-container');
         const tablesListContainer = document.getElementById('tables-list');
-        if (!tablesContainer || !tablesListContainer) {
-            console.warn("Conteneurs de tables non trouvés. Initialisation de Table Manager annulée.");
+        if (!tablesListContainer) {
+            console.warn("Conteneur de tables non trouvé. Initialisation de Table Manager annulée.");
             return;
         }
 
         console.log("Initialisation Table Manager...");
-        renderTables();
         renderTablesList();
         setupTableEventListeners();
-        initializeSortableMap();
         isTableManagerInitialized = true;
-    }
-
-    function renderTables() {
-        const container = document.getElementById('tables-container');
-        if (!container) return;
-        container.innerHTML = ''; // Vide le conteneur
-        const filterElement = document.getElementById('floor-selector');
-        const filter = filterElement ? filterElement.value : 'all';
-        const isDarkMode = document.documentElement.classList.contains('dark');
-
-        tablesData.forEach(table => {
-            if (filter === 'all' || filter === table.zone) {
-                const tableElement = createTableElement(table, isDarkMode);
-                container.appendChild(tableElement);
-            }
-        });
-        // Réinitialise SortableJS si nécessaire après le rendu
-        initializeSortableMap();
-    }
-
-     function createTableElement(table, isDarkMode) {
-        const tableElement = document.createElement('div');
-        tableElement.id = `map-table-${table.id}`; // ID unique pour la carte
-        tableElement.className = `table-item absolute cursor-grab active:cursor-grabbing transition-all duration-150 transform hover:scale-105 group`; // group pour hover effets internes
-        tableElement.style.left = `${table.x}px`;
-        tableElement.style.top = `${table.y}px`;
-        tableElement.dataset.id = table.id; // Pour SortableJS et clics
-
-        // Forme et Taille
-        let shape, size;
-        if (table.type === 'round') { shape = 'rounded-full'; size = table.capacity <= 2 ? 'w-16 h-16' : 'w-20 h-20'; }
-        else if (table.type === 'rect') { shape = 'rounded-lg'; size = table.capacity <= 4 ? 'w-24 h-16' : 'w-32 h-20'; }
-        else if (table.type === 'booth') { shape = 'rounded-t-lg rounded-b-3xl'; size = 'w-24 h-20'; }
-        else { shape = 'rounded-lg'; size = 'w-20 h-20'; } // Fallback
-
-        // Couleurs basées sur le statut et le thème
-        let bgColor, borderColor, textColor;
-        switch(table.status) {
-            case 'available':
-                bgColor = 'bg-green-100 dark:bg-green-800 dark:bg-opacity-40'; borderColor = 'border-green-500 dark:border-green-600'; textColor = 'text-green-800 dark:text-green-200'; break;
-            case 'occupied':
-                bgColor = 'bg-blue-100 dark:bg-blue-800 dark:bg-opacity-40'; borderColor = 'border-blue-500 dark:border-blue-600'; textColor = 'text-blue-800 dark:text-blue-200'; break;
-            case 'ordered':
-                bgColor = 'bg-amber-100 dark:bg-amber-800 dark:bg-opacity-40'; borderColor = 'border-amber-500 dark:border-amber-600'; textColor = 'text-amber-800 dark:text-amber-200'; break;
-            case 'payment':
-                bgColor = 'bg-red-100 dark:bg-red-800 dark:bg-opacity-40'; borderColor = 'border-red-500 dark:border-red-600'; textColor = 'text-red-800 dark:text-red-200'; break;
-            case 'reserved':
-                bgColor = 'bg-purple-100 dark:bg-purple-800 dark:bg-opacity-40'; borderColor = 'border-purple-500 dark:border-purple-600'; textColor = 'text-purple-800 dark:text-purple-200'; break;
-            default:
-                bgColor = 'bg-gray-200 dark:bg-gray-700'; borderColor = 'border-gray-400 dark:border-gray-500'; textColor = 'text-gray-800 dark:text-gray-200';
-        }
-
-        tableElement.className += ` ${size} ${shape} ${bgColor} border-2 ${borderColor} ${textColor} flex flex-col items-center justify-center shadow-md hover:shadow-lg`;
-
-        tableElement.innerHTML = `
-            <div class="font-bold text-lg pointer-events-none">T${table.number}</div>
-            <div class="text-xs pointer-events-none">${table.capacity} pers.</div>
-            ${table.server ? `<div class="text-[10px] mt-0.5 pointer-events-none truncate max-w-[80%]">${table.server}</div>` : ''}
-        `;
-
-        // Utilise la délégation d'événements sur le conteneur au lieu d'ajouter un listener à chaque table
-        // tableElement.addEventListener('click', handleClickOnTable);
-
-        return tableElement;
     }
 
     function renderTablesList() {
@@ -866,18 +782,37 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!container || !searchInput || !statusFilterSelect) return;
 
         container.innerHTML = ''; // Vide la liste
-        const searchTerm = searchInput.value.toLowerCase();
+        const searchTerm = searchInput.value.toLowerCase().trim();
         const statusFilter = statusFilterSelect.value;
+        
+        // Pour le débogage
+        console.log("Recherche:", searchTerm);
+        console.log("Tables disponibles:", tablesData);
 
         const filteredAndSortedTables = tablesData
-            .filter(table =>
-                (searchTerm === '' || table.number.toString().includes(searchTerm) || (table.server && table.server.toLowerCase().includes(searchTerm))) &&
-                (statusFilter === 'all' || statusFilter === table.status)
-            )
-            .sort((a, b) => a.number - b.number);
+            .filter(table => {
+                // Debugging des propriétés disponibles pour chaque table
+                const properties = Object.keys(table).join(", ");
+                console.log(`Table ID ${table.id}: ${properties}`);
+                
+                // Vérification si les propriétés existent avant de les comparer
+                const tableNumber = table.number || table.numero || "";
+                const tableCapacity = table.capacity || table.capacite || "";
+                const tableType = table.type || table.typeTable || "";
+                
+                // Recherche dans tous les champs pertinents (avec conversion explicite en chaîne)
+                const matchSearch = searchTerm === '' || 
+                                   String(tableNumber).toLowerCase().includes(searchTerm) || 
+                                   String(tableCapacity).toLowerCase().includes(searchTerm) ||
+                                   String(tableType).toLowerCase().includes(searchTerm);
+                
+                const matchStatus = statusFilter === 'all' || statusFilter === table.status;
+                return matchSearch && matchStatus;
+            })
+            .sort((a, b) => (a.number || a.numero) - (b.number || b.numero));
 
         if (filteredAndSortedTables.length === 0) {
-             container.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-gray-500">Aucune table trouvée.</td></tr>`;
+             container.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-gray-500">Aucune table trouvée.</td></tr>`;
              return;
          }
 
@@ -887,32 +822,33 @@ document.addEventListener('DOMContentLoaded', function() {
             row.dataset.id = table.id;
             row.className = 'border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors duration-150';
 
-            let statusBadge, zoneText;
-             switch(table.status) {
-                 case 'available': statusBadge = '<span class="status-badge bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300">Disponible</span>'; break;
-                 case 'occupied': statusBadge = '<span class="status-badge bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300">Occupée</span>'; break;
-                 case 'ordered': statusBadge = '<span class="status-badge bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300">Commande</span>'; break;
-                 case 'payment': statusBadge = '<span class="status-badge bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300">Paiement</span>'; break;
-                 case 'reserved': statusBadge = '<span class="status-badge bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300">Réservée</span>'; break;
-                 default: statusBadge = '<span class="status-badge bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300">Inconnu</span>';
-             }
-              // Style commun pour les badges
-              statusBadge = statusBadge.replace('class="status-badge', 'class="status-badge inline-block px-2 py-0.5 text-xs font-semibold rounded-full"');
+            // Détermine le badge de statut avec la couleur appropriée
+            let statusBadge;
+            switch(table.status) {
+                case 'available': 
+                    statusBadge = '<span class="inline-block px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300">Disponible</span>'; 
+                    break;
+                case 'occupied': 
+                    statusBadge = '<span class="inline-block px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300">Occupée</span>'; 
+                    break;
+                default: 
+                    statusBadge = '<span class="inline-block px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300">Inconnu</span>';
+            }
 
-             switch(table.zone) {
-                 case 'ground': zoneText = 'RdC'; break; // Abrégé pour la liste
-                 case 'terrace': zoneText = 'Terrasse'; break;
-                 case 'private': zoneText = 'Privé'; break;
-                 default: zoneText = table.zone;
-             }
+            // Détermine le texte du type de table
+            let typeText;
+            switch(table.type) {
+                case 'round': typeText = 'Ronde'; break;
+                case 'rect': typeText = 'Rectangulaire'; break;
+                case 'booth': typeText = 'Booth'; break;
+                default: typeText = table.type;
+            }
 
             row.innerHTML = `
                 <td class="px-4 py-3 font-medium">T ${table.number}</td>
                 <td class="px-4 py-3 text-sm">${table.capacity}</td>
-                <td class="px-4 py-3 text-sm">${zoneText}</td>
+                <td class="px-4 py-3 text-sm">${typeText}</td>
                 <td class="px-4 py-3">${statusBadge}</td>
-                <td class="px-4 py-3 text-sm">${table.since || '-'}</td>
-                <td class="px-4 py-3 text-sm truncate max-w-[100px]">${table.server || '-'}</td>
                 <td class="px-4 py-3">
                     <div class="flex items-center space-x-1">
                         <button class="action-button bg-blue-500 hover:bg-blue-600 text-white" title="Modifier" data-action="edit">
@@ -921,7 +857,7 @@ document.addEventListener('DOMContentLoaded', function() {
                          <button class="action-button bg-yellow-500 hover:bg-yellow-600 text-white ${table.status === 'available' ? 'opacity-50 cursor-not-allowed' : ''}" title="Changer Statut" data-action="status" ${table.status === 'available' ? 'disabled' : ''}>
                             <i class="fas fa-sync-alt"></i>
                         </button>
-                        <button class="action-button bg-green-500 hover:bg-green-600 text-white ${table.status !== 'available' && table.status !== 'reserved' ? 'opacity-50 cursor-not-allowed' : ''}" title="Occuper/Arrivée" data-action="occupy" ${table.status !== 'available' && table.status !== 'reserved' ? 'disabled' : ''}>
+                        <button class="action-button bg-green-500 hover:bg-green-600 text-white ${table.status !== 'available' ? 'opacity-50 cursor-not-allowed' : ''}" title="Occuper/Arrivée" data-action="occupy" ${table.status !== 'available' ? 'disabled' : ''}>
                             <i class="fas fa-check"></i>
                         </button>
                         <button class="action-button bg-red-500 hover:bg-red-600 text-white" title="Supprimer" data-action="delete">
@@ -980,12 +916,6 @@ document.addEventListener('DOMContentLoaded', function() {
          if (tablesListContainer) {
              tablesListContainer.addEventListener('click', handleTableListAction);
          }
-
-          // Délégation d'événements pour les clics sur les tables du plan
-          const tablesMapContainer = document.getElementById('tables-container');
-          if (tablesMapContainer) {
-              tablesMapContainer.addEventListener('click', handleClickOnTable);
-          }
     }
 
      // Gère les clics sur les boutons de la LISTE des tables
@@ -1016,20 +946,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-     // Gère les clics sur les tables du PLAN de salle
-     function handleClickOnTable(event) {
-         const tableElement = event.target.closest('.table-item[data-id]');
-         // Ignore les clics pendant un drag (géré par SortableJS) ou si pas sur une table
-         if (!tableElement || tableElement.classList.contains('sortable-ghost') || tableElement.classList.contains('sortable-chosen')) return;
-
-         const id = parseInt(tableElement.dataset.id);
-         if (isNaN(id)) return;
-
-         // Action simple au clic sur le plan: cycle le statut (ouvre une modal d'actions plus tard)
-         // showTableActionsModal(id); // Idéalement, ouvrir une petite modal/menu contextuel
-         cycleTableStatus(id); // Pour l'instant, cycle le statut comme sur la liste
-     }
-
      function findTableById(id) {
          return tablesData.find(t => t.id === id);
      }
@@ -1053,14 +969,41 @@ document.addEventListener('DOMContentLoaded', function() {
 
          const currentStatus = tablesData[tableIndex].status;
 
-         if (currentStatus === 'available' || currentStatus === 'reserved') {
-             tablesData[tableIndex].status = 'occupied';
-             tablesData[tableIndex].since = getCurrentTime();
-             // Potentiellement demander le serveur ici via une petite modal ou assigner par défaut
-             if (!tablesData[tableIndex].server) tablesData[tableIndex].server = 'Assigné';
-             renderAndUpdate(`Table ${tablesData[tableIndex].number} marquée comme occupée.`);
+         if (currentStatus === 'available') {
+             // Prépare les données à envoyer
+             const tableData = {
+                 statut: 'occupied'
+             };
+
+             // Appel AJAX pour mettre à jour le statut dans la base de données
+             fetch(`/gerant/tables/${id}/update-status`, {
+                 method: 'POST',
+                 headers: {
+                     'Content-Type': 'application/json',
+                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                 },
+                 body: JSON.stringify(tableData)
+             })
+             .then(response => response.json())
+             .then(data => {
+                 if (data.success) {
+                     // Mise à jour locale après confirmation du serveur
+                     tablesData[tableIndex].status = 'occupied';
+                     tablesData[tableIndex].since = getCurrentTime();
+                     // Potentiellement demander le serveur ici via une petite modal ou assigner par défaut
+                     if (!tablesData[tableIndex].server) tablesData[tableIndex].server = 'Assigné';
+                     
+                     renderAndUpdate(`Table ${tablesData[tableIndex].number} marquée comme occupée.`, 'success');
+                 } else {
+                     showNotification(data.message || 'Erreur lors de la mise à jour du statut', 'error');
+                 }
+             })
+             .catch(error => {
+                 console.error('Erreur:', error);
+                 showNotification('Erreur de communication avec le serveur', 'error');
+             });
          } else {
-             showNotification(`Cette action n'est possible que pour les tables disponibles ou réservées.`, 'warning');
+             showNotification(`Cette action n'est possible que pour les tables disponibles.`, 'warning');
          }
      }
 
@@ -1075,7 +1018,7 @@ document.addEventListener('DOMContentLoaded', function() {
              return;
          }
 
-         const statusOrder = ['occupied', 'ordered', 'payment', 'available']; // Ordre de cycle (revient à 'available' à la fin)
+         const statusOrder = ['occupied', 'available']; // Ordre de cycle (revient à 'available' à la fin)
          let currentIndex = statusOrder.indexOf(currentStatus);
          let nextIndex = (currentIndex + 1) % statusOrder.length;
          let nextStatus = statusOrder[nextIndex];
@@ -1113,21 +1056,35 @@ document.addEventListener('DOMContentLoaded', function() {
 
      function handleDeleteTable() {
          if (selectedTableId === null) return;
-         const tableIndex = findTableIndexById(selectedTableId);
-         if (tableIndex !== -1) {
-             const deletedNumber = tablesData[tableIndex].number;
-             tablesData.splice(tableIndex, 1); // Supprime du tableau local
-             renderAndUpdate(`Table ${deletedNumber} supprimée.`);
-             hideModal(document.getElementById('delete-table-modal'));
-         } else {
-             showNotification(`Erreur lors de la suppression de la table ID ${selectedTableId}.`, 'error');
-         }
+         
+         fetch(`/gerant/tables/${selectedTableId}`, {
+             method: 'DELETE',
+             headers: {
+                 'Content-Type': 'application/json',
+                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+             }
+         })
+         .then(response => response.json())
+         .then(data => {
+             if (data.success) {
+                 // Rafraîchir les données
+                 fetchTables();
+                 hideModal(document.getElementById('delete-table-modal'));
+                 showNotification(data.message, 'success');
+             } else {
+                 showNotification(data.message || 'Erreur lors de la suppression', 'error');
+             }
+         })
+         .catch(error => {
+             console.error('Erreur:', error);
+             showNotification('Erreur de communication avec le serveur', 'error');
+         });
+         
          selectedTableId = null; // Réinitialise l'ID sélectionné
      }
 
      // Met à jour l'affichage et affiche une notification
      function renderAndUpdate(notificationMessage = null, notificationType = 'info') {
-          renderTables();
           renderTablesList();
           if (notificationMessage) {
                showNotification(notificationMessage, notificationType);
@@ -1143,32 +1100,45 @@ document.addEventListener('DOMContentLoaded', function() {
         const numberInput = document.getElementById('table-number');
         const capacityInput = document.getElementById('table-capacity');
         const zoneSelect = document.getElementById('table-zone');
-        const typeSelect = document.getElementById('table-type');
-        const xInput = document.getElementById('table-x');
-        const yInput = document.getElementById('table-y');
 
         // Vérifie que tous les éléments existent
-        if (!title || !numberInput || !capacityInput || !zoneSelect || !typeSelect || !xInput || !yInput) {
+        if (!title || !numberInput || !capacityInput || !zoneSelect) {
              console.error("Éléments de la modal table manquants.");
              return;
          }
 
         // Reset form elements
-        numberInput.value = ''; capacityInput.value = ''; zoneSelect.value = 'ground';
-        typeSelect.value = 'round'; xInput.value = ''; yInput.value = '';
+        numberInput.value = ''; 
+        capacityInput.value = ''; 
+        zoneSelect.value = 'SallePrincipale';
 
         if (table) { // Mode édition
             title.textContent = `Modifier la table ${table.number}`;
             numberInput.value = table.number;
             capacityInput.value = table.capacity;
-            zoneSelect.value = table.zone;
-            typeSelect.value = table.type;
-            xInput.value = table.x;
-            yInput.value = table.y;
+            
+            // Pré-sélectionner la zone actuelle de la table
+            if (table.typeTable) {
+                // Si typeTable est présent, l'utiliser pour la sélection
+                zoneSelect.value = table.typeTable;
+            } else if (table.zone) {
+                // Sinon utiliser la propriété zone si elle existe
+                zoneSelect.value = table.zone;
+            }
+            
+            // Si aucune option correspondante n'est trouvée, vérifier la présence
+            const zoneExists = Array.from(zoneSelect.options).some(option => option.value === zoneSelect.value);
+            if (!zoneExists) {
+                console.warn(`La zone ${zoneSelect.value} n'existe pas dans les options. Valeur par défaut utilisée.`);
+                zoneSelect.value = 'SallePrincipale'; // Valeur par défaut
+            }
+            
+            console.log(`Table en édition: ${table.id}, Zone: ${zoneSelect.value}`);
+            
             selectedTableId = table.id; // Stocke l'ID pour la sauvegarde
         } else { // Mode ajout
             title.textContent = 'Ajouter une table';
-            const maxNumber = tablesData.length > 0 ? Math.max(0, ...tablesData.map(t => t.number)) : 0;
+            const maxNumber = tablesData.length > 0 ? Math.max(0, ...tablesData.map(t => t.number || t.numero)) : 0;
             numberInput.value = maxNumber + 1;
             capacityInput.value = 4; // Capacité par défaut
             selectedTableId = null; // Pas d'ID sélectionné pour l'ajout
@@ -1181,10 +1151,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const numberInput = document.getElementById('table-number');
         const capacityInput = document.getElementById('table-capacity');
         const zoneSelect = document.getElementById('table-zone');
-        const typeSelect = document.getElementById('table-type');
-        const xInput = document.getElementById('table-x');
-        const yInput = document.getElementById('table-y');
         const modal = document.getElementById('table-modal');
+        const restaurantSelector = document.getElementById('header-restaurant-selector');
 
         // Validation simple
         if (!numberInput.value || !capacityInput.value) {
@@ -1197,120 +1165,96 @@ document.addEventListener('DOMContentLoaded', function() {
              showNotification('Numéro ou capacité invalide.', 'warning');
              return;
          }
-
-        // Vérifie l'unicité du numéro (sauf si on édite la même table)
-        const existingTable = tablesData.find(t => t.number === tableNumber && t.id !== selectedTableId);
-        if (existingTable) {
-            showNotification(`Une table avec le numéro ${tableNumber} existe déjà.`, 'error');
+        
+        if (!restaurantSelector || !restaurantSelector.value) {
+            showNotification('Veuillez sélectionner un restaurant.', 'warning');
             return;
         }
 
-        // Détermine la position (utilise les inputs ou génère aléatoirement)
-         const mapElement = document.getElementById('restaurant-map');
-         // Dimensions fallback si mapElement non trouvé ou non rendu
-         const mapWidth = mapElement ? mapElement.clientWidth - 100 : 700; // Ajuste pour taille table max
-         const mapHeight = mapElement ? mapElement.clientHeight - 100 : 400;
-         let x = xInput.value ? parseInt(xInput.value) : Math.max(20, Math.floor(Math.random() * mapWidth));
-         let y = yInput.value ? parseInt(yInput.value) : Math.max(20, Math.floor(Math.random() * mapHeight));
-         // S'assure que x et y sont des nombres valides
-         x = isNaN(x) ? 50 : x;
-         y = isNaN(y) ? 50 : y;
-
-
+        // Prépare les données à envoyer
         const tableData = {
-            number: tableNumber,
-            capacity: capacity,
-            zone: zoneSelect.value,
-            type: typeSelect.value,
-            x: x,
-            y: y
+            numero: tableNumber,
+            capacite: capacity,
+            typeTable: zoneSelect.value, // Utilise la valeur du champ zone pour typeTable
+            restaurant_id: restaurantSelector.value
         };
 
+        let url, method;
         if (selectedTableId !== null) { // Mode Modification
-            const tableIndex = findTableIndexById(selectedTableId);
-            if (tableIndex !== -1) {
-                // Fusionne les nouvelles données avec les anciennes (conserve statut, etc.)
-                tablesData[tableIndex] = { ...tablesData[tableIndex], ...tableData };
-                renderAndUpdate(`Table ${tableNumber} modifiée.`, 'success');
-            } else {
-                 showNotification(`Erreur: Table ID ${selectedTableId} non trouvée pour modification.`, 'error');
-            }
+            url = `/gerant/tables/${selectedTableId}`;
+            method = 'PUT';
         } else { // Mode Ajout
-            const newId = tablesData.length > 0 ? Math.max(0, ...tablesData.map(t => t.id)) + 1 : 1;
-            const newTable = {
-                ...tableData,
-                id: newId,
-                status: 'available', // Statut par défaut pour une nouvelle table
-                 since: null,
-                 server: null
-            };
-            tablesData.push(newTable);
-            renderAndUpdate(`Table ${tableNumber} ajoutée.`, 'success');
+            url = `/gerant/tables`;
+            method = 'POST';
         }
 
-        hideModal(modal);
+        // Requête AJAX pour sauvegarder/mettre à jour
+        fetch(url, {
+            method: method,
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify(tableData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Rafraîchir les données
+                fetchTables();
+                hideModal(modal);
+                showNotification(data.message, 'success');
+            } else {
+                showNotification(data.message || 'Erreur lors de l\'enregistrement', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            showNotification('Erreur de communication avec le serveur', 'error');
+        });
+
         selectedTableId = null; // Reset après sauvegarde/ajout
     }
 
-     // --- Initialisation SortableJS ---
-     function initializeSortableMap() {
-         const mapContainer = document.getElementById('tables-container');
-         if (mapContainer && typeof Sortable !== 'undefined') {
-             // Détruit l'instance précédente pour éviter les doublons
-             if (sortableMapInstance) {
-                 try { sortableMapInstance.destroy(); } catch(e) {}
-             }
-             sortableMapInstance = new Sortable(mapContainer, {
-                 animation: 150,
-                 ghostClass: 'opacity-50',
-                 chosenClass: "border-blue-500", // Classe quand on sélectionne
-                 dragClass: "opacity-75", // Classe pendant le drag
-                 // handle: '.table-item', // Permet de drag depuis toute la table
-                 filter: '.pointer-events-none', // Ne pas démarrer le drag sur le texte interne
-                 preventOnFilter: false, // Permet au clic de passer même sur éléments filtrés
-                 onEnd: function (evt) {
-                     const itemEl = evt.item; // L'élément DOM déplacé
-                     const tableId = parseInt(itemEl.dataset.id);
-                     const tableIndex = findTableIndexById(tableId);
-
-                     if (tableIndex !== -1) {
-                         // Lecture de la nouvelle position absolue et calcul relative au conteneur
-                         const mapContainer = document.getElementById('tables-container');
-                         const mapRect = mapContainer.getBoundingClientRect();
-                         const itemRect = itemEl.getBoundingClientRect();
-
-                         // Position relative au coin supérieur gauche du conteneur mapContainer
-                         const newX = Math.round(itemRect.left - mapRect.left + mapContainer.scrollLeft);
-                         const newY = Math.round(itemRect.top - mapRect.top + mapContainer.scrollTop);
-
-
-                         if (!isNaN(newX) && !isNaN(newY)) {
-                             tablesData[tableIndex].x = newX;
-                             tablesData[tableIndex].y = newY;
-
-                             // Mise à jour visuelle (SortableJS le fait, mais on peut forcer si besoin)
-                             // itemEl.style.left = `${newX}px`;
-                             // itemEl.style.top = `${newY}px`;
-
-                             // Optionnel: Sauvegarder la nouvelle position via AJAX ici
-                             console.log(`Table ${tablesData[tableIndex].number} déplacée vers (${newX}, ${newY})`);
-                             // Pas besoin de re-render complet ici, juste la liste si elle affiche X/Y
-                             showNotification(`Position T${tablesData[tableIndex].number} sauvée (simulation)`, 'info');
-                         } else {
-                             console.warn("Positions invalides après drag&drop");
-                             // Remettre l'élément à sa position initiale si calcul échoue ?
-                             itemEl.style.left = `${tablesData[tableIndex].x}px`;
-                             itemEl.style.top = `${tablesData[tableIndex].y}px`;
-                         }
-                     }
-                 },
-             });
-         } else if (mapContainer && typeof Sortable === 'undefined') {
-             console.warn("Librairie SortableJS non chargée.");
-         }
-     }
-     // --- Fin Logique Section Tables ---
-
+    function fetchTables() {
+        const restaurantSelector = document.getElementById('header-restaurant-selector');
+        const tablesListContainer = document.getElementById('tables-list');
+        if (!restaurantSelector || !restaurantSelector.value) {
+            showNotification("Veuillez sélectionner un restaurant", "warning");
+            if (tablesListContainer) {
+                tablesListContainer.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-gray-500">Veuillez sélectionner un restaurant</td></tr>`;
+            }
+            return;
+        }
+        
+        // Show loading state
+        if (tablesListContainer) {
+            tablesListContainer.innerHTML = `<tr><td colspan="5" class="text-center py-4"><div class="inline-block animate-spin rounded-full h-5 w-5 border-b-2 border-blue-500 mr-2"></div> Chargement des tables...</td></tr>`;
+        }
+        
+        fetch(`/gerant/get-tables?restaurant_id=${restaurantSelector.value}`)
+            .then(response => response.json())
+            .then(data => {
+                // Remplace les données fictives par les données réelles
+                tablesData = data.tables.map(table => ({
+                    id: table.id,
+                    number: table.numero,
+                    capacity: table.capacite,
+                    zone: table.zone,
+                    type: table.typeTable,
+                    status: table.statut
+                }));
+                
+                renderTablesList();
+            })
+            .catch(error => {
+                console.error('Erreur lors du chargement des tables:', error);
+                showNotification("Erreur lors du chargement des tables", "error");
+                if (tablesListContainer) {
+                    tablesListContainer.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-red-500">Erreur lors du chargement des tables</td></tr>`;
+                }
+            });
+    }
 
     // ----- Logique Section Personnel -----
     let isPersonnelManagerInitialized = false;
