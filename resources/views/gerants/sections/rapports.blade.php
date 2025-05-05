@@ -1,4 +1,3 @@
-{{-- resources/views/gerants/sections/rapports.blade.php --}}
 <div id="section-rapports" class="section-content p-6 hidden">
     <h2 class="text-2xl font-bold mb-6 text-gray-800 dark:text-gray-200">Rapports et Analyses</h2>
 
@@ -68,30 +67,6 @@
                     <p class="report-card-subtitle">Avril 2025 - PDF</p>
                 </div>
                 <i class="fas fa-download report-card-download-icon"></i>
-            </a>
-
-            {{-- Carte Rapport 2 --}}
-             <a href="#" class="report-card group bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-700">
-                <div class="report-card-icon bg-green-100 dark:bg-green-900/50 text-green-600 dark:text-green-400">
-                    <i class="fas fa-boxes"></i> {{-- Icone Stock --}}
-                </div>
-                <div>
-                    <h4 class="report-card-title">Analyse des Stocks</h4>
-                    <p class="report-card-subtitle">Semaine 17 - Excel</p>
-                </div>
-                 <i class="fas fa-download report-card-download-icon"></i>
-            </a>
-
-             {{-- Carte Rapport 3 --}}
-             <a href="#" class="report-card group bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-700">
-                <div class="report-card-icon bg-purple-100 dark:bg-purple-900/50 text-purple-600 dark:text-purple-400">
-                    <i class="fas fa-user-chart"></i> {{-- Icone Personnel --}}
-                </div>
-                <div>
-                    <h4 class="report-card-title">Performance Personnel</h4>
-                    <p class="report-card-subtitle">T1 2025 - PDF</p>
-                </div>
-                 <i class="fas fa-download report-card-download-icon"></i>
             </a>
 
              {{-- Style commun pour les cartes de rapport --}}
