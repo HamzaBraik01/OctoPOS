@@ -264,22 +264,26 @@ document.addEventListener('DOMContentLoaded', function() {
         const todaySalesElement = document.getElementById('today-sales');
         const weekSalesElement = document.getElementById('week-sales');
         
-        if (todaySalesElement) todaySalesElement.textContent = "...";
-        if (weekSalesElement) weekSalesElement.textContent = "...";
+        if (todaySalesElement) todaySalesElement.textContent = "Chargement...";
+        if (weekSalesElement) weekSalesElement.textContent = "Chargement...";
+        
+        console.log("Chargement des données de vente pour le restaurant:", restaurantSelector.value);
         
         fetch(`/gerant/get-sales-summary?restaurant_id=${restaurantSelector.value}`)
             .then(response => {
                 if (!response.ok) {
-                    throw new Error('Erreur réseau lors de la récupération des données');
+                    throw new Error('Erreur réseau lors de la récupération des données: ' + response.status);
                 }
                 return response.json();
             })
             .then(data => {
+                console.log("Données reçues:", data);
                 updateSalesSummary(data.today_total, data.week_total);
             })
             .catch(error => {
                 console.error('Erreur lors du chargement des données de ventes:', error);
                 updateSalesSummary(0, 0);
+                showNotification("Erreur lors du chargement des données de ventes. Veuillez réessayer.", "error");
             });
     }
 

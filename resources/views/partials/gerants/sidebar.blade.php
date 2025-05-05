@@ -21,7 +21,6 @@
                 <a href="#" class="sidebar-link flex items-center py-3 px-4 rounded-md text-gray-600 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600 dark:hover:text-blue-400 transition-colors" data-section="reservations">
                     <i class="fas fa-calendar-check w-6 text-xl mr-3 text-center"></i>
                     <span class="menu-text">Réservations</span>
-                    <span class="ml-auto bg-blue-500 text-white text-xs py-0.5 px-2 rounded-full menu-text">4</span> {{-- Masqué si sidebar fermé --}}
                 </a>
                 <a href="#" class="sidebar-link flex items-center py-3 px-4 rounded-md text-gray-600 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600 dark:hover:text-blue-400 transition-colors" data-section="caisse">
                     <i class="fas fa-cash-register w-6 text-xl mr-3 text-center"></i>
