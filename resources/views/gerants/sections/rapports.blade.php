@@ -10,15 +10,15 @@
                     <i class="fas fa-chart-bar text-blue-500 mr-2"></i>
                     Performance des Ventes
                 </h3>
-                 {{-- Sélecteur période ? --}}
-                 <select class="text-xs p-1 border rounded dark:bg-gray-700 dark:border-gray-600">
-                     <option>Cette semaine</option>
-                     <option>Ce mois</option>
-                     <option>Trimestre</option>
-                 </select>
+                {{-- Sélecteur période --}}
+                <select id="sales-period-selector" class="text-xs p-1 border rounded dark:bg-gray-700 dark:border-gray-600">
+                    <option value="week">Cette semaine</option>
+                    <option value="month">Ce mois</option>
+                    <option value="quarter">Trimestre</option>
+                </select>
             </div>
             {{-- Conteneur pour le graphique --}}
-            <div class="mt-4 flex-grow min-h-[300px]">
+            <div class="mt-4 flex-grow min-h-[300px]" id="sales-performance-chart-container">
                 <canvas id="sales-performance-chart"></canvas>
             </div>
         </div>

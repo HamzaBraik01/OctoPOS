@@ -291,6 +291,11 @@ document.addEventListener('DOMContentLoaded', function() {
     if (restaurantSelector) {
         restaurantSelector.addEventListener('change', function() {
             selectedRestaurantId = this.value;
+            const selectedRestaurantName = this.options[this.selectedIndex].text;
+            
+            if (selectedRestaurantId) {
+                showNotification(`Données chargées pour: ${selectedRestaurantName}`, 'success');
+            }
             
             loadSalesSummary();
             
@@ -315,6 +320,16 @@ document.addEventListener('DOMContentLoaded', function() {
             if (currentActiveSection === 'tables') {
                 fetchTables();
             }
+            
+            if (currentActiveSection === 'rapports') {
+                initSalesPerformanceChart();
+                initTrendsChart();
+            }
+            
+            // Mettre à jour le titre de la page avec le nom du restaurant
+            document.querySelectorAll('.restaurant-name-display').forEach(el => {
+                el.textContent = selectedRestaurantName;
+            });
         });
     }
     
@@ -547,41 +562,113 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!ctx) { return; }
         salesPerformanceChartInstance = destroyChart(salesPerformanceChartInstance);
         const colors = getChartColors();
-
-        salesPerformanceChartInstance = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'],
-                datasets: [{
-                    label: 'Cette semaine',
-                    data: [1200, 1500, 1300, 1700, 2100, 2500, 1800],
-                    backgroundColor: colors.primary,
-                    borderColor: colors.primary,
-                    borderWidth: 1,
-                    borderRadius: 4,
-                    maxBarThickness: 40
-                }, {
-                    label: 'Semaine précédente',
-                    data: [1100, 1400, 1250, 1600, 1900, 2300, 1700],
-                    backgroundColor: colors.primaryLight,
-                    borderColor: colors.primaryLight,
-                    borderWidth: 1,
-                    borderRadius: 4,
-                    maxBarThickness: 40
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    x: { grid: { display: false }, ticks: { color: colors.text } },
-                    y: { grid: { color: colors.grid }, ticks: { color: colors.text, callback: value => value + ' DH' }, beginAtZero: true }
-                },
-                plugins: { legend: { labels: { color: colors.text } } },
-                 interaction: { mode: 'index' },
-                 tooltip: { callbacks: { label: (context) => `${context.dataset.label}: ${context.parsed.y.toFixed(2)} DH` } }
+        
+        const restaurantSelector = document.getElementById('header-restaurant-selector');
+        const salesPeriodSelector = document.getElementById('sales-period-selector');
+        const period = salesPeriodSelector ? salesPeriodSelector.value : 'week';
+        
+        if (!restaurantSelector || !restaurantSelector.value) {
+            const chartContainer = document.getElementById('sales-performance-chart-container');
+            if (chartContainer) {
+                chartContainer.innerHTML = `
+                    <div class="flex items-center justify-center h-full text-gray-500 dark:text-gray-400">
+                        <p>Sélectionnez un restaurant pour voir les données de performance.</p>
+                    </div>
+                `;
             }
-        });
+            return;
+        }
+        
+        const chartContainer = document.getElementById('sales-performance-chart-container');
+        if (chartContainer) {
+            chartContainer.innerHTML = `
+                <div class="flex items-center justify-center h-full text-gray-500 dark:text-gray-400">
+                    <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mr-2"></div>
+                    <p>Chargement des données...</p>
+                </div>
+            `;
+        }
+        
+        fetch(`/gerant/get-sales-performance?restaurant_id=${restaurantSelector.value}&period=${period}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Erreur réseau lors de la récupération des données: ' + response.status);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (chartContainer) {
+                    chartContainer.innerHTML = '<canvas id="sales-performance-chart"></canvas>';
+                }
+                
+                const ctx = document.getElementById('sales-performance-chart')?.getContext('2d');
+                if (!ctx) return;
+                
+                salesPerformanceChartInstance = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: data.labels,
+                        datasets: [{
+                            label: 'Cette période',
+                            data: data.currentPeriod,
+                            backgroundColor: colors.primary,
+                            borderColor: colors.primary,
+                            borderWidth: 1,
+                            borderRadius: 4,
+                            maxBarThickness: 40
+                        }, {
+                            label: 'Période précédente',
+                            data: data.previousPeriod,
+                            backgroundColor: colors.primaryLight,
+                            borderColor: colors.primaryLight,
+                            borderWidth: 1,
+                            borderRadius: 4,
+                            maxBarThickness: 40
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: { grid: { display: false }, ticks: { color: colors.text } },
+                            y: { 
+                                grid: { color: colors.grid }, 
+                                ticks: { 
+                                    color: colors.text, 
+                                    callback: value => value.toLocaleString('fr-FR') + ' DH'
+                                }, 
+                                beginAtZero: true 
+                            }
+                        },
+                        plugins: { 
+                            legend: { labels: { color: colors.text } } 
+                        },
+                        interaction: { mode: 'index' },
+                        tooltip: { 
+                            callbacks: { 
+                                label: (context) => {
+                                    const value = context.parsed.y;
+                                    const formattedValue = value.toLocaleString('fr-FR', {
+                                        minimumFractionDigits: 2,
+                                        maximumFractionDigits: 2
+                                    });
+                                    return `${context.dataset.label}: ${formattedValue} DH`;
+                                }
+                            }
+                        }
+                    }
+                });
+            })
+            .catch(error => {
+                console.error('Erreur lors du chargement des données de performance:', error);
+                if (chartContainer) {
+                    chartContainer.innerHTML = `
+                        <div class="flex items-center justify-center h-full text-red-500">
+                            <p>Erreur lors du chargement des données. Veuillez réessayer.</p>
+                        </div>
+                    `;
+                }
+            });
     }
 
     function initTrendsChart() {
@@ -1411,5 +1498,13 @@ document.addEventListener('DOMContentLoaded', function() {
     if (restaurantSelector && restaurantSelector.value) {
         selectedRestaurantId = restaurantSelector.value;
         loadReservations();
+    }
+
+    // Ajout de l'écouteur d'événements pour le sélecteur de période des performances de ventes
+    const salesPeriodSelector = document.getElementById('sales-period-selector');
+    if (salesPeriodSelector) {
+        salesPeriodSelector.addEventListener('change', function() {
+            initSalesPerformanceChart();
+        });
     }
 });

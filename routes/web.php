@@ -47,7 +47,8 @@ Route::middleware([JWTAuthentication::class])->group(function () {
         Route::get('/get-recent-transactions', [GerantController::class, 'getRecentTransactions'])->name('gerant.getRecentTransactions');
         
         Route::get('/get-sales-summary', [GerantController::class, 'getSalesSummary'])->name('gerant.getSalesSummary');
-
+        Route::get('/get-sales-performance', [GerantController::class, 'getSalesPerformance'])->name('gerant.getSalesPerformance');
+        
         Route::post('/tables/update-status', [TableController::class, 'updateStatus'])->name('gerant.tables.updateStatus');
         
         Route::post('/commandes/update-status', [CommandeController::class, 'updateStatus'])->name('gerant.commandes.updateStatus');
