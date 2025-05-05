@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class User extends Authenticatable implements JWTSubject
 {
@@ -29,6 +30,12 @@ class User extends Authenticatable implements JWTSubject
     public function restaurant()
     {
         return $this->belongsTo(Restaurant::class);
+    }
+
+    // Relation with Shifts
+    public function shifts(): HasMany
+    {
+        return $this->hasMany(Shift::class);
     }
 
     // Méthodes requises par JWTSubject
