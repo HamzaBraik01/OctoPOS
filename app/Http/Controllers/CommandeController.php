@@ -28,28 +28,66 @@ class CommandeController extends Controller
      */
     public function store(Request $request)
     {
-        // Validate the request
-        $validated = $request->validate([
-            'table_id' => 'required|exists:tables,id',
-            'restaurant_id' => 'required|exists:restaurants,id',
-            'total' => 'required|numeric|min:0',
-        ]);
-        
-        // Create a new commande
+        \Log::info('Form submission received:', $request->all());
+    
+        try {
+            // Updated validation rules to include plat_id
+            $validatedData = $request->validate([
+                'table_id' => 'required|integer|exists:tables,id',
+                'restaurant_id' => 'required|integer|exists:restaurants,id',
+                'total' => 'required|numeric|min:0',
+                'plats' => 'required|array',
+                'plats.*.id' => 'required|integer|exists:plats,id', // Added validation for plat_id
+                'plats.*.quantite' => 'required|integer|min:1',
+                'plats.*.cuisson' => 'nullable|string|max:100',  // Added cooking preference
+                'plats.*.accompagnement' => 'nullable|string|max:100', // Added side dish
+                'plats.*.extras' => 'nullable|array', // Validate extras as array
+                'plats.*.notes' => 'nullable|string|max:255',
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            \Log::error('Validation failed:', $e->errors());
+            return redirect()->back()->withErrors($e->errors())->withInput();
+        }
+    
+        // Create the order
         $commande = Commande::create([
-            'table_id' => $validated['table_id'],
-            'restaurant_id' => $validated['restaurant_id'],
             'date' => now(),
-            'statut' => 'en_cours',
-            'utilisateur_id' => auth()->id(),
-            'total' => $validated['total']
+            'statut' => 'en attente', 
+            'users_id' => auth()->id() ,
+            'table_id' => $validatedData['table_id'],
+            'restaurant_id' => $validatedData['restaurant_id'],
+            'total' => $validatedData['total'],
         ]);
-        
-        return response()->json([
-            'success' => true,
-            'commande_id' => $commande->id,
-            'message' => 'Commande créée avec succès'
-        ]);
+    
+        // Build options array and create order items
+        foreach ($validatedData['plats'] as $plat) {
+            // Construct options array
+            $options = [
+                'cuisson' => $plat['cuisson'] ?? null,
+                'accompagnement' => $plat['accompagnement'] ?? null,
+                'extras' => $plat['extras'] ?? []
+            ];
+    
+            // Create the order item with plat_id
+            $commande->plats()->create([
+                'plat_id' => $plat['id'], // Added plat_id
+                'quantite' => $plat['quantite'],
+                'options' => $options, // Store all customization options in the options JSON column
+                'notes' => $plat['notes'] ?? null,
+                
+            ]);
+        }
+    
+        // If request wants JSON (API call)
+        if ($request->expectsJson()) {
+            return response()->json([
+                'message' => 'Commande créée avec succès.',
+                'commande_id' => $commande->id
+            ], 201);
+        }
+    
+        // For web requests
+        return redirect()->route('serveurs.dashboard')->with('success', 'Commande créée avec succès.');
     }
 
     /**

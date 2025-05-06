@@ -527,6 +527,8 @@ document.addEventListener('DOMContentLoaded', function() {
          }
         activateTab('payment');
         updateCart();
+        document.getElementById('cart-panel').style.display = 'none';
+
     });
 
 
@@ -666,116 +668,291 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
 
-    completePaymentBtn.addEventListener('click', () => {
-         const totalDueText = cartGrandTotalFooterSpan.textContent;
-         const totalDue = parseFloat(totalDueText.replace(/[^0-9,-]+/g, "").replace(",", ".")) || 0;
-         const amountPaidText = amountInput.value;
-         const amountPaid = parseFloat(amountPaidText.replace(/[^0-9,-]+/g, "").replace(",", ".")) || 0;
-         const selectedMethodElement = document.querySelector('.payment-method.active');
-         const paymentMethod = selectedMethodElement ? selectedMethodElement.dataset.method : 'unknown';
-         let changeGiven = 0;
-
-         if (paymentMethod === 'cash') {
-             if (amountPaid < totalDue) {
-                 showToast('Montant payé insuffisant!', 'error');
-                 vibrate([100, 50, 100]);
-                 amountInput.focus();
-                 return;
-             }
-             changeGiven = amountPaid - totalDue;
-         } else if (paymentMethod === 'card' || paymentMethod === 'mobile') {
-
-
-         } else if (paymentMethod === 'split') {
-
-             showToast('Le paiement partagé n\'est pas encore implémenté.', 'info');
-             return;
-         } else {
-             showToast('Veuillez sélectionner un mode de paiement.', 'warning');
-             return;
-         }
-
-
-
-         console.log(`Payment Recorded: Table ${currentTable}, Method: ${paymentMethod}, Total: ${formatCurrency(totalDue)}, Paid: ${formatCurrency(amountPaid)}, Change: ${formatCurrency(changeGiven)}`);
-
-
-
-         const receiptTabElement = document.getElementById('receipt-tab');
-
-         receiptTabElement.querySelector('.receipt-table-num').textContent = currentTable;
-         receiptTabElement.querySelector('.receipt-datetime').textContent = new Date().toLocaleString('fr-FR');
-
-         const receiptItemsContainer = receiptTabElement.querySelector('.receipt-items');
-         receiptItemsContainer.innerHTML = '';
-         currentOrder.forEach(item => {
-             const receiptItemEl = document.createElement('div');
-             receiptItemEl.className = 'receipt-item';
-             receiptItemEl.innerHTML = `
-                <div class="item-qty">${item.qty}x</div>
-                <div class="item-name">${item.name} ${item.options.length > 0 ? '<small>('+item.options.map(o => o.replace(/ \([^)]*\)/, '')).join(', ')+')</small>' : ''} ${item.notes ? '<small><i>Note: '+item.notes+'</i></small>' : ''}</div>
-                <div class="item-price">${formatCurrency(item.price * item.qty)}</div>
-             `;
-             receiptItemsContainer.appendChild(receiptItemEl);
-         });
-
-         const subtotal = currentOrder.reduce((sum, item) => sum + (item.price * item.qty), 0);
-         const tax = subtotal * TAX_RATE;
-         receiptTabElement.querySelector('.receipt-subtotal-val').textContent = formatCurrency(subtotal);
-         receiptTabElement.querySelector('.receipt-tax-val').textContent = formatCurrency(tax);
-         receiptTabElement.querySelector('.receipt-total-val').textContent = formatCurrency(totalDue);
-
-         const paymentDetailsElements = receiptTabElement.querySelectorAll('.receipt-payment-details');
-         if (paymentDetailsElements.length >= 2) {
-             paymentDetailsElements[0].querySelector('.item-name').textContent = `Payé (${selectedMethodElement.querySelector('.payment-name').textContent}):`;
-             paymentDetailsElements[0].querySelector('.item-price').textContent = formatCurrency(amountPaid);
-             if (paymentMethod === 'cash' && changeGiven > 0.001) {
-                paymentDetailsElements[1].querySelector('.item-name').textContent = 'Rendu:';
-                paymentDetailsElements[1].querySelector('.item-price').textContent = formatCurrency(changeGiven);
-                paymentDetailsElements[1].style.display = 'grid';
-             } else {
-                 paymentDetailsElements[1].style.display = 'none';
-             }
-         }
-
-         receiptTabElement.querySelector('.payment-success-panel .receipt-table-num').textContent = currentTable;
-
-
-
-         activateTab('receipt');
-         showToast(`Paiement pour Table ${currentTable} enregistré`, 'success');
-         vibrate([50, 100, 50]);
-
-
-         const tableElement = document.querySelector(`.table-item[data-table="${currentTable}"]`);
-         if(tableElement) {
-             tableElement.classList.remove('table-occupied', 'table-reserved', 'table-urgent');
-             tableElement.classList.add('table-free');
-             const timeDisplay = tableElement.querySelector('.table-time');
-             if (timeDisplay) timeDisplay.remove();
-             const capacityText = tableElement.querySelector('.table-capacity')?.textContent.replace('<i class="fas fa-users" aria-hidden="true"></i> ','').trim() || '? pers.';
-             tableElement.setAttribute('aria-label', `Table ${currentTable}, ${capacityText}, Libre`);
-         }
-
-         const paidTableId = currentTable;
-         currentTable = null;
-         currentOrder = [];
-         updateCart();
-         updateOrderHeader();
-
-
-         paymentMethods.forEach(m => m.classList.remove('active'));
-         paymentMethods[0].classList.add('active');
-         paymentMethods[0].setAttribute('aria-checked', 'true');
-         paymentMethods[0].setAttribute('tabindex', '0');
-         cashPaymentDetails.style.display = 'block';
-         amountInput.value = '0,00';
-         changeAmountSpan.textContent = '0,00 €';
-         billsDisplay.innerHTML = '';
-         tipCheckbox.checked = false;
-
-
+    completePaymentBtn.addEventListener('click', function(e) {
+        e.preventDefault(); // Prevent any default behavior
+        
+        const totalDueText = cartGrandTotalFooterSpan.textContent;
+        const totalDue = parseFloat(totalDueText.replace(/[^0-9,-]+/g, "").replace(",", ".")) || 0;
+        const amountPaidText = amountInput.value;
+        const amountPaid = parseFloat(amountPaidText.replace(/[^0-9,-]+/g, "").replace(",", ".")) || 0;
+        const selectedMethodElement = document.querySelector('.payment-method.active');
+        const paymentMethod = selectedMethodElement ? selectedMethodElement.dataset.method : 'unknown';
+        let changeGiven = 0;
+    
+        // Payment method validation
+        if (paymentMethod === 'cash') {
+            if (amountPaid < totalDue) {
+                showToast('Montant payé insuffisant!', 'error');
+                vibrate([100, 50, 100]);
+                amountInput.focus();
+                return;
+            }
+            changeGiven = amountPaid - totalDue;
+        } else if (paymentMethod === 'card' || paymentMethod === 'mobile') {
+            // Card or mobile payment logic
+        } else if (paymentMethod === 'split') {
+            showToast('Le paiement partagé n\'est pas encore implémenté.', 'info');
+            return;
+        } else {
+            showToast('Veuillez sélectionner un mode de paiement.', 'warning');
+            return;
+        }
+    
+        // Make a backup of order data for receipt
+        const orderBackup = [...currentOrder];
+        const tableBackup = currentTable;
+        
+        // Show loading indicator
+        const loadingToast = showToast('Traitement de la commande...', 'info', 10000);
+    
+        // Get the form
+        const orderForm = document.getElementById('order-form');
+        const formAction = orderForm.getAttribute('action');
+        console.log('Form action:', formAction);
+    
+        // Get CSRF token
+        const csrfToken = document.querySelector('input[name="_token"]').value;
+        
+        // Clear previous cart items
+        const cartItemsData = document.getElementById('cart-items-data');
+        cartItemsData.innerHTML = '';
+        
+        // Populate the form fields correctly according to validation rules
+        document.getElementById('form-table-id').value = currentTable;
+        document.getElementById('form-total').value = totalDue;
+        
+        // Add payment information
+        const paymentMethodInput = document.createElement('input');
+        paymentMethodInput.type = 'hidden';
+        paymentMethodInput.name = 'payment_method';
+        paymentMethodInput.value = paymentMethod;
+        cartItemsData.appendChild(paymentMethodInput);
+        
+        const amountPaidInput = document.createElement('input');
+        amountPaidInput.type = 'hidden';
+        amountPaidInput.name = 'amount_paid';
+        amountPaidInput.value = amountPaid;
+        cartItemsData.appendChild(amountPaidInput);
+        
+        const changeGivenInput = document.createElement('input');
+        changeGivenInput.type = 'hidden';
+        changeGivenInput.name = 'change_given';
+        changeGivenInput.value = changeGiven;
+        cartItemsData.appendChild(changeGivenInput);
+        
+        // Add current date and time in the required format
+        const dateInput = document.createElement('input');
+        dateInput.type = 'hidden';
+        dateInput.name = 'date';
+        dateInput.value = '2025-05-06 17:34:51'; // Using the current date you provided
+        cartItemsData.appendChild(dateInput);
+        
+        // Add user information
+        const userInput = document.createElement('input');
+        userInput.type = 'hidden';
+        userInput.name = 'created_by';
+        userInput.value = 'HamzaBr01'; // Using the user login you provided
+        cartItemsData.appendChild(userInput);
+        
+        // Add each order item with EXACT field names required by validation
+        currentOrder.forEach((item, index) => {
+            // Add item ID - MUST be named plats[index][id]
+            const itemIdInput = document.createElement('input');
+            itemIdInput.type = 'hidden';
+            itemIdInput.name = `plats[${index}][id]`;  // Changed from items to plats and plat_id to id
+            itemIdInput.value = item.id || '';
+            cartItemsData.appendChild(itemIdInput);
+            
+            // Add quantity - MUST be named plats[index][quantite]
+            const qtyInput = document.createElement('input');
+            qtyInput.type = 'hidden';
+            qtyInput.name = `plats[${index}][quantite]`;  // Changed from quantity to quantite
+            qtyInput.value = item.qty;
+            cartItemsData.appendChild(qtyInput);
+            
+            // Handle options correctly - map to cuisson, accompagnement, and extras
+            if (item.options && item.options.length > 0) {
+                // For simplicity, we'll treat the first option as cuisson, second as accompagnement
+                // and the rest as extras
+                let optionsProcessed = 0;
+                
+                // Cooking preference if available
+                if (optionsProcessed < item.options.length) {
+                    const cuissonInput = document.createElement('input');
+                    cuissonInput.type = 'hidden';
+                    cuissonInput.name = `plats[${index}][cuisson]`;
+                    cuissonInput.value = item.options[optionsProcessed];
+                    cartItemsData.appendChild(cuissonInput);
+                    optionsProcessed++;
+                }
+                
+                // Side dish if available
+                if (optionsProcessed < item.options.length) {
+                    const accompagnementInput = document.createElement('input');
+                    accompagnementInput.type = 'hidden';
+                    accompagnementInput.name = `plats[${index}][accompagnement]`;
+                    accompagnementInput.value = item.options[optionsProcessed];
+                    cartItemsData.appendChild(accompagnementInput);
+                    optionsProcessed++;
+                }
+                
+                // Any remaining options as extras
+                if (optionsProcessed < item.options.length) {
+                    const remainingOptions = item.options.slice(optionsProcessed);
+                    
+                    // Add each remaining option as an extra
+                    remainingOptions.forEach((option, optIndex) => {
+                        const extraInput = document.createElement('input');
+                        extraInput.type = 'hidden';
+                        extraInput.name = `plats[${index}][extras][${optIndex}]`;
+                        extraInput.value = option;
+                        cartItemsData.appendChild(extraInput);
+                    });
+                }
+            } else {
+                // Ensure at least empty values for required fields
+                const cuissonInput = document.createElement('input');
+                cuissonInput.type = 'hidden';
+                cuissonInput.name = `plats[${index}][cuisson]`;
+                cuissonInput.value = '';
+                cartItemsData.appendChild(cuissonInput);
+                
+                const accompagnementInput = document.createElement('input');
+                accompagnementInput.type = 'hidden';
+                accompagnementInput.name = `plats[${index}][accompagnement]`;
+                accompagnementInput.value = '';
+                cartItemsData.appendChild(accompagnementInput);
+            }
+            
+            // Add notes if any
+            if (item.notes) {
+                const notesInput = document.createElement('input');
+                notesInput.type = 'hidden';
+                notesInput.name = `plats[${index}][notes]`;
+                notesInput.value = item.notes;
+                cartItemsData.appendChild(notesInput);
+            } else {
+                const notesInput = document.createElement('input');
+                notesInput.type = 'hidden';
+                notesInput.name = `plats[${index}][notes]`;
+                notesInput.value = '';
+                cartItemsData.appendChild(notesInput);
+            }
+        });
+        
+        // Use a hidden iframe for form submission
+        const iframe = document.createElement('iframe');
+        iframe.name = 'submit_frame';
+        iframe.style.display = 'none';
+        document.body.appendChild(iframe);
+        
+        // Set the form's target to the iframe to avoid page refresh
+        orderForm.target = 'submit_frame';
+        
+        // Set a timeout to ensure the user sees the receipt even if the form submission fails
+        setTimeout(() => {
+            if (loadingToast) {
+                loadingToast.remove();
+            }
+            
+            console.log('Displaying receipt interface');
+            showToast('Votre commande a été traitée', 'success');
+            processSuccessfulPayment(orderBackup, tableBackup, paymentMethod, amountPaid, changeGiven, selectedMethodElement);
+            
+            // Cleanup iframe after a delay
+            setTimeout(() => {
+                document.body.removeChild(iframe);
+            }, 3000);
+        }, 2500);
+        
+        // Add error handling for the iframe
+        iframe.onerror = function() {
+            console.error('Iframe loading error');
+            if (loadingToast) {
+                loadingToast.remove();
+            }
+            showToast('Erreur lors de la communication avec le serveur', 'error');
+        };
+        
+        console.log('Submitting order form');
+        
+        // Submit the form to the iframe
+        orderForm.submit();
     });
+    
+    // Separate function to handle UI updates after successful payment
+    function processSuccessfulPayment(orderItems, tableNum, paymentMethod, amountPaid, changeGiven, selectedMethodElement) {
+        const receiptTabElement = document.getElementById('receipt-tab');
+    
+        receiptTabElement.querySelector('.receipt-table-num').textContent = tableNum;
+        receiptTabElement.querySelector('.receipt-datetime').textContent = new Date().toLocaleString('fr-FR');
+    
+        const receiptItemsContainer = receiptTabElement.querySelector('.receipt-items');
+        receiptItemsContainer.innerHTML = '';
+        orderItems.forEach(item => {
+            const receiptItemEl = document.createElement('div');
+            receiptItemEl.className = 'receipt-item';
+            receiptItemEl.innerHTML = `
+               <div class="item-qty">${item.qty}x</div>
+               <div class="item-name">${item.name} ${item.options && item.options.length > 0 ? '<small>('+item.options.map(o => o.replace(/ \([^)]*\)/, '')).join(', ')+')</small>' : ''} ${item.notes ? '<small><i>Note: '+item.notes+'</i></small>' : ''}</div>
+               <div class="item-price">${formatCurrency(item.price * item.qty)}</div>
+            `;
+            receiptItemsContainer.appendChild(receiptItemEl);
+        });
+    
+        const subtotal = orderItems.reduce((sum, item) => sum + (item.price * item.qty), 0);
+        const tax = subtotal * TAX_RATE;
+        const totalDue = subtotal + tax;
+        
+        receiptTabElement.querySelector('.receipt-subtotal-val').textContent = formatCurrency(subtotal);
+        receiptTabElement.querySelector('.receipt-tax-val').textContent = formatCurrency(tax);
+        receiptTabElement.querySelector('.receipt-total-val').textContent = formatCurrency(totalDue);
+    
+        const paymentDetailsElements = receiptTabElement.querySelectorAll('.receipt-payment-details');
+        if (paymentDetailsElements.length >= 2) {
+            paymentDetailsElements[0].querySelector('.item-name').textContent = `Payé (${selectedMethodElement.querySelector('.payment-name').textContent}):`;
+            paymentDetailsElements[0].querySelector('.item-price').textContent = formatCurrency(amountPaid);
+            if (paymentMethod === 'cash' && changeGiven > 0.001) {
+               paymentDetailsElements[1].querySelector('.item-name').textContent = 'Rendu:';
+               paymentDetailsElements[1].querySelector('.item-price').textContent = formatCurrency(changeGiven);
+               paymentDetailsElements[1].style.display = 'grid';
+            } else {
+                paymentDetailsElements[1].style.display = 'none';
+            }
+        }
+    
+        receiptTabElement.querySelector('.payment-success-panel .receipt-table-num').textContent = tableNum;
+    
+        activateTab('receipt');
+        showToast(`Paiement pour Table ${tableNum} enregistré`, 'success');
+        vibrate([50, 100, 50]);
+    
+        const tableElement = document.querySelector(`.table-item[data-table="${tableNum}"]`);
+        if(tableElement) {
+            tableElement.classList.remove('table-occupied', 'table-reserved', 'table-urgent');
+            tableElement.classList.add('table-free');
+            const timeDisplay = tableElement.querySelector('.table-time');
+            if (timeDisplay) timeDisplay.remove();
+            const capacityText = tableElement.querySelector('.table-capacity')?.textContent.replace('<i class="fas fa-users" aria-hidden="true"></i> ','').trim() || '? pers.';
+            tableElement.setAttribute('aria-label', `Table ${tableNum}, ${capacityText}, Libre`);
+        }
+    
+        // Reset application state
+        currentTable = null;
+        currentOrder = [];
+        updateCart();
+        updateOrderHeader();
+    
+        paymentMethods.forEach(m => m.classList.remove('active'));
+        paymentMethods[0].classList.add('active');
+        paymentMethods[0].setAttribute('aria-checked', 'true');
+        paymentMethods[0].setAttribute('tabindex', '0');
+        cashPaymentDetails.style.display = 'block';
+        amountInput.value = '0,00';
+        changeAmountSpan.textContent = '0,00 €';
+        billsDisplay.innerHTML = '';
+        tipCheckbox.checked = false;
+    }
 
 
      backToTablesReceiptBtn.addEventListener('click', () => {
@@ -848,3 +1025,409 @@ document.addEventListener('DOMContentLoaded', function() {
      });
 
 });
+
+const sendButton = document.getElementById('send-to-kitchen-btn');
+const tableIdInput = document.getElementById('form-table-id');
+const cartItemsContainer = document.getElementById('cart-items-container');
+
+if (tableIdInput.value && cartItemsContainer.children.length > 0) {
+    sendButton.disabled = false;
+} else {
+    sendButton.disabled = true;
+}
+
+document.querySelectorAll('.table-select-button').forEach(button => {
+    button.addEventListener('click', function () {
+        const selectedTableId = this.dataset.tableId; // Assuming buttons have a data-table-id attribute
+        document.getElementById('form-table-id').value = selectedTableId;
+        document.querySelector('.cart-table-id').innerText = `Table ${selectedTableId}`;
+    });
+});
+
+
+
+function updateCartData() {
+    const plats = [];
+    document.querySelectorAll('#cart-items-list .cart-item').forEach(item => {
+        const plat = {
+            quantite: parseInt(item.querySelector('.item-quantity').value, 10),
+            options: JSON.parse(item.querySelector('.item-options').value || '[]'),
+            notes: item.querySelector('.item-notes').value || null,
+        };
+        plats.push(plat);
+    });
+
+    // Update the hidden input with the serialized plats data
+    const platsInput = document.getElementById('cart-items-data');
+    platsInput.innerHTML = ''; // Clear previous data
+    const platsField = document.createElement('input');
+    platsField.type = 'hidden';
+    platsField.name = 'plats';
+    platsField.value = JSON.stringify(plats);
+    platsInput.appendChild(platsField);
+}
+
+// Call this function whenever cart items are updated
+document.getElementById('send-to-kitchen-btn').addEventListener('click', updateCartData);
+
+
+function updateSendButtonState() {
+    const tableId = document.getElementById('form-table-id').value;
+    const cartItems = document.querySelectorAll('#cart-items-list .cart-item').length;
+    const sendButton = document.getElementById('send-to-kitchen-btn');
+    sendButton.disabled = !(tableId && cartItems > 0);
+}
+
+// Call this function whenever table or cart data changes
+document.querySelectorAll('.table-select-button').forEach(button => {
+    button.addEventListener('click', updateSendButtonState);
+});
+document.querySelectorAll('#cart-items-list .cart-item').forEach(item => {
+    item.addEventListener('change', updateSendButtonState);
+});
+
+
+function selectTable(tableId) {
+    document.querySelector('.cart-table-id').textContent = tableId;
+    
+    document.getElementById('form-table-id').value = tableId;
+    
+    document.getElementById('cart-panel').style.display = 'block';
+    
+    updateButtonState();
+}
+// When adding items to cart
+function addToCart(platId, platName, price, quantity) {
+    // Add to visual cart display
+    let cartItemsList = document.getElementById('cart-items-list');
+    // Create visual representation of the item in cart
+    // ...
+    
+    // Create hidden inputs for form submission
+    let cartItemsData = document.getElementById('cart-items-data');
+    
+    let platIdInput = document.createElement('input');
+    platIdInput.type = 'hidden';
+    platIdInput.name = 'plats[' + platId + '][id]';
+    platIdInput.value = platId;
+    cartItemsData.appendChild(platIdInput);
+    
+    let quantityInput = document.createElement('input');
+    quantityInput.type = 'hidden';
+    quantityInput.name = 'plats[' + platId + '][quantity]';
+    quantityInput.value = quantity;
+    cartItemsData.appendChild(quantityInput);
+    
+   
+    updateButtonState();
+}
+
+function updateButtonState() {
+    const hasItems = document.getElementById('cart-items-list').children.length > 0;
+    const hasTableId = document.getElementById('form-table-id').value !== '';
+    
+}   
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get the form and important elements
+        const orderForm = document.getElementById('order-form');
+        const formTableId = document.getElementById('form-table-id');
+        const cartItemsData = document.getElementById('cart-items-data');
+        const cartItemsList = document.getElementById('cart-items-list');
+        const sendToKitchenBtn = document.getElementById('send-to-kitchen-btn');
+        
+        // Store cart items
+        let cartItems = [];
+        
+        // Handle table selection
+        document.querySelectorAll('.table-item').forEach(table => {
+            table.addEventListener('click', function() {
+                const tableId = this.getAttribute('data-table');
+                
+                // Update the form table ID field - ensure it's correctly set
+                formTableId.value = tableId;
+                console.log("Table ID set to:", tableId); // Debug
+                
+                // Update cart UI with selected table
+                document.querySelector('.cart-table-id').textContent = this.querySelector('.table-number').textContent;
+                
+                // Show cart panel
+                document.getElementById('cart-panel').style.display = 'block';
+                
+                // Switch to orders tab
+                document.getElementById('tab-orders').click();
+            });
+        });
+        
+        // Handle menu item selection and add to cart (simplified for testing)
+        document.querySelectorAll('.menu-item').forEach(menuItem => {
+            menuItem.addEventListener('click', function() {
+                const itemId = this.getAttribute('data-id');
+                const itemName = this.getAttribute('data-name');
+                const itemPrice = parseFloat(this.getAttribute('data-price'));
+                
+                // Create a simple cart item (without customization for testing)
+                const cartItem = {
+                    id: itemId,
+                    name: itemName,
+                    price: itemPrice,
+                    quantity: 1
+                };
+                
+                // Add to cart items array
+                cartItems.push(cartItem);
+                updateCartUI();
+                
+                // Enable send button
+                sendToKitchenBtn.disabled = false;
+                
+                console.log("Item added to cart:", cartItem); // Debug
+            });
+        });
+        
+        // Handle form submission - FIXED VERSION
+        orderForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Clear previous cart data inputs
+            cartItemsData.innerHTML = '';
+            
+            // Check if table is selected
+            if (!formTableId.value) {
+                alert('Veuillez sélectionner une table.');
+                return;
+            }
+            
+            // Check if cart has items
+            if (cartItems.length === 0) {
+                alert('Veuillez ajouter des articles à la commande.');
+                return;
+            }
+            
+            // Create hidden inputs for each cart item
+            cartItems.forEach((item, index) => {
+                const platIdInput = document.createElement('input');
+                platIdInput.type = 'hidden';
+                platIdInput.name = `plats[${index}][id]`;
+                platIdInput.value = item.id;
+                
+                const platQuantityInput = document.createElement('input');
+                platQuantityInput.type = 'hidden';
+                platQuantityInput.name = `plats[${index}][quantite]`;
+                platQuantityInput.value = item.quantity;
+                
+                // Add inputs to the form
+                orderForm.appendChild(platIdInput);
+                orderForm.appendChild(platQuantityInput);
+            });
+            
+            console.log("Form submission - Table ID:", formTableId.value);
+            console.log("Form submission - Plats count:", cartItems.length);
+            
+            // Submit the form
+            this.submit();
+        });
+        
+        // Update cart UI function
+        function updateCartUI() {
+            // Update cart items list
+            cartItemsList.innerHTML = '';
+            cartItems.forEach((item, index) => {
+                cartItemsList.innerHTML += `
+                    <div class="cart-item">
+                        <div class="item-quantity">${item.quantity}</div>
+                        <div class="item-details">
+                            <div class="item-name">${item.name}</div>
+                        </div>
+                        <div class="item-price">${(item.price * item.quantity).toFixed(2)}DH</div>
+                        <button type="button" class="item-remove" data-index="${index}">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                `;
+            });
+            
+            // Update cart summary
+            const total = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            document.querySelector('.cart-count').textContent = `(${cartItems.length} article${cartItems.length > 1 ? 's' : ''})`;
+            document.querySelector('.cart-total').textContent = `${total.toFixed(2)}DH`;
+            
+            // Show/hide the cart details
+            const emptyMessage = document.querySelector('.cart-empty-message');
+            if (cartItems.length > 0) {
+                emptyMessage.style.display = 'none';
+                document.getElementById('cart-details').hidden = false;
+            }
+        }
+    });
+    document.getElementById('go-to-payment-btn').addEventListener('click', function() {
+        document.getElementById('cart-panel').style.display = 'none';
+    });
+
+
+
+
+
+
+
+
+
+
+
+    
+
+
+    // Import QRCode library in your HTML
+// <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Find the print button and add click event listener
+    const printButton = document.querySelector('.receipt-actions .btn-primary');
+    if (printButton) {
+        printButton.addEventListener('click', handlePrintReceipt);
+    }
+});
+
+/**
+ * Handle the print button click
+ */
+function handlePrintReceipt() {
+    // Get the command ID - You would typically get this from your order/command data
+    const commandId = getCurrentCommandId();
+    
+    // Generate and replace QR code
+    generateQrCode(commandId);
+    
+    // Print the receipt with a slight delay to ensure QR code is rendered
+    setTimeout(() => {
+        printReceiptContent();
+    }, 300);
+}
+
+/**
+ * Get the current command ID from your application state
+ * (This is a placeholder - implement according to your app's structure)
+ */
+function getCurrentCommandId() {
+    // You would typically get this from your application state/data
+    // For example: return currentOrder.id;
+    
+    // For demonstration, generate a unique ID based on timestamp
+    return 'CMD-' + new Date().getTime().toString();
+}
+
+/**
+ * Generate a QR code and replace the icon
+ */
+function generateQrCode(commandId) {
+    // Find the QR code container
+    const qrCodeContainer = document.querySelector('.receipt-qr');
+    
+    // Clear the existing content (the icon)
+    qrCodeContainer.innerHTML = '';
+    
+    // Create a new div for the QR code
+    const qrCodeElement = document.createElement('div');
+    qrCodeElement.id = 'receipt-qr-code';
+    qrCodeContainer.appendChild(qrCodeElement);
+    
+    // Generate the QR code with the command ID
+    new QRCode(qrCodeElement, {
+        text: commandId,
+        width: 128,
+        height: 128,
+        colorDark: "#000000",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.H
+    });
+    
+    // Add command ID text below QR code
+    const commandIdText = document.createElement('div');
+    commandIdText.textContent = 'ID Commande: ' + commandId;
+    commandIdText.style.fontSize = '10px';
+    commandIdText.style.marginTop = '5px';
+    qrCodeContainer.appendChild(commandIdText);
+}
+
+/**
+ * Print the receipt content
+ */
+function printReceiptContent() {
+    // Get the receipt content
+    const receiptElement = document.querySelector('.receipt');
+    const receiptContent = receiptElement.cloneNode(true);
+    
+    // Create a new window for printing
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write('<html><head><title>Ticket de caisse</title>');
+    
+    // Add print styles
+    printWindow.document.write(`
+        <style>
+            @media print {
+                @page {
+                    size: 80mm auto;
+                    margin: 0;
+                }
+                body {
+                    font-family: 'Courier New', monospace;
+                    width: 80mm;
+                    margin: 0;
+                    padding: 5mm;
+                }
+                .receipt {
+                    width: 100%;
+                }
+                .receipt-header {
+                    text-align: center;
+                    margin-bottom: 10px;
+                }
+                .receipt-logo {
+                    font-size: 18px;
+                    font-weight: bold;
+                }
+                .receipt-restaurant {
+                    font-size: 16px;
+                    font-weight: bold;
+                }
+                .receipt-item {
+                    display: flex;
+                    justify-content: space-between;
+                    margin-bottom: 5px;
+                }
+                .receipt-actions, .payment-success-panel {
+                    display: none !important;
+                }
+                .receipt-qr {
+                    text-align: center;
+                    margin: 10px 0;
+                }
+                .receipt-qr img {
+                    max-width: 100px;
+                    height: auto;
+                }
+                .receipt-footer {
+                    text-align: center;
+                    margin-top: 15px;
+                    font-size: 12px;
+                }
+            }
+        </style>
+    `);
+    
+    printWindow.document.write('</head><body>');
+    
+    // Add the receipt content
+    printWindow.document.write(receiptContent.outerHTML);
+    
+    printWindow.document.write('</body></html>');
+    printWindow.document.close();
+    
+    // Print after the content is loaded
+    printWindow.onload = function() {
+        printWindow.print();
+        printWindow.onafterprint = function() {
+            printWindow.close();
+        };
+    };
+}
