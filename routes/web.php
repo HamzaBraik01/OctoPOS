@@ -16,12 +16,18 @@ use App\Http\Controllers\RestaurantController;
 use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\CommandePlatController;
 use App\Http\Controllers\ProprietaireController;
+use App\Http\Controllers\Auth\RegisteredUserController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
 Route::get('/login', function () {
     return view('auth.login');
 })->name('login');
+
+// Routes d'inscription
+Route::get('/register', [RegisteredUserController::class, 'create'])
+    ->name('register');
+Route::post('/register', [RegisteredUserController::class, 'store']);
 
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');

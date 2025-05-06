@@ -1,0 +1,305 @@
+:root {
+    --primary-color: #0288D1;
+    --primary-dark: #026da8;
+    --secondary-color: #4CAF50;
+    --secondary-dark: #2E7D32;
+    --dark-bg: #1f2937;
+    --success-color: #10b981;
+    --error-color: #ef4444;
+    --warning-color: #f59e0b;
+}
+
+.gradient-background {
+    background: linear-gradient(135deg, var(--primary-color) 0%, #26c6da 50%, var(--secondary-color) 100%);
+}
+
+.logo-container {
+    position: relative;
+    display: inline-block;
+}
+.logo-text {
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: transparent;
+    position: relative;
+}
+
+.logo-container:hover .fa-utensils {
+    transform: rotate(15deg);
+    transition: transform 0.3s ease;
+}
+
+.register-card {
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    max-width: 600px;
+    width: 100%;
+}
+@media (min-width: 768px) {
+    .register-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+    }
+}
+
+.particles {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow: hidden;
+    z-index: 1;
+    pointer-events: none;
+}
+.particle {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    pointer-events: none;
+}
+
+.step-indicator {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    position: relative;
+}
+.step-line {
+    position: absolute;
+    top: 24px;
+    height: 2px;
+    background-color: #e5e7eb;
+    width: 100%;
+    z-index: 1;
+}
+.step-progress {
+    position: absolute;
+    top: 24px;
+    height: 2px;
+    background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+    transition: width 0.5s ease;
+    z-index: 2;
+}
+.step {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: white;
+    border: 2px solid #e5e7eb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: #9ca3af;
+    position: relative;
+    z-index: 3;
+    transition: all 0.3s ease;
+}
+.step.active {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(2, 136, 209, 0.2);
+}
+.step.completed {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    border: none;
+    color: white;
+}
+.step-label {
+    position: absolute;
+    top: 60px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #6b7280;
+    width: 80px;
+    text-align: center;
+    left: 50%;
+    transform: translateX(-50%);
+}
+.step.active .step-label {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+.step.completed .step-label {
+    color: var(--secondary-color);
+    font-weight: 600;
+}
+
+.form-step {
+    display: none;
+}
+.form-step.active {
+    display: block;
+    animation: fadeIn 0.5s ease forwards;
+}
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.password-strength-meter {
+    height: 5px;
+    background-color: #e5e7eb;
+    border-radius: 10px;
+    margin-top: 0.5rem;
+    overflow: hidden;
+}
+.password-strength-value {
+    height: 100%;
+    border-radius: 10px;
+    transition: width 0.3s ease, background-color 0.3s ease;
+}
+
+.validation-icon {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: none;
+}
+.validation-icon.valid {
+    color: var(--success-color);
+}
+.validation-icon.invalid {
+    color: var(--error-color);
+}
+
+.custom-checkbox {
+    position: relative;
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    background: transparent;
+    border: 2px solid var(--primary-color);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+    margin-right: 8px;
+}
+.custom-checkbox input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+}
+.custom-checkbox .checkmark {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    width: 10px;
+    height: 10px;
+    background: var(--primary-color);
+    border-radius: 2px;
+    transition: all 0.2s ease;
+}
+.custom-checkbox input:checked ~ .checkmark {
+    transform: translate(-50%, -50%) scale(1);
+}
+
+.back-link {
+    display: flex;
+    align-items: center;
+    padding: 8px 16px;
+    border-radius: 9999px;
+    background-color: rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+    color: rgba(255, 255, 255, 0.8);
+    font-weight: 500;
+    margin-bottom: 20px;
+}
+.back-link:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 1);
+}
+
+@media (min-width: 768px) {
+    .back-link {
+        position: absolute;
+        top: 0;
+        left: 0;
+        margin-bottom: 0;
+    }
+}
+
+@media (max-width: 767px) {
+    .back-link {
+        margin-bottom: 20px;
+        align-self: flex-start;
+    }
+    .step {
+        width: 40px;
+        height: 40px;
+        font-size: 0.9rem;
+    }
+    .step-label {
+        font-size: 0.7rem;
+        top: 50px;
+        width: 70px;
+    }
+}
+@media (max-width: 480px) {
+    .step {
+        width: 36px;
+        height: 36px;
+        font-size: 0.8rem;
+    }
+    .step-label {
+        font-size: 0.65rem;
+        width: 60px;
+    }
+}
+
+@keyframes shake {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-8px); }
+    50% { transform: translateX(8px); }
+    75% { transform: translateX(-8px); }
+    100% { transform: translateX(0); }
+}
+.shake {
+    animation: shake 0.4s ease-in-out;
+}
+
+@keyframes successPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+.success-icon {
+    animation: successPulse 1.5s infinite;
+}
+
+.confetti {
+    position: fixed;
+    width: 10px;
+    height: 10px;
+    background-color: #f00;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 1000;
+}
+
+@keyframes confetti-fall {
+    0% {
+        transform: translateY(-20vh) rotate(0deg);
+        opacity: 0;
+    }
+    10% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(110vh) rotate(720deg);
+        opacity: 0;
+    }
+}

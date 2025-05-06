@@ -30,7 +30,9 @@
                 </a>
             </button>
             <button class="bg-gradient-to-r from-[#0288D1] to-[#026da8] text-white hover:from-[#026da8] hover:to-[#0288D1] rounded-full px-4 py-2 transition duration-300 flex items-center shadow-md">
-                <i class="fas fa-plus mr-2"></i> Inscription
+                <a href="{{ route('register') }}" class="flex items-center">
+                    <i class="fas fa-plus mr-2"></i> Inscription
+                </a>
             </button>
         </div>
     </div>
@@ -45,10 +47,14 @@
             <a href="#contact" class="text-gray-200 hover:text-white py-2 transition duration-300">Contact</a>
             <div class="flex space-x-2 pt-2">
                 <button class="w-1/2 bg-transparent text-white border border-white hover:bg-white/10 rounded-full px-4 py-2 transition duration-300 flex items-center justify-center">
-                    <i class="fas fa-user mr-2"></i> Connexion
+                    <a href="{{ route('login') }}" class="flex items-center justify-center w-full">
+                        <i class="fas fa-user mr-2"></i> Connexion
+                    </a>
                 </button>
                 <button class="w-1/2 bg-gradient-to-r from-[#0288D1] to-[#026da8] text-white hover:from-[#026da8] hover:to-[#0288D1] rounded-full px-4 py-2 transition duration-300 flex items-center justify-center">
-                    <i class="fas fa-plus mr-2"></i> Inscription
+                    <a href="{{ route('register') }}" class="flex items-center justify-center w-full">
+                        <i class="fas fa-plus mr-2"></i> Inscription
+                    </a>
                 </button>
             </div>
         </div>
