@@ -90,9 +90,11 @@
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><i class="fas fa-store text-[#0288D1]"></i></div>
                             <select id="restaurant-name" name="restaurant_id" class="w-full pl-10 pr-10 px-4 py-3 bg-gray-50 border rounded-lg focus:outline-none transition input-focus-effect appearance-none @error('restaurant_id') border-red-500 @else border-gray-200 focus:border-[#0288D1] focus:ring-2 focus:ring-[#0288D1]/20 @enderror" data-validate="required" required>
                                 <option value="" disabled {{ old('restaurant_id') ? '' : 'selected' }}>Sélectionnez un restaurant</option>
-                                <option value="1" {{ old('restaurant_id') == 1 ? 'selected' : '' }}>Restaurant A</option>
-                                <option value="2" {{ old('restaurant_id') == 2 ? 'selected' : '' }}>Restaurant B</option>
-                                <option value="3" {{ old('restaurant_id') == 3 ? 'selected' : '' }}>Restaurant C</option>
+                                @forelse($restaurants as $restaurant)
+                                    <option value="{{ $restaurant->id }}" {{ old('restaurant_id') == $restaurant->id ? 'selected' : '' }}>{{ $restaurant->nom }}</option>
+                                @empty
+                                    <option value="" disabled>Aucun restaurant disponible</option>
+                                @endforelse
                             </select>
                             <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none"><i class="fas fa-chevron-down text-gray-400"></i></div>
                         </div>
@@ -253,13 +255,21 @@
                          <i class="fas fa-check text-green-500 text-3xl success-icon"></i>
                      </div>
                      <h3 class="text-2xl font-bold text-gray-800 mb-2">Compte Créé avec Succès!</h3>
-                     <p class="text-gray-600 mb-8">Félicitations! Votre compte a été créé. Vérifiez votre email pour la confirmation.</p>
+                     <p class="text-gray-600 mb-8">Félicitations! Votre compte a été créé. Un email de vérification a été envoyé à votre adresse email.</p>
                       <div>
-                         <p class="text-sm text-gray-600 mb-2">Un email de confirmation a été envoyé à :</p>
-                         <p class="font-medium text-gray-800 mb-6" id="success-email">{{ session('registered_email') }}</p>
+                         <div class="bg-blue-50 p-4 rounded-lg border border-blue-100 mb-6">
+                             <div class="flex items-start">
+                                 <div class="mt-0.5 text-blue-500"><i class="fas fa-envelope text-lg"></i></div>
+                                 <div class="ml-3 text-sm text-blue-700">
+                                     <h4 class="font-semibold mb-1">Vérification nécessaire</h4>
+                                     <p>Pour activer votre compte, veuillez cliquer sur le lien de vérification envoyé à :</p>
+                                     <p class="font-medium text-blue-800 mt-2" id="success-email">{{ session('registered_email') }}</p>
+                                 </div>
+                             </div>
+                         </div>
                          <div class="flex flex-col sm:flex-row justify-center gap-4">
-                             <a href="{{ route('login') }}" class="bg-gradient-to-r from-[#0288D1] to-[#026da8] hover:from-[#026da8] hover:to-[#0288D1] text-white py-3 px-6 rounded-lg transition-all duration-300 flex items-center justify-center font-semibold shadow-lg hover:shadow-xl">
-                                 <i class="fas fa-sign-in-alt mr-2"></i> Se connecter
+                             <a href="{{ route('verification.notice') }}" class="bg-gradient-to-r from-[#0288D1] to-[#026da8] hover:from-[#026da8] hover:to-[#0288D1] text-white py-3 px-6 rounded-lg transition-all duration-300 flex items-center justify-center font-semibold shadow-lg hover:shadow-xl">
+                                 <i class="fas fa-envelope-open-text mr-2"></i> Vérifier mon email
                              </a>
                              <a href="{{ url('/') }}" class="bg-gray-200 hover:bg-gray-300 text-gray-700 py-3 px-6 rounded-lg transition-all duration-300 flex items-center justify-center font-medium">
                                  <i class="fas fa-home mr-2"></i> Retour à l'accueil

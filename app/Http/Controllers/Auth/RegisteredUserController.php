@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\Restaurant;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -13,11 +14,7 @@ use Illuminate\Validation\Rules;
 
 class RegisteredUserController extends Controller
 {
-    /**
-     * Handle an incoming registration request.
-     *
-     * @throws \Illuminate\Validation\ValidationException
-     */
+    
     public function store(Request $request)
     {
         $request->validate([
@@ -41,14 +38,20 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        return response()->noContent();
+        // Store email in session for success page
+        session()->flash('registered_email', $user->email);
+        session()->flash('registration_success', true);
+
+        return redirect(route('verification.notice'))
+            ->with('registered_email', $user->email)
+            ->with('registration_success', true);
     }
 
-    /**
-     * Afficher le formulaire d'inscription.
-     */
     public function create()
     {
-        return view('auth.register');
+        // Récupérer tous les restaurants de la base de données
+        $restaurants = Restaurant::all();
+        
+        return view('auth.register', compact('restaurants'));
     }
 }

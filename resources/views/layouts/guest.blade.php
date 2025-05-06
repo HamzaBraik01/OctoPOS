@@ -31,20 +31,20 @@
     <div class="particles"></div>
 
     <!-- Bouton Retour - Position fixe en haut à gauche, exactement comme dans login.blade.php -->
-    <a href="{{ url('/') }}" class="back-link">
+    <a href="{{ url('/') }}" class="back-link" style="display: flex; align-items: center; padding: 8px 16px; border-radius: 9999px; background-color: rgba(255, 255, 255, 0.1); transition: all 0.3s ease; color: rgba(255, 255, 255, 0.8); font-weight: 500; position: fixed; left: 1rem; top: 1rem; z-index: 50; text-decoration: none;">
         <i class="fas fa-chevron-left mr-2"></i> Retour
     </a>
 
     <!-- Main Container -->
     <div class="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 relative z-10">
-        <!-- Logo Centré - Exactement comme dans login.blade.php -->
+        <!-- Logo Centré -->
         <div class="w-full max-w-md flex justify-center items-center mb-8">
-            <a href="{{ url('/') }}" class="logo-container flex items-center" aria-label="OctoPOS Home">
+            <a href="{{ url('/') }}" class="logo-container flex items-center" aria-label="OctoPOS Home" style="position: relative; display: inline-block;">
                 <div class="relative mr-2">
                     <i class="fas fa-utensils text-[#4CAF50] text-3xl sm:text-4xl absolute -top-1 -left-1 opacity-30"></i>
                     <i class="fas fa-utensils text-[#0288D1] text-3xl sm:text-4xl"></i>
                 </div>
-                <span class="logo-text text-3xl sm:text-4xl">OctoPOS</span>
+                <span class="logo-text text-3xl sm:text-4xl font-bold" style="font-weight: 700; background: linear-gradient(135deg, #0288D1, #4CAF50); -webkit-background-clip: text; background-clip: text; color: transparent; position: relative;">OctoPOS</span>
             </a>
         </div>
 

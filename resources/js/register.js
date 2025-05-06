@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const registrationSuccess = typeof window.registrationSuccess !== 'undefined' ? window.registrationSuccess : false;
     const registeredEmail = typeof window.registeredEmail !== 'undefined' ? window.registeredEmail : '';
+    const emailVerificationRequired = true; // Activer la vérification d'email
 
     initMultiStepForm();
     initPasswordStrengthMeter();
