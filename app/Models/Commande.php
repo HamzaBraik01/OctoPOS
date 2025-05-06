@@ -7,9 +7,19 @@ use Illuminate\Database\Eloquent\Model;
 
 class Commande extends Model
 {
-    protected $fillable = ['date', 'statut', 'utilisateur_id', 'table_id', 'restaurant_id', 'total'];
+    use HasFactory;
+    
+    protected $fillable = [
+        'date', 
+        'statut', 
+        'montant_total',
+        'methode_paiement',
+        'user_id', 
+        'table_id', 
+        'restaurant_id'
+    ];
 
-    public function utilisateur()
+    public function user()
     {
         return $this->belongsTo(User::class);
     }
@@ -18,5 +28,9 @@ class Commande extends Model
     {
         return $this->belongsToMany(Plat::class, 'commande_plat');
     }
-    use HasFactory;
+    
+    public function table()
+    {
+        return $this->belongsTo(Table::class);
+    }
 }

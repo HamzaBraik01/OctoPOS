@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="OctoPOS - Système de Point de Vente moderne et efficace pour restaurants">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <!-- Tailwind CSS -->
     <title>OctoPOS - Système de Point de Vente pour Restaurants</title>
 
     <!-- Preload critical resources -->

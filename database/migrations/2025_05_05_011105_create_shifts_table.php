@@ -11,18 +11,22 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('commandes', function (Blueprint $table) {
+        Schema::create('shifts', function (Blueprint $table) {
             $table->id();
-            $table->dateTime('date');
-            $table->string('statut');
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->date('date');
+            $table->enum('time_of_day', ['matin', 'soir']);
+            $table->boolean('is_absent')->default(false);
+            $table->string('absence_reason')->nullable(); // Par exemple : "Maladie", "Congé"
             $table->timestamps();
         });
     }
 
-  
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
-        Schema::dropIfExists('commandes');
+        Schema::dropIfExists('shifts');
     }
 };

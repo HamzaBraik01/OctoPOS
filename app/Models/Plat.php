@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Plat extends Model
 {
-    protected $fillable = ['nom', 'description', 'prix', 'menu_id'];
+    protected $fillable = ['nom', 'description', 'prix', 'menu_id', 'categorie', 'image'];
 
     public function menu()
     {

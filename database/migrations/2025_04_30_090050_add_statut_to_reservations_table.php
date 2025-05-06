@@ -6,17 +6,23 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    /**
+     * Run the migrations.
+     */
     public function up(): void
     {
         Schema::table('reservations', function (Blueprint $table) {
-            $table->time('heure_debut')->default('12:00:00')->after('date');
+            $table->enum('statut', ['En attente', 'Refusé', 'Confirmé'])->default('En attente')->after('invite');
         });
     }
 
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
         Schema::table('reservations', function (Blueprint $table) {
-            $table->dropColumn('heure_debut');
+            $table->dropColumn('statut');
         });
     }
 };

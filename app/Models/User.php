@@ -2,11 +2,13 @@
 
 namespace App\Models;
 
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class User extends Authenticatable implements JWTSubject
+class User extends Authenticatable implements JWTSubject, MustVerifyEmail
 {
     use Notifiable;
     protected $fillable = [
@@ -14,7 +16,10 @@ class User extends Authenticatable implements JWTSubject
         'last_name',
         'email',
         'phone',
+        'restaurant_id',
         'password',
+        'role',
+        'marketing_opt_in',
     ];
 
 
@@ -22,6 +27,22 @@ class User extends Authenticatable implements JWTSubject
         'password',
         'remember_token',
     ];
+
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+    ];
+
+    // Relation avec Restaurant
+    public function restaurant()
+    {
+        return $this->belongsTo(Restaurant::class);
+    }
+
+    // Relation avec Shifts
+    public function shifts(): HasMany
+    {
+        return $this->hasMany(Shift::class);
+    }
 
     // Méthodes requises par JWTSubject
     public function getJWTIdentifier()

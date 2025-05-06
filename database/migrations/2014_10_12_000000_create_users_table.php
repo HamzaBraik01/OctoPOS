@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('last_name'); // Nom
             $table->string('email')->unique(); // Adresse email unique
             $table->string('phone'); // Numéro de téléphone
-            $table->string('restaurant_name'); // Nom du restaurant sélectionné
+            $table->foreignId('restaurant_id')->nullable()->constrained('restaurants')->onDelete('set null'); // Référence au restaurant
             $table->timestamp('email_verified_at')->nullable(); // Date de vérification de l'email
             $table->string('password'); // Mot de passe
             $table->enum('role', ['client', 'serveur', 'cuisinier', 'gérant', 'propriétaire'])->default('client');
