@@ -110,5 +110,10 @@ Route::middleware([JWTAuthentication::class])->group(function () {
     Route::get('/serveur/filtrer-plats', [ServeurController::class, 'filtrerPlats'])->name('serveur.filtrer-plats');
 });
 
+// Routes pour les rapports
+Route::prefix('rapports')->group(function () {
+    Route::get('ventes-mensuelles', [App\Http\Controllers\RapportController::class, 'ventesMenusuelles'])->name('rapport.ventes-mensuelles');
+});
+
 Route::post('/commandes', [CommandeController::class, 'store'])->name('commandes.store');
 Route::post('/commande-plats', [CommandePlatController::class, 'store'])->name('commande-plats.store');

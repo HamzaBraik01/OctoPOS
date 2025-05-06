@@ -54,7 +54,7 @@
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
             {{-- Carte Rapport 1 --}}
-            <a href="#" class="report-card group bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-700">
+            <a href="#" id="ventes-mensuelles-link" class="report-card group bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-700">
                 <div class="report-card-icon bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400">
                     <i class="fas fa-file-invoice-dollar"></i> {{-- Icone Ventes --}}
                 </div>
@@ -64,6 +64,28 @@
                 </div>
                 <i class="fas fa-download report-card-download-icon"></i>
             </a>
+            
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    const ventesLink = document.getElementById('ventes-mensuelles-link');
+                    const restaurantSelector = document.getElementById('header-restaurant-selector');
+                    
+                    if (ventesLink && restaurantSelector) {
+                        ventesLink.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            
+                            // Vérifier si un restaurant est sélectionné
+                            if (restaurantSelector.value) {
+                                // Rediriger vers la génération de rapport avec l'ID du restaurant
+                                window.location.href = "{{ route('rapport.ventes-mensuelles') }}?restaurant_id=" + restaurantSelector.value;
+                            } else {
+                                // Afficher une alerte si aucun restaurant n'est sélectionné
+                                window.showAlert('warning', 'Sélection requise', 'Veuillez sélectionner un restaurant pour générer le rapport.', 5000);
+                            }
+                        });
+                    }
+                });
+            </script>
 
              {{-- Style commun pour les cartes de rapport --}}
              <style>
