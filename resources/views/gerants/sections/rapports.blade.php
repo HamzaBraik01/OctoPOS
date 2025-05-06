@@ -60,7 +60,7 @@
                 </div>
                 <div>
                     <h4 class="report-card-title">Ventes Mensuelles</h4>
-                    <p class="report-card-subtitle">Avril 2025 - PDF</p>
+                    <p class="report-card-subtitle">{{ date('F Y', strtotime('last month')) }} - PDF</p>
                 </div>
                 <i class="fas fa-download report-card-download-icon"></i>
             </a>
@@ -74,12 +74,9 @@
                         ventesLink.addEventListener('click', function(e) {
                             e.preventDefault();
                             
-                            // Vérifier si un restaurant est sélectionné
                             if (restaurantSelector.value) {
-                                // Rediriger vers la génération de rapport avec l'ID du restaurant
                                 window.location.href = "{{ route('rapport.ventes-mensuelles') }}?restaurant_id=" + restaurantSelector.value;
                             } else {
-                                // Afficher une alerte si aucun restaurant n'est sélectionné
                                 window.showAlert('warning', 'Sélection requise', 'Veuillez sélectionner un restaurant pour générer le rapport.', 5000);
                             }
                         });
