@@ -72,7 +72,7 @@
                         <label for="phone" class="block text-gray-700 text-sm font-medium mb-2">Téléphone <span class="text-red-500">*</span></label>
                         <div class="relative">
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><i class="fas fa-phone text-[#0288D1]"></i></div>
-                            <input id="phone" name="phone" type="tel" class="w-full pl-10 pr-10 px-4 py-3 bg-gray-50 border rounded-lg focus:outline-none transition input-focus-effect @error('phone') border-red-500 @else border-gray-200 focus:border-[#0288D1] focus:ring-2 focus:ring-[#0288D1]/20 @enderror" placeholder="+33 1 23 45 67 89" value="{{ old('phone') }}" data-validate="phone" required>
+                            <input id="phone" name="phone" type="tel" class="w-full pl-10 pr-10 px-4 py-3 bg-gray-50 border rounded-lg focus:outline-none transition input-focus-effect @error('phone') border-red-500 @else border-gray-200 focus:border-[#0288D1] focus:ring-2 focus:ring-[#0288D1]/20 @enderror" placeholder="+212 6 23 45 67 89" value="{{ old('phone') }}" data-validate="phone" required>
                             <div class="validation-icon valid"><i class="fas fa-check-circle"></i></div>
                             <div class="validation-icon invalid"><i class="fas fa-times-circle"></i></div>
                         </div>

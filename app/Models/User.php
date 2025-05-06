@@ -20,6 +20,7 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
         'restaurant_id',
         'password',
         'role',
+        'marketing_opt_in',
     ];
 
     protected $hidden = [
@@ -31,13 +32,13 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
         'email_verified_at' => 'datetime',
     ];
 
-    // Relation with Restaurant
+    // Relation avec Restaurant
     public function restaurant()
     {
         return $this->belongsTo(Restaurant::class);
     }
 
-    // Relation with Shifts
+    // Relation avec Shifts
     public function shifts(): HasMany
     {
         return $this->hasMany(Shift::class);

@@ -22,7 +22,9 @@ class RegisteredUserController extends Controller
             'last_name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:'.User::class],
             'phone' => ['required', 'string', 'max:20'],
+            'restaurant_id' => ['required', 'exists:restaurants,id'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'terms' => ['required', 'accepted'],
         ]);
 
         $user = User::create([
@@ -30,8 +32,9 @@ class RegisteredUserController extends Controller
             'last_name' => $request->last_name,
             'email' => $request->email,
             'phone' => $request->phone,
+            'restaurant_id' => $request->restaurant_id,
             'password' => Hash::make($request->password),
-            'role' => 'client', 
+            'role' => 'client'
         ]);
 
         event(new Registered($user));
@@ -49,7 +52,6 @@ class RegisteredUserController extends Controller
 
     public function create()
     {
-        // Récupérer tous les restaurants de la base de données
         $restaurants = Restaurant::all();
         
         return view('auth.register', compact('restaurants'));
