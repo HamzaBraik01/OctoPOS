@@ -676,65 +676,150 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!ctx) { return; }
         trendsChartInstance = destroyChart(trendsChartInstance);
         const colors = getChartColors();
-
-        trendsChartInstance = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin'],
-                datasets: [{
-                    label: 'Clients',
-                    data: [1500, 1700, 1600, 1800, 1900, 2000],
-                    borderColor: colors.green,
-                    backgroundColor: colors.green + '1A',
-                    tension: 0.3, yAxisID: 'yClients',
-                    pointBackgroundColor: colors.green, pointBorderColor: '#fff', pointRadius: 4,
-                    pointHoverBackgroundColor: '#fff', pointHoverBorderColor: colors.green, pointHoverRadius: 6
-                }, {
-                    label: 'Ticket moyen (DH)',
-                    data: [48.5, 52.1, 51.0, 54.3, 56.8, 58.2],
-                    borderColor: colors.yellow,
-                    backgroundColor: colors.yellow + '1A',
-                    tension: 0.3, yAxisID: 'yTicket',
-                    pointBackgroundColor: colors.yellow, pointBorderColor: '#fff', pointRadius: 4,
-                    pointHoverBackgroundColor: '#fff', pointHoverBorderColor: colors.yellow, pointHoverRadius: 6
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                 scales: {
-                     x: { grid: { color: colors.grid }, ticks: { color: colors.text } },
-                     yClients: {
-                         position: 'left',
-                         title: { display: true, text: 'Nombre de clients', color: colors.text },
-                         grid: { color: colors.grid },
-                         ticks: { color: colors.text }
-                     },
-                     yTicket: {
-                         position: 'right',
-                         title: { display: true, text: 'Ticket moyen (DH)', color: colors.text },
-                         grid: { drawOnChartArea: false },
-                         ticks: { color: colors.text, callback: value => value.toFixed(2) + ' DH' },
-                         beginAtZero: false
-                     }
-                 },
-                 plugins: { legend: { labels: { color: colors.text } } },
-                 interaction: { intersect: false, mode: 'index' },
-                 tooltip: {
-                     callbacks: {
-                         label: (context) => {
-                              let label = context.dataset.label || '';
-                              if (label) { label += ': '; }
-                              if (context.parsed.y !== null) {
-                                  label += context.parsed.y.toFixed(context.dataset.yAxisID === 'yTicket' ? 2 : 0);
-                                  if (context.dataset.yAxisID === 'yTicket') label += ' DH';
-                              }
-                              return label;
-                          }
-                     }
-                 }
+        
+        const restaurantSelector = document.getElementById('header-restaurant-selector');
+        const trendsPeriodSelector = document.getElementById('trends-period-selector');
+        const period = trendsPeriodSelector ? trendsPeriodSelector.value : '6months';
+        
+        if (!restaurantSelector || !restaurantSelector.value) {
+            const chartContainer = document.getElementById('trends-chart-container');
+            if (chartContainer) {
+                chartContainer.innerHTML = `
+                    <div class="flex flex-col items-center justify-center h-full text-gray-500 dark:text-gray-400">
+                        <i class="fas fa-utensils text-4xl mb-3 opacity-50"></i>
+                        <p class="text-center">Veuillez sélectionner un restaurant dans le menu déroulant en haut de la page pour visualiser les tendances clés.</p>
+                    </div>
+                `;
             }
-        });
+            return;
+        }
+        
+        const selectedRestaurantName = restaurantSelector.options[restaurantSelector.selectedIndex].text;
+        
+        const chartContainer = document.getElementById('trends-chart-container');
+        if (chartContainer) {
+            chartContainer.innerHTML = `
+                <div class="flex items-center justify-center h-full text-gray-500 dark:text-gray-400">
+                    <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mr-2"></div>
+                    <p>Chargement des données pour ${selectedRestaurantName}...</p>
+                </div>
+            `;
+        }
+        
+        fetch(`/gerant/get-trends?restaurant_id=${restaurantSelector.value}&period=${period}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Erreur réseau lors de la récupération des données: ' + response.status);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (chartContainer) {
+                    chartContainer.innerHTML = '<canvas id="trends-chart"></canvas>';
+                }
+                
+                const ctx = document.getElementById('trends-chart')?.getContext('2d');
+                if (!ctx) return;
+                
+                trendsChartInstance = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: data.labels,
+                        datasets: [{
+                            label: 'Clients',
+                            data: data.clients,
+                            borderColor: colors.primary,
+                            backgroundColor: colors.primary + '1A',
+                            tension: 0.3, 
+                            pointBackgroundColor: colors.primary, 
+                            pointBorderColor: '#fff', 
+                            pointRadius: 4,
+                            pointHoverBackgroundColor: '#fff', 
+                            pointHoverBorderColor: colors.primary, 
+                            pointHoverRadius: 6
+                        }, {
+                            label: 'Réservations confirmées',
+                            data: data.confirmees,
+                            borderColor: colors.green,
+                            backgroundColor: colors.green + '1A',
+                            tension: 0.3, 
+                            pointBackgroundColor: colors.green, 
+                            pointBorderColor: '#fff', 
+                            pointRadius: 4,
+                            pointHoverBackgroundColor: '#fff', 
+                            pointHoverBorderColor: colors.green, 
+                            pointHoverRadius: 6
+                        }, {
+                            label: 'Réservations refusées',
+                            data: data.refusees,
+                            borderColor: colors.yellow,
+                            backgroundColor: colors.yellow + '1A',
+                            tension: 0.3, 
+                            pointBackgroundColor: colors.yellow, 
+                            pointBorderColor: '#fff', 
+                            pointRadius: 4,
+                            pointHoverBackgroundColor: '#fff', 
+                            pointHoverBorderColor: colors.yellow, 
+                            pointHoverRadius: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: `Tendances pour "${selectedRestaurantName}"`,
+                                color: colors.text,
+                                font: {
+                                    size: 14,
+                                    weight: 'bold'
+                                },
+                                padding: {
+                                    bottom: 15
+                                }
+                            },
+                            legend: { 
+                                labels: { color: colors.text },
+                                position: 'bottom'
+                            }
+                        },
+                        scales: {
+                            x: { grid: { color: colors.grid }, ticks: { color: colors.text } },
+                            y: {
+                                grid: { color: colors.grid },
+                                ticks: { color: colors.text },
+                                beginAtZero: true
+                            }
+                        },
+                        interaction: { intersect: false, mode: 'index' },
+                        tooltip: {
+                            callbacks: {
+                                label: (context) => {
+                                    let label = context.dataset.label || '';
+                                    if (label) { label += ': '; }
+                                    if (context.parsed.y !== null) {
+                                        label += context.parsed.y.toFixed(0);
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                });
+            })
+            .catch(error => {
+                console.error('Erreur lors du chargement des tendances:', error);
+                if (chartContainer) {
+                    chartContainer.innerHTML = `
+                        <div class="flex flex-col items-center justify-center h-full text-red-500">
+                            <i class="fas fa-exclamation-triangle text-3xl mb-3"></i>
+                            <p>Erreur lors du chargement des données pour ${selectedRestaurantName}.</p>
+                            <p class="text-sm mt-2">Veuillez réessayer ou contacter le support technique.</p>
+                        </div>
+                    `;
+                }
+            });
     }
 
     let tablesData = [];
@@ -1505,6 +1590,14 @@ document.addEventListener('DOMContentLoaded', function() {
     if (salesPeriodSelector) {
         salesPeriodSelector.addEventListener('change', function() {
             initSalesPerformanceChart();
+        });
+    }
+    
+    // Ajout de l'écouteur d'événements pour le sélecteur de période des tendances
+    const trendsPeriodSelector = document.getElementById('trends-period-selector');
+    if (trendsPeriodSelector) {
+        trendsPeriodSelector.addEventListener('change', function() {
+            initTrendsChart();
         });
     }
 });

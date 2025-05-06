@@ -30,14 +30,14 @@
                     <i class="fas fa-chart-line text-green-500 mr-2"></i>
                     Tendances Clés
                 </h3>
-                 <select class="text-xs p-1 border rounded dark:bg-gray-700 dark:border-gray-600">
-                     <option>6 derniers mois</option>
-                     <option>Cette année</option>
-                     <option>Année dernière</option>
+                 <select id="trends-period-selector" class="text-xs p-1 border rounded dark:bg-gray-700 dark:border-gray-600">
+                     <option value="6months">6 derniers mois</option>
+                     <option value="year">Cette année</option>
+                     <option value="lastyear">Année dernière</option>
                  </select>
             </div>
             {{-- Conteneur pour le graphique --}}
-            <div class="mt-4 flex-grow min-h-[300px]">
+            <div class="mt-4 flex-grow min-h-[300px]" id="trends-chart-container">
                 <canvas id="trends-chart"></canvas>
             </div>
         </div>
@@ -50,10 +50,6 @@
                 <i class="fas fa-file-download text-blue-500 mr-2"></i> {{-- Changed icon --}}
                 Rapports à Télécharger
             </h3>
-             {{-- Optionnel: Bouton pour générer un nouveau rapport --}}
-             <button type="button" class="text-sm text-blue-600 dark:text-blue-400 hover:underline font-medium">
-                 Générer un rapport personnalisé
-             </button>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">

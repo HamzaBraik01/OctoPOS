@@ -253,6 +253,184 @@ class GerantController extends Controller
         return $data;
     }
     
+    public function getTrends(Request $request)
+    {
+        $restaurantId = $request->input('restaurant_id');
+        $period = $request->input('period', '6months'); // valeurs possibles: '6months', 'year', 'lastyear'
+        
+        if (!$restaurantId) {
+            return response()->json(['error' => 'Restaurant ID is required'], 400);
+        }
+        
+        $tableIds = Table::where('restaurant_id', $restaurantId)->pluck('id')->toArray();
+        
+        if (empty($tableIds)) {
+            return response()->json([
+                'labels' => [],
+                'clients' => [],
+                'confirmees' => [],
+                'refusees' => []
+            ]);
+        }
+        
+        $now = Carbon::now();
+        $labels = [];
+        $startDate = null;
+        $endDate = null;
+        
+        // Définir les périodes en fonction du paramètre
+        switch ($period) {
+            case 'year':
+                $startDate = $now->copy()->startOfYear();
+                $endDate = $now->copy()->endOfYear();
+                // Générer les labels (mois de l'année)
+                for ($month = 1; $month <= 12; $month++) {
+                    $monthName = Carbon::create(null, $month, 1)->locale('fr_FR')->isoFormat('MMM');
+                    $labels[] = $monthName;
+                }
+                break;
+                
+            case 'lastyear':
+                $startDate = $now->copy()->subYear()->startOfYear();
+                $endDate = $now->copy()->subYear()->endOfYear();
+                // Générer les labels (mois de l'année dernière)
+                for ($month = 1; $month <= 12; $month++) {
+                    $monthName = Carbon::create(null, $month, 1)->locale('fr_FR')->isoFormat('MMM');
+                    $labels[] = $monthName;
+                }
+                break;
+                
+            default: // '6months'
+                $startDate = $now->copy()->subMonths(5)->startOfMonth();
+                $endDate = $now->copy()->endOfMonth();
+                
+                // Générer les labels (6 derniers mois)
+                $currentMonth = $startDate->copy();
+                while ($currentMonth <= $endDate) {
+                    $labels[] = $currentMonth->locale('fr_FR')->isoFormat('MMM');
+                    $currentMonth->addMonth();
+                }
+                break;
+        }
+        
+        // Récupérer le nombre de clients (commandes) par mois
+        $clientsData = Commande::whereIn('table_id', $tableIds)
+            ->whereBetween('date', [$startDate, $endDate])
+            ->select(
+                DB::raw('MONTH(date) as month'),
+                DB::raw('YEAR(date) as year'),
+                DB::raw('COUNT(DISTINCT id) as client_count')
+            )
+            ->groupBy('year', 'month')
+            ->orderBy('year')
+            ->orderBy('month')
+            ->get();
+            
+        // Récupérer le nombre de réservations confirmées par mois
+        $reservationsConfirmeesData = Reservation::whereIn('table_id', $tableIds)
+            ->where('statut', 'Confirmé')
+            ->whereBetween('date', [$startDate, $endDate])
+            ->select(
+                DB::raw('MONTH(date) as month'),
+                DB::raw('YEAR(date) as year'),
+                DB::raw('COUNT(id) as reservation_count')
+            )
+            ->groupBy('year', 'month')
+            ->orderBy('year')
+            ->orderBy('month')
+            ->get();
+            
+        // Récupérer le nombre de réservations refusées par mois
+        $reservationsRefuseesData = Reservation::whereIn('table_id', $tableIds)
+            ->where('statut', 'Refusé')
+            ->whereBetween('date', [$startDate, $endDate])
+            ->select(
+                DB::raw('MONTH(date) as month'),
+                DB::raw('YEAR(date) as year'),
+                DB::raw('COUNT(id) as reservation_count')
+            )
+            ->groupBy('year', 'month')
+            ->orderBy('year')
+            ->orderBy('month')
+            ->get();
+            
+        // Formater les données pour le graphique
+        $clientCounts = [];
+        $reservationsConfirmeesCounts = [];
+        $reservationsRefuseesCounts = [];
+        
+        // Initialiser les tableaux avec des zéros
+        if ($period === 'year' || $period === 'lastyear') {
+            for ($i = 0; $i < 12; $i++) {
+                $clientCounts[$i] = 0;
+                $reservationsConfirmeesCounts[$i] = 0;
+                $reservationsRefuseesCounts[$i] = 0;
+            }
+            
+            // Remplir avec les données réelles
+            foreach ($clientsData as $data) {
+                $index = $data->month - 1; // 0-based index
+                $clientCounts[$index] = $data->client_count;
+            }
+            
+            foreach ($reservationsConfirmeesData as $data) {
+                $index = $data->month - 1; // 0-based index
+                $reservationsConfirmeesCounts[$index] = $data->reservation_count;
+            }
+            
+            foreach ($reservationsRefuseesData as $data) {
+                $index = $data->month - 1; // 0-based index
+                $reservationsRefuseesCounts[$index] = $data->reservation_count;
+            }
+        } else { // 6 derniers mois
+            $monthsCount = count($labels);
+            for ($i = 0; $i < $monthsCount; $i++) {
+                $clientCounts[$i] = 0;
+                $reservationsConfirmeesCounts[$i] = 0;
+                $reservationsRefuseesCounts[$i] = 0;
+            }
+            
+            // Calculer l'index en fonction du mois/année par rapport à la date de début
+            $startMonth = $startDate->month;
+            $startYear = $startDate->year;
+            
+            foreach ($clientsData as $data) {
+                $monthDiff = ($data->year - $startYear) * 12 + ($data->month - $startMonth);
+                if ($monthDiff >= 0 && $monthDiff < $monthsCount) {
+                    $clientCounts[$monthDiff] = $data->client_count;
+                }
+            }
+            
+            foreach ($reservationsConfirmeesData as $data) {
+                $monthDiff = ($data->year - $startYear) * 12 + ($data->month - $startMonth);
+                if ($monthDiff >= 0 && $monthDiff < $monthsCount) {
+                    $reservationsConfirmeesCounts[$monthDiff] = $data->reservation_count;
+                }
+            }
+            
+            foreach ($reservationsRefuseesData as $data) {
+                $monthDiff = ($data->year - $startYear) * 12 + ($data->month - $startMonth);
+                if ($monthDiff >= 0 && $monthDiff < $monthsCount) {
+                    $reservationsRefuseesCounts[$monthDiff] = $data->reservation_count;
+                }
+            }
+        }
+        
+        // Si aucune donnée, générer des exemples
+        if (array_sum($clientCounts) == 0 && array_sum($reservationsConfirmeesCounts) == 0 && array_sum($reservationsRefuseesCounts) == 0) {
+            $clientCounts = $this->generateSampleData(count($labels), 1500, 2500);
+            $reservationsConfirmeesCounts = $this->generateSampleData(count($labels), 900, 1800);
+            $reservationsRefuseesCounts = $this->generateSampleData(count($labels), 100, 500);
+        }
+        
+        return response()->json([
+            'labels' => $labels,
+            'clients' => array_values($clientCounts),
+            'confirmees' => array_values($reservationsConfirmeesCounts),
+            'refusees' => array_values($reservationsRefuseesCounts)
+        ]);
+    }
+    
     public function getReservations(Request $request)
     {
         $restaurantId = $request->input('restaurant_id');

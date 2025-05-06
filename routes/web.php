@@ -83,6 +83,9 @@ Route::middleware([JWTAuthentication::class])->group(function () {
         Route::put('/tables/{id}', [GerantController::class, 'updateTable'])->name('gerant.updateTable');
         Route::delete('/tables/{id}', [GerantController::class, 'deleteTable'])->name('gerant.deleteTable');
         Route::post('/tables/{id}/update-status', [GerantController::class, 'updateTableStatus'])->name('gerant.updateTableStatus');
+        
+        // Route pour les tendances
+        Route::get('/get-trends', [GerantController::class, 'getTrends'])->name('gerant.getTrends');
     });
 
     Route::get('/serveurs/dashboard', [ServeurController::class, 'index'])

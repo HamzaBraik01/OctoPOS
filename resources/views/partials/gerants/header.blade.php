@@ -11,11 +11,12 @@
             
             <div class="ml-4">
                 <select id="header-restaurant-selector" class="text-sm px-3 py-1.5 pr-8 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-1 focus:ring-blue-500">
-                    <option value="">Sélectionner un restaurant</option>
+                    <option value="" disabled selected>Sélectionner un restaurant</option>
                     @foreach($restaurants as $restaurant)
                         <option value="{{ $restaurant->id }}" {{ isset($selectedRestaurantId) && $selectedRestaurantId == $restaurant->id ? 'selected' : '' }}>{{ $restaurant->nom }}</option>
                     @endforeach
                 </select>
+                <span id="restaurant-selection-hint" class="hidden text-xs ml-2 text-red-500 dark:text-red-400">⚠️ Sélectionnez un restaurant pour voir les données</span>
             </div>
             
         </div>
@@ -141,6 +142,30 @@
             alert.remove();
         }, 300);
     }
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        // Vérifier si un restaurant est sélectionné
+        const restaurantSelector = document.getElementById('header-restaurant-selector');
+        const restaurantHint = document.getElementById('restaurant-selection-hint');
+        
+        if (restaurantSelector && restaurantHint) {
+            if (!restaurantSelector.value) {
+                restaurantHint.classList.remove('hidden');
+                showAlert('warning', 'Sélection requise', 'Veuillez sélectionner un restaurant pour afficher les données correspondantes.', 7000);
+            }
+            
+            restaurantSelector.addEventListener('change', function() {
+                if (this.value) {
+                    restaurantHint.classList.add('hidden');
+                    
+                    // Indiquer visuellement le restaurant sélectionné
+                    showAlert('success', 'Restaurant sélectionné', 'Les données pour ' + this.options[this.selectedIndex].text + ' sont en cours de chargement.', 3000);
+                } else {
+                    restaurantHint.classList.remove('hidden');
+                }
+            });
+        }
+    });
     
     window.showAlert = showAlert;
     window.closeAlert = closeAlert;
