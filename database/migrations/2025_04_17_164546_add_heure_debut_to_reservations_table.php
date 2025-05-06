@@ -9,7 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('reservations', function (Blueprint $table) {
-            $table->time('heure_debut')->default('12:00:00')->after('date_reservation');
+            $table->time('heure_debut')->default('12:00:00')->after('date');
         });
     }
 
