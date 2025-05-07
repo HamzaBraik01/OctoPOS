@@ -1,8 +1,13 @@
 <p align="center">
-  <img src="https://github.com/hamzaD99/OctoPOS/assets/path-to-your-logo/logo.png?raw=true" alt="OctoPOS Logo" width="200"/>
+  <span style="font-size: 120px; position: relative; display: inline-block;">
+    <i class="fas fa-utensils" style="color: #4CAF50; position: absolute; top: -5px; left: -5px; opacity: 0.3;"></i>
+    <i class="fas fa-utensils" style="color: #0288D1;"></i>
+  </span>
+  <br>
+  <span style="font-size: 60px; font-weight: 700; background: linear-gradient(135deg, #0288D1, #4CAF50); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; color: transparent;">OctoPOS</span>
 </p>
 
-<h1 align="center">OctoPOS - Restaurant Point of Sale System</h1>
+<h1 align="center">Restaurant Point of Sale System</h1>
 
 <p align="center">
   <img src="https://img.shields.io/badge/version-3.4.2-blue" alt="Version" />
@@ -56,7 +61,7 @@ OctoPOS is a comprehensive restaurant management system that offers multiple int
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/OctoPOS.git
+   git clone https://github.com/HamzaBraik01/OctoPOS.git
    cd OctoPOS
    ```
 
@@ -171,5 +176,5 @@ We welcome contributions to OctoPOS! Please see our [Contributing Guidelines](CO
 
 <p align="center">
   <sub>© 2025 OctoPOS. All rights reserved.</sub><br>
-  <sub>Last updated: April 29, 2025</sub>
+  <sub>Last updated: May 7, 2025</sub>
 </p>
