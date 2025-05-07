@@ -14,10 +14,15 @@ class CheckAuthTimestamp
             $lastActivity = session('last_activity');
             $maxIdleTime = config('session.lifetime') * 60; // Convert minutes to seconds
             
-            if (!$lastActivity || (time() - $lastActivity) > $maxIdleTime) {
+            // Si la dernière activité n'est pas définie, l'initialiser maintenant
+            if (!$lastActivity) {
+                session(['last_activity' => time()]);
+            }
+            // Vérifier si le temps d'inactivité dépasse la limite
+            else if ((time() - $lastActivity) > $maxIdleTime) {
                 Auth::logout();
                 session()->flush();
-                return redirect('/')->with('message', 'Session expired. Please log in again.');
+                return redirect('/')->with('message', 'Votre session a expiré. Veuillez vous reconnecter.');
             }
             
             // Update timestamp for this request

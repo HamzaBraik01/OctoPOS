@@ -40,18 +40,8 @@
                     </button>
                 </div>
 
-                <div class="status-legend" aria-label="Légende des statuts de table">
-                    <div class="status-item"><div class="status-color color-free"></div><span>Libre</span></div>
-                    <div class="status-item"><div class="status-color color-occupied"></div><span>Occupée</span></div>
-                    <div class="status-item"><div class="status-color color-reserved"></div><span>Réservée</span></div>
-                </div>
+                
             </div>
-
-            @if(isset($selectedRestaurant) && $selectedRestaurant)
-                <div class="restaurant-heading">
-                    <h2>{{ $selectedRestaurant->nom }}</h2>
-                </div>
-            @endif
 
             <div class="tables-grid">
                 @if(isset($tables) && count($tables) > 0)

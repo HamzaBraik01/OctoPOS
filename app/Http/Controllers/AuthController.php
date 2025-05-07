@@ -31,9 +31,14 @@ class AuthController extends Controller
 
         $user = auth('api')->user();
 
+        // Store token in cookie and session
         Cookie::queue('jwt_token', $token, 60 * 24, null, null, false, true); // 1 jour
-
         session(['jwt_token' => $token]);
+        
+        // Initialize user session data
+        session(['user_id' => $user->id]);
+        session(['user_role' => $user->role]);
+        session(['last_activity' => time()]);
     
         switch ($user->role) {
             case 'propriétaire':

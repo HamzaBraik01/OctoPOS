@@ -16,12 +16,12 @@
                 <h1 class="text-4xl md:text-5xl font-bold mb-4 fade-in">Bienvenue chez <span class="text-yellow-200">OctoPOS</span></h1>
                 <p class="text-xl text-white/90 mb-6 fade-in">Système de Point de Vente moderne pour votre restaurant</p>
                 <div class="flex space-x-4 fade-in">
-                    <button class="bg-white text-[#0288D1] hover:bg-gray-100 px-6 py-3 rounded-md transition duration-300 flex items-center shadow-lg">
+                    <a href="#menu" class="bg-white text-[#0288D1] hover:bg-gray-100 px-6 py-3 rounded-md transition duration-300 flex items-center shadow-lg">
                         <i class="fas fa-book-open mr-2"></i> Voir le Menu
-                    </button>
-                    <button class="bg-[#4CAF50]/90 text-white hover:bg-[#4CAF50] backdrop-blur-sm px-6 py-3 rounded-md transition duration-300 flex items-center shadow-lg">
+                    </a>
+                    <a href="{{ route('login') }}" class="bg-[#4CAF50]/90 text-white hover:bg-[#4CAF50] backdrop-blur-sm px-6 py-3 rounded-md transition duration-300 flex items-center shadow-lg">
                         <i class="fas fa-chair mr-2"></i> Réserver une Table
-                    </button>
+                    </a>
                 </div>
             </div>
             <div class="md:w-1/2">
@@ -335,8 +335,7 @@
                 <!-- Tabs -->
                 <div class="flex border-b border-gray-200 mb-8" role="tablist">
                     <button class="py-3 px-6 border-b-2 border-[#0288D1] text-[#0288D1] font-medium" role="tab" aria-selected="true">Vue plan</button>
-                    <button class="py-3 px-6 text-gray-500 hover:text-[#0288D1] transition" role="tab" aria-selected="false">Vue liste</button>
-                    <button class="py-3 px-6 text-gray-500 hover:text-[#0288D1] transition" role="tab" aria-selected="false">Recommandations</button>
+                    
                 </div>
     
                 <!-- Restaurant Map Layout -->
@@ -555,11 +554,8 @@
     
                 <!-- Bottom Actions -->
                 <div class="flex flex-wrap justify-center gap-4">
-                    <a href="{{ route('home') }}#tables" class="px-6 py-3 bg-white text-gray-700 rounded-full shadow-md hover:shadow-lg transition flex items-center border border-gray-200">
-                        <i class="fas fa-list mr-2 text-[#0288D1]" aria-hidden="true"></i> Voir toutes les tables
-                    </a>
-                    <a href="{{ route('clients.dashboard') }}" class="px-6 py-3 bg-gradient-to-r from-[#0288D1] to-[#026da8] text-white rounded-full shadow-md hover:shadow-lg transition hover:from-[#026da8] hover:to-[#0288D1] flex items-center">
-                        <i class="fas fa-calendar-check mr-2" aria-hidden="true"></i> Réserver maintenant
+                    <a href="{{ Auth::check() ? route('clients.dashboard') : route('login') }}" class="px-6 py-3 bg-gradient-to-r from-[#0288D1] to-[#026da8] text-white rounded-full shadow-md hover:shadow-lg transition hover:from-[#026da8] hover:to-[#0288D1] flex items-center">
+                        <i class="fas fa-calendar-check mr-2" aria-hidden="true"></i> {{ Auth::check() ? 'Réserver maintenant' : 'Se connecter pour réserver' }}
                     </a>
                 </div>
             </div>

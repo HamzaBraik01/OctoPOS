@@ -23,6 +23,7 @@
         </button>
 
         <!-- Auth Buttons -->
+        @if(!$isAuthenticated)
         <div class="hidden md:flex space-x-4">
             <button class="bg-transparent text-white border border-white hover:bg-white/10 rounded-full px-4 py-2 transition duration-300 flex items-center">
                 <a href="{{ route('login') }}" class="flex items-center">
@@ -35,6 +36,18 @@
                 </a>
             </button>
         </div>
+        @else
+        <div class="hidden md:flex space-x-4">
+            <button id="logout-button" class="bg-red-600 hover:bg-red-700 text-white rounded-full px-4 py-2 transition duration-300 flex items-center shadow-md">
+                <a href="{{ route('logout') }}" class="flex items-center logout-link" onclick="event.preventDefault(); logoutUser('logout-form');">
+                    <i class="fas fa-sign-out-alt mr-2"></i> Déconnexion
+                </a>
+            </button>
+            <form id="logout-form" action="{{ route('logout') }}" method="POST" class="hidden">
+                @csrf
+            </form>
+        </div>
+        @endif
     </div>
 
     <!-- Mobile Menu (Hidden by default) -->
@@ -45,6 +58,8 @@
             <a href="#tables" class="text-gray-200 hover:text-white py-2 transition duration-300">Tables</a>
             <a href="#chefs" class="text-gray-200 hover:text-white py-2 transition duration-300">Nos Chefs</a>
             <a href="#contact" class="text-gray-200 hover:text-white py-2 transition duration-300">Contact</a>
+            
+            @if(!$isAuthenticated)
             <div class="flex space-x-2 pt-2">
                 <button class="w-1/2 bg-transparent text-white border border-white hover:bg-white/10 rounded-full px-4 py-2 transition duration-300 flex items-center justify-center">
                     <a href="{{ route('login') }}" class="flex items-center justify-center w-full">
@@ -57,6 +72,19 @@
                     </a>
                 </button>
             </div>
+            @else
+            <div class="flex flex-col space-y-2 pt-2">
+                <span class="text-white font-medium">{{ $authUser->first_name }} {{ $authUser->last_name }}</span>
+                <button id="mobile-logout-button" class="w-full bg-red-600 hover:bg-red-700 text-white rounded-full px-4 py-2 transition duration-300 flex items-center justify-center">
+                    <a href="{{ route('logout') }}" class="flex items-center justify-center w-full logout-link" onclick="event.preventDefault(); logoutUser('mobile-logout-form');">
+                        <i class="fas fa-sign-out-alt mr-2"></i> Déconnexion
+                    </a>
+                </button>
+                <form id="mobile-logout-form" action="{{ route('logout') }}" method="POST" class="hidden">
+                    @csrf
+                </form>
+            </div>
+            @endif
         </div>
     </div>
 </nav>

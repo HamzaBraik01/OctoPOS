@@ -82,28 +82,7 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     const showToast = (message, type = 'info', duration = 3000) => {
-        const toast = document.createElement('div');
-        toast.className = `toast toast-${type}`;
-        toast.setAttribute('role', 'status');
-        let iconClass = 'fa-info-circle';
-        if (type === 'success') iconClass = 'fa-check-circle';
-        if (type === 'error') iconClass = 'fa-exclamation-triangle';
-
-        toast.innerHTML = `<i class="fas ${iconClass}" aria-hidden="true"></i> ${message}`;
-        toastContainer.appendChild(toast);
-
-        setTimeout(() => {
-            toast.classList.add('show');
-        }, 10);
-
-        setTimeout(() => {
-            toast.classList.remove('show');
-            setTimeout(() => {
-                if (toast.parentNode === toastContainer) {
-                    toast.remove();
-                }
-            }, 300);
-        }, duration);
+        return null;
     };
 
     const vibrate = (pattern) => {
@@ -182,7 +161,6 @@ document.addEventListener('DOMContentLoaded', function() {
             updateOrderHeader();
             updateCart();
             activateTab('orders');
-            showToast(`Table ${currentTable} sélectionnée`);
             vibrate(50);
         });
 
@@ -211,7 +189,6 @@ document.addEventListener('DOMContentLoaded', function() {
             orderHeaderNum.textContent = `Table ${currentTable}`;
             let metaHTML = `<span><i class="fas fa-users" aria-hidden="true"></i> ${capacity} pers.</span>`;
             if (time) metaHTML += `<span><i class="${timeIconClass}" aria-hidden="true"></i> ${time}</span>`;
-            metaHTML += `<span class="history-link"><i class="fas fa-history" aria-hidden="true"></i> Historique</span>`;
             orderHeaderMeta.innerHTML = metaHTML;
         } else {
             orderHeaderNum.textContent = 'Sélectionner une table';
@@ -224,7 +201,6 @@ document.addEventListener('DOMContentLoaded', function() {
     menuItems.forEach(item => {
         item.addEventListener('click', () => {
             if (currentTable === null) {
-                showToast('Veuillez d\'abord sélectionner une table.', 'info', 'custom-background');
                 return;
             }
             const itemId = item.dataset.id;
@@ -247,7 +223,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             updateCart();
-            showToast(`${itemName} ajouté`, 'success');
             if (!cartPanel.classList.contains('expanded')) {
                 cartHeader.click();
             }
@@ -345,7 +320,6 @@ document.addEventListener('DOMContentLoaded', function() {
             if (currentOrder[itemIndex].qty <= 0) {
                 const removedItemName = currentOrder[itemIndex].name;
                 currentOrder.splice(itemIndex, 1);
-                showToast(`${removedItemName} supprimé`);
             }
             vibrate(30);
         }
@@ -363,7 +337,6 @@ document.addEventListener('DOMContentLoaded', function() {
         if (currentOrder.length > 0 && confirm(`Voulez-vous vraiment vider le panier pour la table ${currentTable} ?`)) {
             currentOrder = [];
             updateCart();
-            showToast('Panier vidé', 'warning');
             vibrate(50);
         }
     });
@@ -376,7 +349,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     goToPaymentBtn.addEventListener('click', () => {
         if (currentOrder.length === 0) {
-            showToast('Le panier est vide.', 'warning');
             return;
         }
         activateTab('payment');
@@ -535,22 +507,17 @@ document.addEventListener('DOMContentLoaded', function() {
         const amountPaid = parseFloat(amountPaidText.replace(/[^0-9,-]+/g, "").replace(",", ".")) || 0;
         let changeGiven = 0;
     
-        // Check if the amount paid is sufficient for cash payment
         if (amountPaid < totalDue) {
-            showToast('Montant payé insuffisant!', 'error');
             vibrate([100, 50, 100]);
             amountInput.focus();
             return;
         }
         
-        // Calculate change
         changeGiven = amountPaid - totalDue;
     
         const orderBackup = [...currentOrder];
         const tableBackup = currentTable;
         
-        const loadingToast = showToast('Traitement du paiement...', 'info', 10000);
-    
         const orderForm = document.getElementById('order-form');
         const formAction = orderForm.getAttribute('action');
         console.log('Form action:', formAction);
@@ -563,21 +530,18 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('form-table-id').value = currentTable;
         document.getElementById('form-total').value = totalDue;
         
-        // Add amount paid to form
         const amountPaidInput = document.createElement('input');
         amountPaidInput.type = 'hidden';
         amountPaidInput.name = 'amount_paid';
         amountPaidInput.value = amountPaid;
         cartItemsData.appendChild(amountPaidInput);
         
-        // Add change given to form
         const changeGivenInput = document.createElement('input');
         changeGivenInput.type = 'hidden';
         changeGivenInput.name = 'change_given';
         changeGivenInput.value = changeGiven;
         cartItemsData.appendChild(changeGivenInput);
         
-        // Add all order items to the form
         currentOrder.forEach((item, index) => {
             const itemIdInput = document.createElement('input');
             itemIdInput.type = 'hidden';
@@ -591,12 +555,9 @@ document.addEventListener('DOMContentLoaded', function() {
             qtyInput.value = item.qty;
             cartItemsData.appendChild(qtyInput);
             
-            // Add options if they exist
             if (item.options && item.options.length > 0) {
-                // Attempt to parse options like cuisson, accompagnement, etc.
                 let optionsProcessed = 0;
                 
-                // Check for cooking preference
                 if (optionsProcessed < item.options.length) {
                     const optionText = item.options[optionsProcessed];
                     if (optionText.toLowerCase().includes('cuisson') || 
@@ -613,7 +574,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 }
                 
-                // Check for sides/accompaniments
                 if (optionsProcessed < item.options.length) {
                     const optionText = item.options[optionsProcessed];
                     if (optionText.toLowerCase().includes('frite') || 
@@ -630,7 +590,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 }
             } else {
-                // Add empty options
                 const cuissonInput = document.createElement('input');
                 cuissonInput.type = 'hidden';
                 cuissonInput.name = `plats[${index}][cuisson]`;
@@ -644,7 +603,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 cartItemsData.appendChild(accompagnementInput);
             }
             
-            // Add notes if they exist
             if (item.notes) {
                 const notesInput = document.createElement('input');
                 notesInput.type = 'hidden';
@@ -660,26 +618,17 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
         
-        // Create an iframe to handle form submission without page refresh
         const iframe = document.createElement('iframe');
         iframe.name = 'submit_frame';
         iframe.style.display = 'none';
         document.body.appendChild(iframe);
         
-        // Set the form target to the iframe
         orderForm.target = 'submit_frame';
         
-        // Handle the completion in a timeout to simulate server processing
         setTimeout(() => {
-            if (loadingToast) {
-                loadingToast.remove();
-            }
-            
             console.log('Displaying receipt interface');
-            showToast('Paiement effectué avec succès', 'success');
             processSuccessfulPayment(orderBackup, tableBackup, 'Espèces', amountPaid, changeGiven);
             
-            // After a brief delay, remove the iframe from the DOM
             setTimeout(() => {
                 if (iframe && iframe.parentNode) {
                     iframe.parentNode.removeChild(iframe);
@@ -687,13 +636,8 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 3000);
         }, 2500);
         
-        // Handle iframe errors
         iframe.onerror = function() {
             console.error('Iframe loading error');
-            if (loadingToast) {
-                loadingToast.remove();
-            }
-            showToast('Erreur lors de la communication avec le serveur', 'error');
         };
         
         console.log('Submitting payment form with data:', {
@@ -705,7 +649,6 @@ document.addEventListener('DOMContentLoaded', function() {
             items_count: currentOrder.length
         });
         
-        // Submit the form to send the data to the server
         orderForm.submit();
     });
 
@@ -714,7 +657,6 @@ function processSuccessfulPayment(orderItems, tableNum, paymentMethod, amountPai
     
     if (!receiptTabElement) {
         console.error('Receipt tab element not found');
-        showToast('Erreur lors de l\'affichage du reçu', 'error');
         return;
     }
 
@@ -784,7 +726,6 @@ function processSuccessfulPayment(orderItems, tableNum, paymentMethod, amountPai
     if (successPanelTableNum) successPanelTableNum.textContent = tableNum;
 
     activateTab('receipt');
-    showToast(`Paiement pour Table ${tableNum} enregistré`, 'success');
     vibrate([50, 100, 50]);
 
     const tableElement = document.querySelector(`.table-item[data-table="${tableNum}"]`);
@@ -793,7 +734,7 @@ function processSuccessfulPayment(orderItems, tableNum, paymentMethod, amountPai
         tableElement.classList.add('table-free');
         const timeDisplay = tableElement.querySelector('.table-time');
         if (timeDisplay) timeDisplay.remove();
-        const capacityText = tableElement.querySelector('.table-capacity')?.textContent.replace('<i class="fas fa-users" aria-hidden="true"></i> ','').trim() || '? pers.';
+        const capacityText = tableElement.querySelector('.table-capacity')?.textContent.replace('<i class="fas fa-users" aria-hidden="true"> ','').trim() || '? pers.';
         tableElement.setAttribute('aria-label', `Table ${tableNum}, ${capacityText}, Libre`);
     }
 
@@ -822,7 +763,6 @@ function processSuccessfulPayment(orderItems, tableNum, paymentMethod, amountPai
         activateTab('tables');
     });
     cleanTableBtn.addEventListener('click', () => {
-        showToast(`Table marquée comme nettoyée`, 'info');
         activateTab('tables');
     });
 
@@ -844,7 +784,6 @@ function processSuccessfulPayment(orderItems, tableNum, paymentMethod, amountPai
     });
 
     voiceBtn.addEventListener('click', () => {
-        showToast('Fonction recherche vocale non implémentée');
         vibrate(100);
     });
 
@@ -857,7 +796,6 @@ function processSuccessfulPayment(orderItems, tableNum, paymentMethod, amountPai
             });
             const category = catTab.textContent;
             const categoryFilter = catTab.getAttribute('data-category');
-            showToast(`Filtre: ${category}`);
             vibrate(30);
 
             menuItems.forEach(item => {
@@ -891,7 +829,6 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 function handlePrintReceipt(event) {
-    // Prevent default button action to avoid page refresh immediately
     if (event) {
         event.preventDefault();
     }
@@ -903,7 +840,6 @@ function handlePrintReceipt(event) {
         const receiptContent = receiptElement.cloneNode(true);
         openPrintWindowWithQrCode(receiptContent.outerHTML, commandId);
         
-        // Rafraîchir la page après un court délai pour laisser le temps à l'impression de démarrer
         setTimeout(() => {
             window.location.reload();
         }, 1500);
