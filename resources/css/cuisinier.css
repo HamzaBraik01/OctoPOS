@@ -1,0 +1,301 @@
+:root {
+    --primary-rgb: 2, 136, 209;
+}
+
+.dark {
+    --primary-rgb: 56, 189, 248;
+}
+
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: theme('colors.background');
+}
+
+::-webkit-scrollbar-thumb {
+    background: theme('colors.gray.400');
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: theme('colors.primary.DEFAULT');
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.6; }
+    100% { opacity: 1; }
+}
+
+.sidebar, .main-content, .dashboard-header, .theme-toggle::before {
+    transition: all 0.3s ease;
+}
+
+.theme-toggle {
+    position: relative;
+    width: 44px;
+    height: 22px;
+    background-color: theme('colors.border-color');
+    border-radius: 11px;
+    cursor: pointer;
+}
+
+.theme-toggle::before {
+    content: '';
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    top: 2px;
+    left: 2px;
+    background-color: white;
+    transition: all 0.3s ease; 
+}
+
+.dark .theme-toggle {
+    background-color: theme('colors.primary.DEFAULT');
+}
+
+.dark .theme-toggle::before {
+    transform: translateX(22px);
+}
+
+/* Styles spécifiques pour le dashboard cuisinier */
+.dashboard-section {
+    display: none;
+    padding: 1.5rem;
+}
+
+.dashboard-section.active {
+    display: block;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.commande-card, .preparation-card, .historique-card {
+    background-color: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border-left: 4px solid theme('colors.primary.DEFAULT');
+}
+
+.commande-card.priority-high {
+    border-left: 4px solid theme('colors.danger');
+}
+
+.commande-header, .preparation-header, .historique-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+
+.commande-body, .preparation-body, .historique-body {
+    margin-bottom: 0.75rem;
+}
+
+.commande-footer, .preparation-footer, .historique-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}
+
+.plat-list {
+    list-style: none;
+    padding: 0;
+}
+
+.plat-item {
+    padding: 0.5rem;
+    border-bottom: 1px solid theme('colors.border-color');
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.plat-item:last-child {
+    border-bottom: none;
+}
+
+.plat-quantity {
+    font-weight: bold;
+    color: theme('colors.primary.DEFAULT');
+}
+
+.plat-spec {
+    margin-left: auto;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 2rem;
+    color: theme('colors.gray.500');
+}
+
+.empty-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.allergie-card {
+    background-color: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.allergie-header {
+    margin-bottom: 1rem;
+}
+
+.allergie-items {
+    list-style: none;
+    padding: 0;
+}
+
+.allergie-items li {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid theme('colors.border-color');
+}
+
+.allergie-items li:last-child {
+    border-bottom: none;
+}
+
+.stock-category-card {
+    background-color: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.stock-category-header {
+    margin-bottom: 1rem;
+}
+
+.stock-items {
+    list-style: none;
+    padding: 0;
+}
+
+.stock-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid theme('colors.border-color');
+}
+
+.stock-item:last-child {
+    border-bottom: none;
+}
+
+.stock-level {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 50%;
+}
+
+.progress {
+    flex-grow: 1;
+    height: 8px;
+    background-color: theme('colors.border-color');
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    border-radius: 4px;
+}
+
+.stock-quantity {
+    min-width: 60px;
+    text-align: right;
+    font-size: 0.875rem;
+}
+
+.stock-alerts {
+    background-color: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.alert-list {
+    margin-top: 0.5rem;
+}
+
+.alert-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+    border-radius: 0.25rem;
+}
+
+.alert-danger {
+    background-color: theme('colors.red.100');
+}
+
+.alert-warning {
+    background-color: theme('colors.yellow.100');
+}
+
+.alert-icon {
+    margin-right: 0.75rem;
+}
+
+.alert-text {
+    flex-grow: 1;
+}
+
+/* Adaptation pour mode sombre */
+.dark .commande-card, 
+.dark .preparation-card, 
+.dark .historique-card,
+.dark .allergie-card,
+.dark .stock-category-card,
+.dark .stock-alerts {
+    background-color: theme('colors.gray.800');
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+.dark .plat-item, 
+.dark .allergie-items li, 
+.dark .stock-item {
+    border-color: theme('colors.gray.700');
+}
+
+.dark .progress {
+    background-color: theme('colors.gray.700');
+}
+
+.dark .alert-danger {
+    background-color: theme('colors.red.900/50');
+    color: theme('colors.red.300');
+}
+
+.dark .alert-warning {
+    background-color: theme('colors.yellow.900/50');
+    color: theme('colors.yellow.300');
+}
+
+.dark .empty-state {
+    color: theme('colors.gray.400');
+}

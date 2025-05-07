@@ -20,6 +20,8 @@ export default defineConfig({
                 'resources/js/register.js',
                 'resources/js/app.js', 
                 'resources/css/app.css',
+                'resources/css/cuisinier.css', 
+                'resources/js/cuisinier.js',
             ],
             refresh: true,
         }),

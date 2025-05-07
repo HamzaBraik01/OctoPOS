@@ -142,6 +142,8 @@ Route::middleware([JWTAuthentication::class])->group(function () {
     
     Route::post('/serveur/select-restaurant', [ServeurController::class, 'selectRestaurant'])->name('serveur.select-restaurant');
     Route::get('/serveur/filtrer-plats', [ServeurController::class, 'filtrerPlats'])->name('serveur.filtrer-plats');
+    
+    Route::post('/cuisinier/select-restaurant', [CuisinierController::class, 'selectRestaurant'])->name('cuisinier.select-restaurant');
 });
 
 // Routes pour les rapports
