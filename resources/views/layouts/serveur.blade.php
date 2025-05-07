@@ -7,10 +7,11 @@
     <meta name="description" content="OctoPOS - Système de point de vente pour serveurs">
 
     <title>@yield('title', 'OctoPOS')</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     @vite(['resources/css/serveur.css', 'resources/js/serveur.js'])
 
     @stack('styles')
@@ -45,24 +46,26 @@
                 <button id="theme-toggle" class="header-button" aria-label="Basculer le thème sombre/clair">
                     <i class="fas fa-moon"></i>
                 </button>
-                <button id="contrast-toggle" class="header-button" aria-label="Basculer le mode contraste élevé">
-                    <i class="fas fa-adjust"></i>
-                </button>
-                <button id="notifications" class="header-button" aria-label="Notifications">
-                    <i class="fas fa-bell"></i>
-                    <span class="badge" aria-hidden="true">3</span>
-                </button>
+             
+              
             </div>
 
             <div class="user-info">
-                <div class="avatar" aria-hidden="true">HB</div>
+                <div class="avatar" aria-hidden="true">{{ substr(auth()->user()->frist_name, 0, 1) . substr(auth()->user()->last_name, 0, 1) }}</div>
                 <div class="user-details">
-                    <div class="user-name">Hamza Br</div>
-                    <div class="user-role">Serveur</div>
+                    <div class="user-name">{{ auth()->user()->frist_name . ' ' . auth()->user()->last_name }}</div>
+                    <div class="user-role">{{ auth()->user()->role }}</div>
                 </div>
                 <button class="header-button" aria-label="Menu utilisateur">
                     <i class="fas fa-ellipsis-v"></i>
                 </button>
+                <a style="text-decoration: none" href="{{ route('logout') }}" class="header-button logout-button" aria-label="Déconnexion" 
+                   onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                    <i class="fas fa-sign-out-alt"></i>
+                </a>
+                <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                    @csrf
+                </form>
             </div>
         </div>
     </header>
