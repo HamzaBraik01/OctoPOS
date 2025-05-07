@@ -44,6 +44,35 @@
     <!-- Footer -->
     @include('partials.footer')
 
+    <!-- Script pour éviter les déconnexions multiples -->
+    <script>
+        function logoutUser(formId) {
+            // Désactiver tous les boutons de déconnexion
+            document.querySelectorAll('.logout-link').forEach(link => {
+                link.style.pointerEvents = 'none';
+                link.parentElement.classList.add('opacity-50', 'cursor-not-allowed');
+                link.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Déconnexion...';
+            });
+            
+            // Soumettre le formulaire de déconnexion
+            document.getElementById(formId).submit();
+            
+            // Empêcher la navigation vers d'autres pages pendant la déconnexion
+            window.onbeforeunload = function() {
+                return "Déconnexion en cours, veuillez patienter...";
+            };
+            
+            // Désactiver temporairement les autres liens de la page
+            document.querySelectorAll('a:not(.logout-link)').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                });
+            });
+            
+            return false;
+        }
+    </script>
+
     <!-- Custom JavaScript -->
     @vite('resources/js/script.js')
 </body>

@@ -5,6 +5,11 @@
 @section('content')
 
     <!-- Tabs Navigation -->
+    <div id="auth-debug" style="display:none;">
+        <meta name="user-id" content="{{ auth()->id() }}">
+        <meta name="is-authenticated" content="{{ auth()->check() ? 'yes' : 'no' }}">
+    </div>
+    
     <div class="tabs" role="tablist" aria-label="Navigation principale">
         <button class="tab" role="tab" aria-selected="true" aria-controls="tables-tab" data-tab="tables" id="tab-tables">
             <i class="fas fa-th-large" aria-hidden="true"></i> Tables
@@ -18,9 +23,7 @@
         <button class="tab" role="tab" aria-selected="false" aria-controls="receipt-tab" data-tab="receipt" id="tab-receipt" tabindex="-1">
             <i class="fas fa-receipt" aria-hidden="true"></i> Tickets
         </button>
-        <button class="tab" role="tab" aria-selected="false" aria-controls="stats-tab" data-tab="stats" id="tab-stats" tabindex="-1">
-            <i class="fas fa-chart-line" aria-hidden="true"></i> Stats
-        </button>
+        
     </div>
 
     <!-- Main Content Area (Tab Panels) -->
@@ -37,18 +40,8 @@
                     </button>
                 </div>
 
-                <div class="status-legend" aria-label="Légende des statuts de table">
-                    <div class="status-item"><div class="status-color color-free"></div><span>Libre</span></div>
-                    <div class="status-item"><div class="status-color color-occupied"></div><span>Occupée</span></div>
-                    <div class="status-item"><div class="status-color color-reserved"></div><span>Réservée</span></div>
-                </div>
+                
             </div>
-
-            @if(isset($selectedRestaurant) && $selectedRestaurant)
-                <div class="restaurant-heading">
-                    <h2>{{ $selectedRestaurant->nom }}</h2>
-                </div>
-            @endif
 
             <div class="tables-grid">
                 @if(isset($tables) && count($tables) > 0)
@@ -194,18 +187,7 @@
                     <div class="payment-icon"><i class="fas fa-money-bill-wave" aria-hidden="true"></i></div>
                     <div class="payment-name">Espèces</div>
                 </div>
-                <div class="payment-method" data-method="card" role="radio" aria-checked="false" tabindex="-1">
-                    <div class="payment-icon"><i class="fas fa-credit-card" aria-hidden="true"></i></div>
-                    <div class="payment-name">Carte Bancaire</div>
-                </div>
-                <div class="payment-method" data-method="split" role="radio" aria-checked="false" tabindex="-1">
-                    <div class="payment-icon"><i class="fas fa-users" aria-hidden="true"></i></div>
-                    <div class="payment-name">Addition Partagée</div>
-                </div>
-                <div class="payment-method" data-method="mobile" role="radio" aria-checked="false" tabindex="-1">
-                    <div class="payment-icon"><i class="fas fa-mobile-alt" aria-hidden="true"></i></div>
-                    <div class="payment-name">Paiement Mobile</div>
-                </div>
+            
             </div>
 
             <div class="payment-summary">
@@ -219,7 +201,7 @@
             <div class="cash-payment-details" style="display: block;">
                 <div class="amount-field">
                     <span>€</span>
-                    <input type="text" class="amount-input" value="0,00" inputmode="decimal" aria-label="Montant reçu en espèces">
+                    <input type="text" class="amount-input" value="0,00" inputmode="decimal" aria-label="Montant reçu en espèces" disabled>
                 </div>
                 <div class="numpad" aria-label="Clavier numérique pour le montant reçu">
                     <button class="numkey" data-key="7">7</button> <button class="numkey" data-key="8">8</button> <button class="numkey" data-key="9">9</button>
@@ -229,12 +211,6 @@
                 </div>
                 <div class="change-panel">
                     <div class="change-title"><div class="change-label">Monnaie à rendre</div><div class="change-amount">0,00€</div></div>
-                    <div class="bills-display" aria-label="Détail de la monnaie à rendre">
-                    </div>
-                    <label class="tip-option" for="round-tip">
-                        <input type="checkbox" class="tip-checkbox" id="round-tip">
-                        <span class="tip-label">Arrondir pour pourboire (<span class="tip-amount">0,00€</span>)</span>
-                    </label>
                 </div>
             </div>
 
@@ -250,10 +226,9 @@
                 <div class="receipt">
                     <div class="receipt-header">
                         <div class="receipt-logo">OctoPOS</div>
-                        <div class="receipt-restaurant">Le Bistro Gourmand</div>
-                        <div class="receipt-address">123 Rue de la Saveur, 75001 Paris</div>
-                        <div class="receipt-info">Tel: 01 98 76 54 32</div>
-                        <div class="receipt-info">Table: <span class="receipt-table-num">?</span> - Serveur: Hamza B.</div>
+                        <div class="receipt-restaurant">{{-- Config::get('restaurant.name', 'Le Bistro Gourmand') --}}Le Bistro Gourmand</div>
+                        <div class="receipt-info">Tel: {{-- Config::get('restaurant.phone', '01 98 76 54 32') --}}01 98 76 54 32</div>
+                        <div class="receipt-info">Table: <span class="receipt-table-num">?</span> - Serveur: {{ Auth::user()->name ?? 'Serveur' }}</div>
                         <div class="receipt-info receipt-datetime">--/--/---- --:--:--</div>
                     </div>
 
@@ -299,12 +274,7 @@
                     <button class="btn btn-primary action-btn" aria-label="Imprimer le ticket">
                         <i class="fas fa-print" aria-hidden="true"></i> Imprimer
                     </button>
-                    <button class="btn btn-outline action-btn" aria-label="Envoyer le ticket par Email">
-                        <i class="fas fa-envelope" aria-hidden="true"></i> Email
-                    </button>
-                    <button class="btn btn-outline action-btn" aria-label="Envoyer le ticket par SMS">
-                        <i class="fas fa-mobile-alt" aria-hidden="true"></i> SMS
-                    </button>
+                    
                 </div>
 
                 <div class="payment-success-panel" style="display: none;">
@@ -379,7 +349,10 @@
             <input type="hidden" name="table_id" id="form-table-id" value="">
             <input type="hidden" name="restaurant_id" id="form-restaurant-id" value="{{ $selectedRestaurant->id ?? '' }}">
             <input type="hidden" name="total" id="form-total" value="0">
-
+            
+            <!-- Container for dynamically added plats inputs -->
+            <div id="cart-items-data"></div>
+        
             <div class="cart-header" role="button" aria-expanded="false" aria-controls="cart-details">
                 <div class="cart-handle" aria-hidden="true"></div>
                 <div class="cart-summary">
@@ -395,7 +368,7 @@
                     </div>
                 </div>
             </div>
-
+        
             <div id="cart-details" hidden>
                 <div class="cart-content">
                     <div class="cart-empty-message" style="padding: 2rem; text-align: center; color: var(--text-muted);">
@@ -404,10 +377,9 @@
                     </div>
                     <div id="cart-items-container">
                         <div id="cart-items-list"></div>
-                        <div id="cart-items-data" style="display: none;"></div>
                     </div>
                 </div>
-
+        
                 <div class="cart-footer">
                     <div class="subtotal-row">
                         <span class="subtotal-label">Sous-total</span>
@@ -422,13 +394,13 @@
                         <span class="total-value cart-grand-total-footer">0,00DH</span>
                     </div>
                     <div class="cart-actions">
+                        <button type="submit" class="btn btn-primary " style="display:none" id="send-to-kitchen-btn" disabled>
+                            <i class="fas fa-paper-plane" aria-hidden="true"></i> Envoyer
+                        </button>
                         <button type="button" class="btn btn-outline" id="cancel-order-btn" disabled>
                             <i class="fas fa-trash-alt" aria-hidden="true"></i> Annuler
                         </button>
-                        <button type="submit" class="btn btn-primary" id="send-to-kitchen-btn" disabled>
-                            <i class="fas fa-paper-plane" aria-hidden="true"></i> Envoyer
-                        </button>
-                        <button type="button" class="btn btn-secondary" id="go-to-payment-btn" style="grid-column: 1 / -1; margin-top: var(--spacing-sm);" disabled>
+                        <button type="button" class="btn btn-secondary" id="go-to-payment-btn">
                             <i class="fas fa-credit-card" aria-hidden="true"></i> Aller au Paiement
                         </button>
                     </div>
@@ -436,107 +408,7 @@
             </div>
         </form>
     </div>
-
-    <div class="modal-overlay" id="customization-overlay">
-        <div class="modal" id="customization-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title-label">
-            <div class="modal-header">
-                <h3 class="modal-title" id="modal-title-label">Personnaliser l'article</h3>
-                <button class="modal-close" aria-label="Fermer la fenêtre de personnalisation">
-                    <i class="fas fa-times" aria-hidden="true"></i>
-                </button>
-            </div>
-
-            <div class="modal-body">
-                <form id="item-customization-form">
-                    <input type="hidden" id="item-id" name="plat_id" value="">
-                    <input type="hidden" id="item-name" name="nom" value="">
-                    <input type="hidden" id="item-price" name="prix" value="">
-                    <input type="hidden" id="item-quantity" name="quantite" value="1">
-
-                    <div class="option-section">
-                        <h4 class="option-title">Cuisson</h4>
-                        <div class="option-grid" role="radiogroup" aria-labelledby="cooking-level-label">
-                            <div id="cooking-level-label" class="visually-hidden">Choisir la cuisson</div>
-                            <button type="button" class="option-item" role="radio" aria-checked="false" data-option="Peu cuit" data-value="Peu cuit">Peu cuit</button>
-                            <button type="button" class="option-item" role="radio" aria-checked="false" data-option="Moyennement cuit" data-value="Moyennement cuit">Moyennement cuit</button>
-                            <button type="button" class="option-item" role="radio" aria-checked="false" data-option="Bien cuit" data-value="Bien cuit">Bien cuit</button>
-                            <button type="button" class="option-item" role="radio" aria-checked="false" data-option="Très bien cuit" data-value="Très bien cuit">Très bien cuit</button>
-                            <input type="hidden" id="cooking-level-input" name="cuisson" value="">
-                        </div>
-                    </div>
-
-                    <div class="option-section">
-                        <h4 class="option-title">Accompagnement</h4>
-                        <div class="option-grid" role="radiogroup" aria-labelledby="side-dish-label">
-                            <div id="side-dish-label" class="visually-hidden">Choisir l'accompagnement</div>
-                            <button type="button" class="option-item" role="radio" aria-checked="false" data-option="Frites" data-value="Frites">Frites</button>
-                            <button type="button" class="option-item" role="radio" aria-checked="false" data-option="Pain traditionnel" data-value="Pain traditionnel">Pain traditionnel</button>
-                            <button type="button" class="option-item" role="radio" aria-checked="false" data-option="Semoule" data-value="Semoule">Semoule</button>
-                            <button type="button" class="option-item" role="radio" aria-checked="false" data-option="Légumes confits" data-value="Légumes confits">Légumes confits</button>
-                            <input type="hidden" id="side-dish-input" name="accompagnement" value="">
-                        </div>
-                    </div>
-
-                    <div class="option-section">
-                        <h4 class="option-title">Extras</h4>
-                        <div class="extras-list" id="extras-container" role="group" aria-labelledby="extras-label">
-                            <div id="extras-label" class="visually-hidden">Choisir les extras</div>
-                            
-                            <div class="extra-item-container">
-                                <input type="checkbox" id="extra-olives" name="extras[]" value="Olives marinées" class="extra-checkbox">
-                                <label for="extra-olives" class="extra-item">
-                                    <div class="extra-label">
-                                        <div class="checkbox">
-                                            <i class="fas fa-check" style="display: none;"></i>
-                                        </div>
-                                        <span>Olives marinées</span>
-                                    </div>
-                                    <div class="extra-price">+2,00DH</div>
-                                </label>
-                            </div>
-                            
-                            <div class="extra-item-container">
-                                <input type="checkbox" id="extra-frites" name="extras[]" value="Supplément frites" class="extra-checkbox">
-                                <label for="extra-frites" class="extra-item">
-                                    <div class="extra-label">
-                                        <div class="checkbox">
-                                            <i class="fas fa-check" style="display: none;"></i>
-                                        </div>
-                                        <span>Supplément frites</span>
-                                    </div>
-                                    <div class="extra-price">+3,00DH</div>
-                                </label>
-                            </div>
-                            
-                            <div class="extra-item-container">
-                                <input type="checkbox" id="extra-sans-sel" name="extras[]" value="Sans sel" class="extra-checkbox">
-                                <label for="extra-sans-sel" class="extra-item">
-                                    <div class="extra-label">
-                                        <div class="checkbox">
-                                            <i class="fas fa-check" style="display: none;"></i>
-                                        </div>
-                                        <span>Sans sel</span>
-                                    </div>
-                                    <div class="extra-price"></div>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="option-section">
-                        <h4 class="option-title" id="notes-label">Notes spéciales</h4>
-                        <textarea class="notes-field" name="notes" placeholder="Allergies, préférences, etc." aria-labelledby="notes-label"></textarea>
-                    </div>
-                </form>
-            </div>
-
-            <div class="modal-actions">
-                <button class="btn btn-outline modal-cancel-btn">Annuler</button>
-                <button class="btn btn-primary add-to-cart-btn">
-                    <i class="fas fa-plus" aria-hidden="true"></i> Ajouter à la commande
-                </button>
-            </div>
-        </div>
-    </div>
+    
+    <!-- No customization modal - direct add to cart functionality -->
 
 @endsection

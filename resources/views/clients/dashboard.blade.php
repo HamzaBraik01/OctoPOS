@@ -121,10 +121,6 @@
                                     @endif
                                 </td>
                                 <td>
-                                    <button class="btn btn-sm btn-icon btn-outline mr-1 edit-reservation" 
-                                            data-id="{{ $reservation->id }}" title="Modifier">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
                                    @if($reservation->status !== 'canceled')
                                     <form action="{{ route('reservations.cancel', $reservation->id) }}" method="POST" style="display:inline;">
                                         @csrf
@@ -154,8 +150,40 @@
         }
         
         function editReservation(id) {
-    // Your edit reservation logic here
     console.log("Editing reservation: " + id);
+}
+
+function cancelReservation(id) {
+    window.currentReservationId = id;
+    
+    document.getElementById('custom-alert-overlay').classList.add('active');
+    
+    document.getElementById('custom-alert-confirm-btn').onclick = function() {
+        const form = document.querySelector(`form[action*="/reservations/cancel/${id}"]`);
+        form.submit();
+        
+        closeCustomAlert();
+        
+        showSuccessMessage('Votre réservation a été annulée avec succès.');
+    };
+}
+
+function closeCustomAlert() {
+    document.getElementById('custom-alert-overlay').classList.remove('active');
+}
+
+function showSuccessMessage(message) {
+    const successMsg = document.createElement('div');
+    successMsg.className = 'custom-alert-success';
+    successMsg.innerHTML = `<i class="fas fa-check-circle mr-2"></i> ${message}`;
+    
+    document.body.appendChild(successMsg);
+    
+    setTimeout(() => {
+        if (successMsg.parentNode) {
+            successMsg.parentNode.removeChild(successMsg);
+        }
+    }, 3000);
 }
 
 
@@ -354,11 +382,45 @@
     }
     
     function cancelReservation(id) {
-        // Implement reservation cancellation with confirmation
-        if (confirm('Êtes-vous sûr de vouloir annuler cette réservation?')) {
-            console.log('Cancelling reservation', id);
-            // Send AJAX request to cancel reservation
-        }
+        // Stockage temporaire de l'ID de réservation pour la confirmation
+        window.currentReservationId = id;
+        
+        // Afficher l'alerte personnalisée
+        document.getElementById('custom-alert-overlay').classList.add('active');
+        
+        // Configurer le bouton de confirmation pour soumettre le formulaire correspondant
+        document.getElementById('custom-alert-confirm-btn').onclick = function() {
+            // Trouver et soumettre le formulaire d'annulation
+            const form = document.querySelector(`form[action*="/reservations/cancel/${id}"]`);
+            form.submit();
+            
+            // Fermer l'alerte
+            closeCustomAlert();
+            
+            // Afficher un message de succès
+            showSuccessMessage('Votre réservation a été annulée avec succès.');
+        };
+    }
+    
+    function closeCustomAlert() {
+        document.getElementById('custom-alert-overlay').classList.remove('active');
+    }
+    
+    function showSuccessMessage(message) {
+        // Créer l'élément de message de succès
+        const successMsg = document.createElement('div');
+        successMsg.className = 'custom-alert-success';
+        successMsg.innerHTML = `<i class="fas fa-check-circle mr-2"></i> ${message}`;
+        
+        // Ajouter au corps du document
+        document.body.appendChild(successMsg);
+        
+        // Supprimer après l'animation (3 secondes)
+        setTimeout(() => {
+            if (successMsg.parentNode) {
+                successMsg.parentNode.removeChild(successMsg);
+            }
+        }, 3000);
     }
     
     function viewInvoice(invoiceId) {
