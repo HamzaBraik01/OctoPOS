@@ -1,10 +1,10 @@
 <p align="center">
-  <span style="font-size: 120px; position: relative; display: inline-block;">
-    <i class="fas fa-utensils" style="color: #4CAF50; position: absolute; top: -5px; left: -5px; opacity: 0.3;"></i>
-    <i class="fas fa-utensils" style="color: #0288D1;"></i>
+  <span style="position: relative; display: inline-block; margin-right: 0.5rem;">
+    <i class="fas fa-utensils" style="color: #4CAF50; font-size: 120px; position: absolute; top: -10px; left: -10px; opacity: 0.3;"></i>
+    <i class="fas fa-utensils" style="color: #0288D1; font-size: 120px; position: relative;"></i>
   </span>
   <br>
-  <span style="font-size: 60px; font-weight: 700; background: linear-gradient(135deg, #0288D1, #4CAF50); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; color: transparent;">OctoPOS</span>
+  <span style="font-size: 60px; font-weight: 700; background: linear-gradient(135deg, #0288D1, #4CAF50); -webkit-background-clip: text; background-clip: text; color: transparent; position: relative;">OctoPOS</span>
 </p>
 
 <h1 align="center">Restaurant Point of Sale System</h1>
