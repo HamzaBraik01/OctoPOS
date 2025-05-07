@@ -17,12 +17,11 @@ class Commande extends Model
     protected $fillable = [
         'date', 
         'statut', 
-        'users_id',
+        'user_id', 
         'montant_total',
         'methode_paiement',
         'table_id', 
-        'restaurant_id',
-        'total'
+        'restaurant_id'
     ];
 
     /**
@@ -30,7 +29,7 @@ class Commande extends Model
      */
     public function user()
     {
-        return $this->belongsTo(User::class, 'users_id');
+        return $this->belongsTo(User::class);
     }
 
     /**

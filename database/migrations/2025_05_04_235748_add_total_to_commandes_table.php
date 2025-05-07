@@ -20,19 +20,9 @@ return new class extends Migration
                 $table->foreign('restaurant_id')->references('id')->on('restaurants')->onDelete('cascade');
             }
             
-            // Then add the total column
-            $table->decimal('total', 10, 2)
-                  ->nullable()
-                  ->comment('Total amount of the order');
-                  
-            // Add montant_total if it doesn't exist
-            if (!Schema::hasColumn('commandes', 'montant_total')) {
-                $table->decimal('montant_total', 10, 2)->nullable();
-            }
-            
-            // Add methode_paiement if it doesn't exist
-            if (!Schema::hasColumn('commandes', 'methode_paiement')) {
-                $table->string('methode_paiement')->nullable();
+            // Ajout de la colonne total si elle n'existe pas encore
+            if (!Schema::hasColumn('commandes', 'total')) {
+                $table->decimal('total', 10, 2)->nullable()->after('restaurant_id');
             }
         });
     }
@@ -45,8 +35,10 @@ return new class extends Migration
     public function down()
     {
         Schema::table('commandes', function (Blueprint $table) {
-            $table->dropColumn('total');
-            // Don't drop the other columns as they might be used by other parts
+            // Supprimer la colonne total si elle existe
+            if (Schema::hasColumn('commandes', 'total')) {
+                $table->dropColumn('total');
+            }
         });
     }
 };

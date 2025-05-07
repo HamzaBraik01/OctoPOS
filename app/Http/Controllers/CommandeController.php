@@ -2,33 +2,25 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Commande;
 use Illuminate\Http\Request;
+use App\Models\Commande;
+use App\Models\CommandePlat;
+use App\Models\Plat;
+use App\Models\Table;
+use App\Models\Restaurant;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class CommandeController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
     /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
     {
-        \Log::info('Form submission received:', $request->all());
+        Log::info('Form submission received:', $request->all());
     
         try {
             $validatedData = $request->validate([
@@ -40,89 +32,69 @@ class CommandeController extends Controller
                 'plats.*.quantite' => 'required|integer|min:1',
                 'plats.*.cuisson' => 'nullable|string|max:100',
                 'plats.*.accompagnement' => 'nullable|string|max:100',
-                'plats.*.extras' => 'nullable|array',
                 'plats.*.notes' => 'nullable|string|max:255',
-                
+                'amount_paid' => 'required|numeric|min:0',
+                'change_given' => 'nullable|numeric|min:0',
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
-            \Log::error('Validation failed:', $e->errors());
+            Log::error('Validation failed:', $e->errors());
             return redirect()->back()->withErrors($e->errors())->withInput();
         }
     
-        $userId = $request->input('users_id');
+        $userId = Auth::id() ?? 1; // Fallback to ID 1 if not logged in (for demo purposes)
+        $now = Carbon::now();
         
-        if (!$userId && !auth()->id()) {
-            \Log::error('No user ID provided and user not authenticated');
-            return response()->json([
-                'error' => 'User ID is required. Please login or provide users_id.',
-            ], 422);
-        }
-    
+        // Create the main commande record
         $commande = Commande::create([
-            'date' => now(),
-            'statut' => 'en attente',
-            'users_id' =>  auth()->id(),
+            'date' => $now,
+            'statut' => 'payée', // Set status to 'payée' for completed payments
+            'user_id' => $userId,
             'table_id' => $validatedData['table_id'],
             'restaurant_id' => $validatedData['restaurant_id'],
-            'total' => $validatedData['total'],
+            'montant_total' => $validatedData['total'],
+            'methode_paiement' => 'Espèces', // Changed from 'cash' to 'Espèces'
         ]);
     
+        // Create all associated plat records
         foreach ($validatedData['plats'] as $plat) {
-            $options = [
-                'cuisson' => $plat['cuisson'] ?? null,
-                'accompagnement' => $plat['accompagnement'] ?? null,
-                'extras' => $plat['extras'] ?? []
-            ];
+            $options = [];
+            
+            // Add cuisson if provided
+            if (!empty($plat['cuisson'])) {
+                $options['cuisson'] = $plat['cuisson'];
+            }
+            
+            // Add accompagnement if provided
+            if (!empty($plat['accompagnement'])) {
+                $options['accompagnement'] = $plat['accompagnement'];
+            }
     
-            $commande->plats()->create([
-                'plat_id' => $plat['id'], // Added plat_id
+            // Utiliser DB::insert pour insérer directement avec created_at et updated_at
+            DB::table('commande_plat')->insert([
+                'commande_id' => $commande->id,
+                'plat_id' => $plat['id'],
                 'quantite' => $plat['quantite'],
-                'options' => $options, // Store all customization options in the options JSON column
-                'notes' => $plat['notes'] ?? null,
-                
+                'created_at' => $now,
+                'updated_at' => $now,
             ]);
         }
     
+        // Save payment details to log
+        Log::info('Espèces payment processed:', [
+            'commande_id' => $commande->id,
+            'amount_paid' => $request->input('amount_paid'),
+            'change_given' => $request->input('change_given'),
+        ]);
+    
         if ($request->expectsJson()) {
             return response()->json([
-                'message' => 'Commande créée avec succès.',
+                'success' => true,
+                'message' => 'Commande créée et payée avec succès.',
                 'commande_id' => $commande->id
-            ], 201);
+            ]);
         }
     
-        // For web requests
-        return redirect()->route('serveurs.dashboard')->with('success', 'Commande créée avec succès.');
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Commande $commande)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Commande $commande)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Commande $commande)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Commande $commande)
-    {
-        //
+        // For web requests, redirect back to the dashboard
+        return redirect()->route('serveur.dashboard')->with('success', 'Commande créée et payée avec succès.');
     }
 }

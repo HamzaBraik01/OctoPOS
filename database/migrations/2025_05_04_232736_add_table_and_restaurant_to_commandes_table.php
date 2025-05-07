@@ -14,14 +14,7 @@ return new class extends Migration
     public function up()
     {
         Schema::table('commandes', function (Blueprint $table) {
-            // Add table_id as foreign key
-            $table->foreignId('table_id')
-                  ->nullable()
-                  ->after('users_id')
-                  ->constrained('tables')
-                  ->onDelete('set null');
-                  
-            // Add restaurant_id as foreign key
+            // Only add restaurant_id as foreign key since table_id already exists
             $table->foreignId('restaurant_id')
                   ->nullable()
                   ->after('table_id')
@@ -38,12 +31,11 @@ return new class extends Migration
     public function down()
     {
         Schema::table('commandes', function (Blueprint $table) {
-            // Drop foreign keys first
-            $table->dropForeign(['table_id']);
+            // Drop foreign key first
             $table->dropForeign(['restaurant_id']);
             
-            // Then drop the columns
-            $table->dropColumn(['table_id', 'restaurant_id']);
+            // Then drop the column
+            $table->dropColumn('restaurant_id');
         });
     }
 };

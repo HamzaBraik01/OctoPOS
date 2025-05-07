@@ -22,28 +22,25 @@ class CommandePlat extends Model
      * @var array
      */
     protected $fillable = [
-        'commande_id',  // Added commande_id foreign key
-        'plat_id',      // Added plat_id foreign key
+        'commande_id',
+        'plat_id',
         'quantite',
-        'options',
-        'notes',
+        'created_at',
+        'updated_at'
     ];
-
   
     protected $casts = [
         'options' => 'array',
     ];
 
-    
-    public $timestamps = false;
-
+    // Activer les timestamps pour ce modèle
+    public $timestamps = true;
 
     public function commande()
     {
         return $this->belongsTo(Commande::class);
     }
 
-   
     public function plat()
     {
         return $this->belongsTo(Plat::class);

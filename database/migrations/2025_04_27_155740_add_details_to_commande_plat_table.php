@@ -13,8 +13,6 @@ return new class extends Migration
     {
         Schema::table('commande_plat', function (Blueprint $table) {
             $table->integer('quantite')->default(1);
-            $table->json('options')->nullable();
-            $table->text('notes')->nullable();
         });
     }
 
@@ -24,7 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('commande_plat', function (Blueprint $table) {
-            $table->dropColumn(['quantite', 'options', 'notes']);
+            $table->dropColumn('quantite');
         });
     }
 };
