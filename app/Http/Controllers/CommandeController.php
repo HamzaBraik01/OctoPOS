@@ -31,44 +31,49 @@ class CommandeController extends Controller
         \Log::info('Form submission received:', $request->all());
     
         try {
-            // Updated validation rules to include plat_id
             $validatedData = $request->validate([
                 'table_id' => 'required|integer|exists:tables,id',
                 'restaurant_id' => 'required|integer|exists:restaurants,id',
                 'total' => 'required|numeric|min:0',
                 'plats' => 'required|array',
-                'plats.*.id' => 'required|integer|exists:plats,id', // Added validation for plat_id
+                'plats.*.id' => 'required|integer|exists:plats,id',
                 'plats.*.quantite' => 'required|integer|min:1',
-                'plats.*.cuisson' => 'nullable|string|max:100',  // Added cooking preference
-                'plats.*.accompagnement' => 'nullable|string|max:100', // Added side dish
-                'plats.*.extras' => 'nullable|array', // Validate extras as array
+                'plats.*.cuisson' => 'nullable|string|max:100',
+                'plats.*.accompagnement' => 'nullable|string|max:100',
+                'plats.*.extras' => 'nullable|array',
                 'plats.*.notes' => 'nullable|string|max:255',
+                
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
             \Log::error('Validation failed:', $e->errors());
             return redirect()->back()->withErrors($e->errors())->withInput();
         }
     
-        // Create the order
+        $userId = $request->input('users_id');
+        
+        if (!$userId && !auth()->id()) {
+            \Log::error('No user ID provided and user not authenticated');
+            return response()->json([
+                'error' => 'User ID is required. Please login or provide users_id.',
+            ], 422);
+        }
+    
         $commande = Commande::create([
             'date' => now(),
-            'statut' => 'en attente', 
-            'users_id' => auth()->id() ,
+            'statut' => 'en attente',
+            'users_id' =>  auth()->id(),
             'table_id' => $validatedData['table_id'],
             'restaurant_id' => $validatedData['restaurant_id'],
             'total' => $validatedData['total'],
         ]);
     
-        // Build options array and create order items
         foreach ($validatedData['plats'] as $plat) {
-            // Construct options array
             $options = [
                 'cuisson' => $plat['cuisson'] ?? null,
                 'accompagnement' => $plat['accompagnement'] ?? null,
                 'extras' => $plat['extras'] ?? []
             ];
     
-            // Create the order item with plat_id
             $commande->plats()->create([
                 'plat_id' => $plat['id'], // Added plat_id
                 'quantite' => $plat['quantite'],
@@ -78,7 +83,6 @@ class CommandeController extends Controller
             ]);
         }
     
-        // If request wants JSON (API call)
         if ($request->expectsJson()) {
             return response()->json([
                 'message' => 'Commande créée avec succès.',

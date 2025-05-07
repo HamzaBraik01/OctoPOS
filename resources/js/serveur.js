@@ -257,12 +257,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     menuItems.forEach(item => {
         item.addEventListener('click', () => {
-             if (currentTable === null) {
-                showToast('Veuillez d\'abord sélectionner une table.', 'warning');
-                vibrate([50,50]);
+            if (currentTable === null) {
+                showToast('Veuillez d\'abord sélectionner une table.', 'info', 'custom-background');
                 return;
-             }
-
+            }
             const itemId = item.dataset.id;
             const itemName = item.dataset.name;
             const itemPrice = parseFloat(item.dataset.price);
@@ -549,13 +547,30 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
 
-    contrastToggleBtn.addEventListener('click', () => {
-        const isHighContrast = body.classList.toggle('high-contrast');
-        contrastToggleBtn.classList.toggle('active', isHighContrast);
-         contrastToggleBtn.setAttribute('aria-pressed', isHighContrast);
-        localStorage.setItem('high-contrast', isHighContrast ? 'true' : 'false');
-         vibrate(30);
+    document.addEventListener('DOMContentLoaded', () => {
+        const contrastToggleBtn = document.querySelector('#contrast-toggle'); // or '.contrast-toggle'
+        const body = document.body;
+    
+        if (contrastToggleBtn) {
+            contrastToggleBtn.addEventListener('click', () => {
+                const isHighContrast = body.classList.toggle('high-contrast');
+                contrastToggleBtn.classList.toggle('active', isHighContrast);
+                contrastToggleBtn.setAttribute('aria-pressed', isHighContrast);
+                localStorage.setItem('high-contrast', isHighContrast ? 'true' : 'false');
+                vibrate(30);
+            });
+    
+            const storedContrast = localStorage.getItem('high-contrast') === 'true';
+            if (storedContrast) {
+                body.classList.add('high-contrast');
+                contrastToggleBtn.classList.add('active');
+                contrastToggleBtn.setAttribute('aria-pressed', 'true');
+            }
+        } else {
+            console.warn('contrastToggleBtn element not found');
+        }
     });
+    
      if (localStorage.getItem('high-contrast') === 'true') {
         body.classList.add('high-contrast');
         contrastToggleBtn.classList.add('active');
@@ -878,16 +893,29 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Submit the form to the iframe
         orderForm.submit();
+      
     });
     
     // Separate function to handle UI updates after successful payment
-    function processSuccessfulPayment(orderItems, tableNum, paymentMethod, amountPaid, changeGiven, selectedMethodElement) {
-        const receiptTabElement = document.getElementById('receipt-tab');
+ // Fix for the null element error in processSuccessfulPayment function
+function processSuccessfulPayment(orderItems, tableNum, paymentMethod, amountPaid, changeGiven, selectedMethodElement) {
+    const receiptTabElement = document.getElementById('receipt-tab');
     
-        receiptTabElement.querySelector('.receipt-table-num').textContent = tableNum;
-        receiptTabElement.querySelector('.receipt-datetime').textContent = new Date().toLocaleString('fr-FR');
+    // Check if receipt tab exists before proceeding
+    if (!receiptTabElement) {
+        console.error('Receipt tab element not found');
+        showToast('Erreur lors de l\'affichage du reçu', 'error');
+        return; // Exit function early
+    }
+
+    const tableNumElement = receiptTabElement.querySelector('.receipt-table-num');
+    if (tableNumElement) tableNumElement.textContent = tableNum;
     
-        const receiptItemsContainer = receiptTabElement.querySelector('.receipt-items');
+    const datetimeElement = receiptTabElement.querySelector('.receipt-datetime');
+    if (datetimeElement) datetimeElement.textContent = new Date().toLocaleString('fr-FR');
+
+    const receiptItemsContainer = receiptTabElement.querySelector('.receipt-items');
+    if (receiptItemsContainer) {
         receiptItemsContainer.innerHTML = '';
         orderItems.forEach(item => {
             const receiptItemEl = document.createElement('div');
@@ -899,60 +927,94 @@ document.addEventListener('DOMContentLoaded', function() {
             `;
             receiptItemsContainer.appendChild(receiptItemEl);
         });
-    
-        const subtotal = orderItems.reduce((sum, item) => sum + (item.price * item.qty), 0);
-        const tax = subtotal * TAX_RATE;
-        const totalDue = subtotal + tax;
-        
-        receiptTabElement.querySelector('.receipt-subtotal-val').textContent = formatCurrency(subtotal);
-        receiptTabElement.querySelector('.receipt-tax-val').textContent = formatCurrency(tax);
-        receiptTabElement.querySelector('.receipt-total-val').textContent = formatCurrency(totalDue);
-    
-        const paymentDetailsElements = receiptTabElement.querySelectorAll('.receipt-payment-details');
-        if (paymentDetailsElements.length >= 2) {
-            paymentDetailsElements[0].querySelector('.item-name').textContent = `Payé (${selectedMethodElement.querySelector('.payment-name').textContent}):`;
-            paymentDetailsElements[0].querySelector('.item-price').textContent = formatCurrency(amountPaid);
-            if (paymentMethod === 'cash' && changeGiven > 0.001) {
-               paymentDetailsElements[1].querySelector('.item-name').textContent = 'Rendu:';
-               paymentDetailsElements[1].querySelector('.item-price').textContent = formatCurrency(changeGiven);
-               paymentDetailsElements[1].style.display = 'grid';
-            } else {
-                paymentDetailsElements[1].style.display = 'none';
-            }
-        }
-    
-        receiptTabElement.querySelector('.payment-success-panel .receipt-table-num').textContent = tableNum;
-    
-        activateTab('receipt');
-        showToast(`Paiement pour Table ${tableNum} enregistré`, 'success');
-        vibrate([50, 100, 50]);
-    
-        const tableElement = document.querySelector(`.table-item[data-table="${tableNum}"]`);
-        if(tableElement) {
-            tableElement.classList.remove('table-occupied', 'table-reserved', 'table-urgent');
-            tableElement.classList.add('table-free');
-            const timeDisplay = tableElement.querySelector('.table-time');
-            if (timeDisplay) timeDisplay.remove();
-            const capacityText = tableElement.querySelector('.table-capacity')?.textContent.replace('<i class="fas fa-users" aria-hidden="true"></i> ','').trim() || '? pers.';
-            tableElement.setAttribute('aria-label', `Table ${tableNum}, ${capacityText}, Libre`);
-        }
-    
-        // Reset application state
-        currentTable = null;
-        currentOrder = [];
-        updateCart();
-        updateOrderHeader();
-    
-        paymentMethods.forEach(m => m.classList.remove('active'));
-        paymentMethods[0].classList.add('active');
-        paymentMethods[0].setAttribute('aria-checked', 'true');
-        paymentMethods[0].setAttribute('tabindex', '0');
-        cashPaymentDetails.style.display = 'block';
-        amountInput.value = '0,00';
-        changeAmountSpan.textContent = '0,00 €';
-        billsDisplay.innerHTML = '';
-        tipCheckbox.checked = false;
+    } else {
+        console.error('Receipt items container not found');
     }
+
+    // Calculate totals
+    const subtotal = orderItems.reduce((sum, item) => sum + (item.price * item.qty), 0);
+    const tax = subtotal * TAX_RATE;
+    const totalDue = subtotal + tax;
+    
+    // Update receipt values with null checks
+    const subtotalElement = receiptTabElement.querySelector('.receipt-subtotal-val');
+    if (subtotalElement) subtotalElement.textContent = formatCurrency(subtotal);
+    
+    const taxElement = receiptTabElement.querySelector('.receipt-tax-val');
+    if (taxElement) taxElement.textContent = formatCurrency(tax);
+    
+    const totalElement = receiptTabElement.querySelector('.receipt-total-val');
+    if (totalElement) totalElement.textContent = formatCurrency(totalDue);
+
+    // Handle payment details with proper null checks
+    const paymentDetailsElements = receiptTabElement.querySelectorAll('.receipt-payment-details');
+    if (paymentDetailsElements && paymentDetailsElements.length >= 2) {
+        const paymentNameElement = paymentDetailsElements[0].querySelector('.item-name');
+        const paymentPriceElement = paymentDetailsElements[0].querySelector('.item-price');
+        
+        if (paymentNameElement && selectedMethodElement && selectedMethodElement.querySelector('.payment-name')) {
+            paymentNameElement.textContent = `Payé (${selectedMethodElement.querySelector('.payment-name').textContent}):`;
+        }
+        
+        if (paymentPriceElement) {
+            paymentPriceElement.textContent = formatCurrency(amountPaid);
+        }
+        
+        if (paymentMethod === 'cash' && changeGiven > 0.001) {
+            const changeNameElement = paymentDetailsElements[1].querySelector('.item-name');
+            const changePriceElement = paymentDetailsElements[1].querySelector('.item-price');
+            
+            if (changeNameElement) changeNameElement.textContent = 'Rendu:';
+            if (changePriceElement) changePriceElement.textContent = formatCurrency(changeGiven);
+            
+            paymentDetailsElements[1].style.display = 'grid';
+        } else if (paymentDetailsElements[1]) {
+            paymentDetailsElements[1].style.display = 'none';
+        }
+    }
+
+    // Update table display in success panel
+    const successPanelTableNum = receiptTabElement.querySelector('.payment-success-panel .receipt-table-num');
+    if (successPanelTableNum) successPanelTableNum.textContent = tableNum;
+
+    // Rest of the function (with null checks as needed)
+    activateTab('receipt');
+    showToast(`Paiement pour Table ${tableNum} enregistré`, 'success');
+    vibrate([50, 100, 50]);
+
+    // Handle table element updates
+    const tableElement = document.querySelector(`.table-item[data-table="${tableNum}"]`);
+    if(tableElement) {
+        tableElement.classList.remove('table-occupied', 'table-reserved', 'table-urgent');
+        tableElement.classList.add('table-free');
+        const timeDisplay = tableElement.querySelector('.table-time');
+        if (timeDisplay) timeDisplay.remove();
+        const capacityText = tableElement.querySelector('.table-capacity')?.textContent.replace('<i class="fas fa-users" aria-hidden="true"></i> ','').trim() || '? pers.';
+        tableElement.setAttribute('aria-label', `Table ${tableNum}, ${capacityText}, Libre`);
+    }
+
+    // Reset application state
+    currentTable = null;
+    currentOrder = [];
+    updateCart();
+    updateOrderHeader();
+
+    // Reset payment UI
+    if (paymentMethods) {
+        paymentMethods.forEach(m => m.classList.remove('active'));
+        if (paymentMethods[0]) {
+            paymentMethods[0].classList.add('active');
+            paymentMethods[0].setAttribute('aria-checked', 'true');
+            paymentMethods[0].setAttribute('tabindex', '0');
+        }
+    }
+    
+    if (cashPaymentDetails) cashPaymentDetails.style.display = 'block';
+    if (amountInput) amountInput.value = '0,00';
+    if (changeAmountSpan) changeAmountSpan.textContent = '0,00 €';
+    if (billsDisplay) billsDisplay.innerHTML = '';
+    if (tipCheckbox) tipCheckbox.checked = false;
+}
 
 
      backToTablesReceiptBtn.addEventListener('click', () => {
@@ -1204,6 +1266,7 @@ function updateButtonState() {
                 return;
             }
             
+            
             // Create hidden inputs for each cart item
             cartItems.forEach((item, index) => {
                 const platIdInput = document.createElement('input');
@@ -1269,165 +1332,268 @@ function updateButtonState() {
 
 
 
-
-
-
-
-
-    
-
-
-    // Import QRCode library in your HTML
-// <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-
-document.addEventListener('DOMContentLoaded', function() {
-    // Find the print button and add click event listener
-    const printButton = document.querySelector('.receipt-actions .btn-primary');
-    if (printButton) {
-        printButton.addEventListener('click', handlePrintReceipt);
-    }
-});
-
-/**
- * Handle the print button click
- */
-function handlePrintReceipt() {
-    // Get the command ID - You would typically get this from your order/command data
-    const commandId = getCurrentCommandId();
-    
-    // Generate and replace QR code
-    generateQrCode(commandId);
-    
-    // Print the receipt with a slight delay to ensure QR code is rendered
-    setTimeout(() => {
-        printReceiptContent();
-    }, 300);
-}
-
-/**
- * Get the current command ID from your application state
- * (This is a placeholder - implement according to your app's structure)
- */
-function getCurrentCommandId() {
-    // You would typically get this from your application state/data
-    // For example: return currentOrder.id;
-    
-    // For demonstration, generate a unique ID based on timestamp
-    return 'CMD-' + new Date().getTime().toString();
-}
-
-/**
- * Generate a QR code and replace the icon
- */
-function generateQrCode(commandId) {
-    // Find the QR code container
-    const qrCodeContainer = document.querySelector('.receipt-qr');
-    
-    // Clear the existing content (the icon)
-    qrCodeContainer.innerHTML = '';
-    
-    // Create a new div for the QR code
-    const qrCodeElement = document.createElement('div');
-    qrCodeElement.id = 'receipt-qr-code';
-    qrCodeContainer.appendChild(qrCodeElement);
-    
-    // Generate the QR code with the command ID
-    new QRCode(qrCodeElement, {
-        text: commandId,
-        width: 128,
-        height: 128,
-        colorDark: "#000000",
-        colorLight: "#ffffff",
-        correctLevel: QRCode.CorrectLevel.H
+    document.addEventListener('DOMContentLoaded', function () {
+        const printButton = document.querySelector('.receipt-actions .btn-primary');
+        if (printButton) {
+            printButton.addEventListener('click', handlePrintReceipt);
+        }
     });
     
-    // Add command ID text below QR code
-    const commandIdText = document.createElement('div');
-    commandIdText.textContent = 'ID Commande: ' + commandId;
-    commandIdText.style.fontSize = '10px';
-    commandIdText.style.marginTop = '5px';
-    qrCodeContainer.appendChild(commandIdText);
-}
-
-/**
- * Print the receipt content
- */
-function printReceiptContent() {
-    // Get the receipt content
-    const receiptElement = document.querySelector('.receipt');
-    const receiptContent = receiptElement.cloneNode(true);
+    function handlePrintReceipt() {
+        const commandId = getCurrentCommandId();
+        const receiptElement = document.querySelector('.receipt');
+        
+        if (receiptElement) {
+            // Clone the receipt content to avoid modifying the original page
+            const receiptContent = receiptElement.cloneNode(true);
+            openPrintWindowWithQrCode(receiptContent.outerHTML, commandId);
+        }
+    }
     
-    // Create a new window for printing
-    const printWindow = window.open('', '_blank');
-    printWindow.document.write('<html><head><title>Ticket de caisse</title>');
+    function getCurrentCommandId() {
+        return 'CMD-' + new Date().getTime().toString();
+    }
     
-    // Add print styles
-    printWindow.document.write(`
-        <style>
-            @media print {
-                @page {
-                    size: 80mm auto;
-                    margin: 0;
-                }
-                body {
-                    font-family: 'Courier New', monospace;
-                    width: 80mm;
-                    margin: 0;
-                    padding: 5mm;
-                }
-                .receipt {
-                    width: 100%;
-                }
-                .receipt-header {
-                    text-align: center;
-                    margin-bottom: 10px;
-                }
-                .receipt-logo {
-                    font-size: 18px;
-                    font-weight: bold;
-                }
-                .receipt-restaurant {
-                    font-size: 16px;
-                    font-weight: bold;
-                }
-                .receipt-item {
-                    display: flex;
-                    justify-content: space-between;
-                    margin-bottom: 5px;
-                }
-                .receipt-actions, .payment-success-panel {
-                    display: none !important;
-                }
-                .receipt-qr {
-                    text-align: center;
-                    margin: 10px 0;
-                }
-                .receipt-qr img {
-                    max-width: 100px;
-                    height: auto;
-                }
-                .receipt-footer {
-                    text-align: center;
-                    margin-top: 15px;
-                    font-size: 12px;
+    function openPrintWindowWithQrCode(contentHTML, commandId) {
+        const printWindow = window.open('', '_blank');
+        if (!printWindow) {
+            alert("Popup blocked. Please allow popups for this site.");
+            return;
+        }
+    
+        // Use the provided date and user information
+        const currentDate = '2025-05-07 00:17:01';
+        const currentUser = 'HamzaBr01';
+    
+        // Write the basic document structure with enhanced styling
+        printWindow.document.write(`
+            <html>
+            <head>
+                <title>Facture</title>
+                <style>
+                    @media print {
+                        @page {
+                            size: 80mm auto;
+                            margin: 0;
+                        }
+                        body {
+                            font-family: 'Courier New', monospace;
+                            width: 80mm;
+                            margin: 0;
+                            padding: 5mm;
+                            color: #333;
+                            font-size: 12px;
+                        }
+                        .receipt {
+                            width: 100%;
+                            border: none;
+                            background-color: white;
+                        }
+                        .receipt-header {
+                            text-align: center;
+                            margin-bottom: 15px;
+                            padding-bottom: 10px;
+                            border-bottom: 1px dashed #ccc;
+                        }
+                        .receipt-logo {
+                            font-size: 20px;
+                            font-weight: bold;
+                            margin-bottom: 5px;
+                        }
+                        .receipt-restaurant {
+                            font-size: 16px;
+                            font-weight: bold;
+                            margin-bottom: 8px;
+                        }
+                        .receipt-info {
+                            font-size: 10px;
+                            margin: 8px 0;
+                        }
+                        .receipt-datetime {
+                            font-style: italic;
+                            margin: 5px 0;
+                            font-size: 10px;
+                        }
+                        .receipt-operator {
+                            margin: 5px 0;
+                            font-size: 10px;
+                        }
+                        .receipt-item {
+                            display: flex;
+                            justify-content: space-between;
+                            margin-bottom: 5px;
+                            padding: 3px 0;
+                        }
+                        .receipt-item:nth-child(even) {
+                            background-color: #f9f9f9;
+                        }
+                        .receipt-item-name {
+                            flex: 2;
+                        }
+                        .receipt-item-price {
+                            flex: 1;
+                            text-align: right;
+                            font-weight: bold;
+                        }
+                        .receipt-subtotal {
+                            margin-top: 10px;
+                            padding-top: 5px;
+                            border-top: 1px dashed #ccc;
+                            font-weight: bold;
+                            text-align: right;
+                        }
+                        .receipt-total {
+                            margin-top: 5px;
+                            font-size: 16px;
+                            font-weight: bold;
+                            text-align: right;
+                        }
+                        .receipt-actions, .payment-success-panel {
+                            display: none !important;
+                        }
+                        .receipt-qr {
+                            text-align: center;
+                            margin: 15px auto;
+                            padding: 10px;
+                            border-top: 1px dashed #ccc;
+                            border-bottom: 1px dashed #ccc;
+                            display: flex;
+                            flex-direction: column;
+                            align-items: center;
+                            justify-content: center;
+                            width: 80%;
+                        }
+                        .receipt-qr img {
+                            max-width: 100px;
+                            height: auto;
+                            margin: 0 auto;
+                        }
+                        #receipt-qr-code {
+                            margin: 0 auto;
+                            display: block;
+                        }
+                        .receipt-qr-id {
+                            font-family: monospace;
+                            text-align: center;
+                            font-size: 10px;
+                            margin-top: 5px;
+                            width: 100%;
+                        }
+                        .receipt-footer {
+                            text-align: center;
+                            margin-top: 15px;
+                            padding-top: 5px;
+                            font-size: 10px;
+                            font-style: italic;
+                        }
+                        .receipt-id {
+                            font-family: monospace;
+                            text-align: center;
+                            font-size: 10px;
+                            margin-top: 5px;
+                        }
+                        .receipt-thanks {
+                            font-size: 12px;
+                            font-weight: bold;
+                            text-align: center;
+                            margin: 10px 0;
+                        }
+                    }
+                </style>
+                <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+            </head>
+            <body>${contentHTML}</body>
+            </html>
+        `);
+    
+        printWindow.document.close();
+    
+        // Generate QR code in the new window
+        printWindow.onload = function() {
+            // Find or create QR container in the print window
+            let qrCodeContainer = printWindow.document.querySelector('.receipt-qr');
+            if (!qrCodeContainer) {
+                qrCodeContainer = printWindow.document.createElement('div');
+                qrCodeContainer.className = 'receipt-qr';
+                printWindow.document.querySelector('.receipt').appendChild(qrCodeContainer);
+            } else {
+                // Clear the container without using innerHTML
+                while (qrCodeContainer.firstChild) {
+                    qrCodeContainer.removeChild(qrCodeContainer.firstChild);
                 }
             }
-        </style>
-    `);
     
-    printWindow.document.write('</head><body>');
+            // Create QR code element
+            const qrCodeElement = printWindow.document.createElement('div');
+            qrCodeElement.id = 'receipt-qr-code';
+            qrCodeContainer.appendChild(qrCodeElement);
     
-    // Add the receipt content
-    printWindow.document.write(receiptContent.outerHTML);
+            // Generate QR code in the new window
+            new printWindow.QRCode(qrCodeElement, {
+                text: commandId,
+                width: 128,
+                height: 128,
+                colorDark: "#000000",
+                colorLight: "#ffffff",
+                correctLevel: printWindow.QRCode.CorrectLevel.H
+            });
     
-    printWindow.document.write('</body></html>');
-    printWindow.document.close();
+            // Add command ID text
+            const commandIdText = printWindow.document.createElement('div');
+            commandIdText.className = 'receipt-qr-id';
+            commandIdText.textContent = 'ID Commande: ' + commandId;
+            commandIdText.style.fontSize = '10px';
+            commandIdText.style.marginTop = '5px';
+            qrCodeContainer.appendChild(commandIdText);
     
-    // Print after the content is loaded
-    printWindow.onload = function() {
-        printWindow.print();
-        printWindow.onafterprint = function() {
-            printWindow.close();
+            // Add date/time and operator info
+            const receiptElement = printWindow.document.querySelector('.receipt');
+            
+            const dateTimeInfo = printWindow.document.createElement('div');
+            dateTimeInfo.className = 'receipt-datetime';
+            dateTimeInfo.textContent = 'Date: ' + currentDate;
+            
+            const operatorInfo = printWindow.document.createElement('div');
+            operatorInfo.className = 'receipt-operator';
+            operatorInfo.textContent = 'Opérateur: ' + currentUser;
+            
+            const thanksMsg = printWindow.document.createElement('div');
+            thanksMsg.className = 'receipt-thanks';
+            thanksMsg.textContent = 'Merci pour votre visite!';
+            
+            const receiptHeader = printWindow.document.querySelector('.receipt-header');
+            if (receiptHeader) {
+                receiptHeader.appendChild(dateTimeInfo);
+                receiptHeader.appendChild(operatorInfo);
+            } else {
+                if (receiptElement.firstChild) {
+                    receiptElement.insertBefore(operatorInfo, receiptElement.firstChild);
+                    receiptElement.insertBefore(dateTimeInfo, receiptElement.firstChild);
+                } else {
+                    receiptElement.appendChild(dateTimeInfo);
+                    receiptElement.appendChild(operatorInfo);
+                }
+            }
+            
+            const footer = printWindow.document.querySelector('.receipt-footer');
+            if (footer) {
+                footer.prepend(thanksMsg);
+            } else {
+                receiptElement.appendChild(thanksMsg);
+            }
+    
+            setTimeout(() => {
+                printWindow.focus();
+                printWindow.print();
+                printWindow.onafterprint = () => {
+                    printWindow.close();
+                };
+            }, 500);
         };
-    };
-}
+    }
+    
+    const select = document.getElementById('restaurant-select');
+    const selectedText = select.options[select.selectedIndex].text;
+    const selectedValue = select.value;
+    
+    document.querySelector('.receipt-restaurant').textContent = selectedText;

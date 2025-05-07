@@ -5,6 +5,11 @@
 @section('content')
 
     <!-- Tabs Navigation -->
+    <div id="auth-debug" style="display:none;">
+        <meta name="user-id" content="{{ auth()->id() }}">
+        <meta name="is-authenticated" content="{{ auth()->check() ? 'yes' : 'no' }}">
+    </div>
+    
     <div class="tabs" role="tablist" aria-label="Navigation principale">
         <button class="tab" role="tab" aria-selected="true" aria-controls="tables-tab" data-tab="tables" id="tab-tables">
             <i class="fas fa-th-large" aria-hidden="true"></i> Tables
@@ -224,7 +229,7 @@
             <div class="cash-payment-details" style="display: block;"> {{-- Affiché par défaut si 'cash' est actif par défaut --}}
                 <div class="amount-field">
                     <span>€</span>
-                    <input type="text" class="amount-input" value="0,00" inputmode="decimal" aria-label="Montant reçu en espèces">
+                    <input type="text" class="amount-input" value="0,00" inputmode="decimal" aria-label="Montant reçu en espèces" disabled>
                 </div>
                 <div class="numpad" aria-label="Clavier numérique pour le montant reçu">
                     <button class="numkey" data-key="7">7</button> <button class="numkey" data-key="8">8</button> <button class="numkey" data-key="9">9</button>
@@ -251,7 +256,6 @@
                     <div class="receipt-header">
                         <div class="receipt-logo">OctoPOS</div>
                         <div class="receipt-restaurant">{{-- Config::get('restaurant.name', 'Le Bistro Gourmand') --}}Le Bistro Gourmand</div>
-                        <div class="receipt-address">{{-- Config::get('restaurant.address', '123 Rue de la Saveur, 75001 Paris') --}}123 Rue de la Saveur, 75001 Paris</div>
                         <div class="receipt-info">Tel: {{-- Config::get('restaurant.phone', '01 98 76 54 32') --}}01 98 76 54 32</div>
                         <div class="receipt-info">Table: <span class="receipt-table-num">?</span> - Serveur: {{ Auth::user()->name ?? 'Serveur' }}</div>
                         <div class="receipt-info receipt-datetime">--/--/---- --:--:--</div>
