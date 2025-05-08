@@ -8,7 +8,6 @@
     {{-- Le JS se chargera de masquer/afficher la bonne section --}}
     @include('cuisiniers.sections.commandes')
     @include('cuisiniers.sections.preparation')
-    @include('cuisiniers.sections.allergies')
     @include('cuisiniers.sections.historique')
 
 @endsection

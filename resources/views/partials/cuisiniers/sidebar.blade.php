@@ -28,10 +28,6 @@
                     <span class="menu-text">En préparation</span>
                     <span class="bg-warning text-white rounded-full text-xs px-2 py-0.5 ml-auto prep-count">0</span>
                 </a>
-                <a href="#" class="sidebar-link flex items-center py-3 px-4 rounded-md text-gray-600 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600 dark:hover:text-blue-400 transition-colors" data-section="allergies">
-                    <i class="fas fa-exclamation-triangle w-6 text-xl mr-3 text-center"></i>
-                    <span class="menu-text">Allergies et restrictions</span>
-                </a>
                 <a href="#" class="sidebar-link flex items-center py-3 px-4 rounded-md text-gray-600 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600 dark:hover:text-blue-400 transition-colors" data-section="historique">
                     <i class="fas fa-history w-6 text-xl mr-3 text-center"></i>
                     <span class="menu-text">Historique des commandes</span>
